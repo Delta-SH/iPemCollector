@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9D719F83-2CD5-41D9-A011-50A856994879}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>iPem.Core</RootNamespace>
+    <AssemblyName>iPem.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Am\AmDevice.cs" />
+    <Compile Include="Am\AmStation.cs" />
+    <Compile Include="CommonHelper.cs" />
+    <Compile Include="Cs\ActAlm.cs" />
+    <Compile Include="Cs\HisAlm.cs" />
+    <Compile Include="Cs\HisBat.cs" />
+    <Compile Include="Cs\HisBatTime.cs" />
+    <Compile Include="Cs\HisElec.cs" />
+    <Compile Include="Cs\HisLoadRate.cs" />
+    <Compile Include="Cs\HisStatic.cs" />
+    <Compile Include="Cs\HisValue.cs" />
+    <Compile Include="ListItem.cs" />
+    <Compile Include="Rs\Area.cs" />
+    <Compile Include="Rs\BattGroup.cs" />
+    <Compile Include="Rs\CombSwitElecSour.cs" />
+    <Compile Include="Rs\Device.cs" />
+    <Compile Include="Rs\DeviceType.cs" />
+    <Compile Include="Rs\DivSwitElecSour.cs" />
+    <Compile Include="Rs\EnumMethods.cs" />
+    <Compile Include="Rs\Fsu.cs" />
+    <Compile Include="Rs\LogicType.cs" />
+    <Compile Include="Rs\Point.cs" />
+    <Compile Include="Rs\Protocol.cs" />
+    <Compile Include="Rs\Room.cs" />
+    <Compile Include="Rs\RoomType.cs" />
+    <Compile Include="Rs\Station.cs" />
+    <Compile Include="Rs\StationType.cs" />
+    <Compile Include="Rs\SubDeviceType.cs" />
+    <Compile Include="Rs\SubLogicType.cs" />
+    <Compile Include="Sc\Appointment.cs" />
+    <Compile Include="Sc\Dictionary.cs" />
+    <Compile Include="Sc\ExtAlm.cs" />
+    <Compile Include="Sc\Formula.cs" />
+    <Compile Include="Sc\NodesInAppointment.cs" />
+    <Compile Include="Sc\Project.cs" />
+    <Compile Include="IdValuePair.cs" />
+    <Compile Include="iPemEnum.cs" />
+    <Compile Include="iPemStore.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
