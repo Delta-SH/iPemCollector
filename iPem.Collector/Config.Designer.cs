@@ -75,7 +75,9 @@
             this.taskTab = new System.Windows.Forms.TabPage();
             this.splitContainer = new System.Windows.Forms.TableLayoutPanel();
             this.actBox = new System.Windows.Forms.GroupBox();
+            this.actasks = new System.Windows.Forms.CheckedListBox();
             this.hisBox = new System.Windows.Forms.GroupBox();
+            this.histasks = new System.Windows.Forms.CheckedListBox();
             this.planTab = new System.Windows.Forms.TabPage();
             this.planViewport = new System.Windows.Forms.TableLayoutPanel();
             this.actPlanBox = new System.Windows.Forms.GroupBox();
@@ -98,8 +100,6 @@
             this.time_his = new System.Windows.Forms.DateTimePicker();
             this.lbl_intervaldesc_his = new System.Windows.Forms.Label();
             this.comment_his = new System.Windows.Forms.Label();
-            this.actasks = new System.Windows.Forms.CheckedListBox();
-            this.histasks = new System.Windows.Forms.CheckedListBox();
             this.viewport.SuspendLayout();
             this.BottomPanel.SuspendLayout();
             this.sysTabs.SuspendLayout();
@@ -210,6 +210,7 @@
             // 
             // rsTab
             // 
+            this.rsTab.BackColor = System.Drawing.Color.White;
             this.rsTab.Controls.Add(this.rsViewport);
             this.rsTab.Location = new System.Drawing.Point(4, 26);
             this.rsTab.Margin = new System.Windows.Forms.Padding(0);
@@ -218,7 +219,6 @@
             this.rsTab.Size = new System.Drawing.Size(366, 296);
             this.rsTab.TabIndex = 0;
             this.rsTab.Text = "资源数据库";
-            this.rsTab.UseVisualStyleBackColor = true;
             // 
             // rsViewport
             // 
@@ -395,6 +395,7 @@
             // 
             // csTab
             // 
+            this.csTab.BackColor = System.Drawing.Color.White;
             this.csTab.Controls.Add(this.csViewport);
             this.csTab.Location = new System.Drawing.Point(4, 26);
             this.csTab.Margin = new System.Windows.Forms.Padding(0);
@@ -403,7 +404,6 @@
             this.csTab.Size = new System.Drawing.Size(366, 296);
             this.csTab.TabIndex = 1;
             this.csTab.Text = "动环数据库";
-            this.csTab.UseVisualStyleBackColor = true;
             // 
             // csViewport
             // 
@@ -580,6 +580,7 @@
             // 
             // scTab
             // 
+            this.scTab.BackColor = System.Drawing.Color.White;
             this.scTab.Controls.Add(this.scViewport);
             this.scTab.Location = new System.Drawing.Point(4, 26);
             this.scTab.Margin = new System.Windows.Forms.Padding(0);
@@ -588,7 +589,6 @@
             this.scTab.Size = new System.Drawing.Size(366, 296);
             this.scTab.TabIndex = 2;
             this.scTab.Text = "应用数据库";
-            this.scTab.UseVisualStyleBackColor = true;
             // 
             // scViewport
             // 
@@ -765,6 +765,7 @@
             // 
             // taskTab
             // 
+            this.taskTab.BackColor = System.Drawing.Color.White;
             this.taskTab.Controls.Add(this.splitContainer);
             this.taskTab.Location = new System.Drawing.Point(4, 26);
             this.taskTab.Margin = new System.Windows.Forms.Padding(0);
@@ -773,7 +774,6 @@
             this.taskTab.Size = new System.Drawing.Size(366, 296);
             this.taskTab.TabIndex = 3;
             this.taskTab.Text = "任务列表";
-            this.taskTab.UseVisualStyleBackColor = true;
             // 
             // splitContainer
             // 
@@ -805,6 +805,18 @@
             this.actBox.TabStop = false;
             this.actBox.Text = "实时任务";
             // 
+            // actasks
+            // 
+            this.actasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.actasks.CheckOnClick = true;
+            this.actasks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actasks.FormattingEnabled = true;
+            this.actasks.Location = new System.Drawing.Point(10, 26);
+            this.actasks.Margin = new System.Windows.Forms.Padding(0);
+            this.actasks.Name = "actasks";
+            this.actasks.Size = new System.Drawing.Size(153, 250);
+            this.actasks.TabIndex = 0;
+            // 
             // hisBox
             // 
             this.hisBox.Controls.Add(this.histasks);
@@ -818,8 +830,21 @@
             this.hisBox.TabStop = false;
             this.hisBox.Text = "历史任务";
             // 
+            // histasks
+            // 
+            this.histasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.histasks.CheckOnClick = true;
+            this.histasks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.histasks.FormattingEnabled = true;
+            this.histasks.Location = new System.Drawing.Point(10, 26);
+            this.histasks.Margin = new System.Windows.Forms.Padding(0);
+            this.histasks.Name = "histasks";
+            this.histasks.Size = new System.Drawing.Size(153, 250);
+            this.histasks.TabIndex = 0;
+            // 
             // planTab
             // 
+            this.planTab.BackColor = System.Drawing.Color.White;
             this.planTab.Controls.Add(this.planViewport);
             this.planTab.Location = new System.Drawing.Point(4, 26);
             this.planTab.Margin = new System.Windows.Forms.Padding(0);
@@ -828,7 +853,6 @@
             this.planTab.Size = new System.Drawing.Size(366, 296);
             this.planTab.TabIndex = 4;
             this.planTab.Text = "任务计划";
-            this.planTab.UseVisualStyleBackColor = true;
             // 
             // planViewport
             // 
@@ -1143,30 +1167,6 @@
             this.comment_his.Name = "comment_his";
             this.comment_his.Size = new System.Drawing.Size(266, 42);
             this.comment_his.TabIndex = 1;
-            // 
-            // actasks
-            // 
-            this.actasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.actasks.CheckOnClick = true;
-            this.actasks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actasks.FormattingEnabled = true;
-            this.actasks.Location = new System.Drawing.Point(10, 26);
-            this.actasks.Margin = new System.Windows.Forms.Padding(0);
-            this.actasks.Name = "actasks";
-            this.actasks.Size = new System.Drawing.Size(153, 250);
-            this.actasks.TabIndex = 0;
-            // 
-            // histasks
-            // 
-            this.histasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.histasks.CheckOnClick = true;
-            this.histasks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.histasks.FormattingEnabled = true;
-            this.histasks.Location = new System.Drawing.Point(10, 26);
-            this.histasks.Margin = new System.Windows.Forms.Padding(0);
-            this.histasks.Name = "histasks";
-            this.histasks.Size = new System.Drawing.Size(153, 250);
-            this.histasks.TabIndex = 0;
             // 
             // Config
             // 
