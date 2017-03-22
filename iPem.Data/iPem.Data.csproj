@@ -75,6 +75,7 @@
     <Compile Include="Cs\HisBatTimeRepository.cs" />
     <Compile Include="Cs\HisElecRepository.cs" />
     <Compile Include="Cs\HisLoadRateRepository.cs" />
+    <Compile Include="Cs\HisMeasureRepository.cs" />
     <Compile Include="Cs\HisStaticRepository.cs" />
     <Compile Include="Cs\HisValueRepository.cs" />
     <Compile Include="Logger.cs" />
@@ -97,7 +98,7 @@
     <Compile Include="Rs\StationTypeRepository.cs" />
     <Compile Include="Sc\AppointmentRepository.cs" />
     <Compile Include="Sc\DictionaryRepository.cs" />
-    <Compile Include="Sc\ExtendAlmRepository.cs" />
+    <Compile Include="Sc\ExtAlarmRepository.cs" />
     <Compile Include="Sc\FormulaRepository.cs" />
     <Compile Include="Sc\NodesInAppointmentRepository.cs" />
     <Compile Include="Sc\ProjectRepository.cs" />

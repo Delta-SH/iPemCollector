@@ -9,32 +9,31 @@ namespace iPem.Data.Common {
         public const string Sql_Dictionary_Repository_GetEntity = @"SELECT [Id],[Name],[ValuesJson],[ValuesBinary],[LastUpdatedDate] FROM [dbo].[M_Dictionary] WHERE [Id]=@Id;";
         public const string Sql_Dictionary_Repository_GetEntities = @"SELECT [Id],[Name],[ValuesJson],[ValuesBinary],[LastUpdatedDate] FROM [dbo].[M_Dictionary];";
         //ExtendAlm Repository
-        public const string Sql_ExtendAlm_Repository_GetEntities = @"SELECT * FROM [dbo].[H_ExtendAlms];";
-        public const string Sql_ExtendAlm_Repository_SaveEntities = @"
-        IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'H_ExtendAlms{0}') AND type in (N'U'))
+        public const string Sql_ExtAlarm_Repository_GetEntities = @"SELECT * FROM [dbo].[H_ExtAlarms];";
+        public const string Sql_ExtAlarm_Repository_SaveEntities = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'H_ExtAlarms{0}') AND type in (N'U'))
         BEGIN
-        CREATE TABLE [dbo].[H_ExtendAlms{0}](
-	        [Id] [varchar](100) NOT NULL,
-	        [FsuId] [varchar](100) NOT NULL,
-	        [Start] [datetime] NOT NULL,
-	        [End] [datetime] NULL,
+        CREATE TABLE [dbo].[H_ExtAlarms{0}](
+	        [Id] [varchar](200) NOT NULL,
+	        [SerialNo] [varchar](100) NOT NULL,
+	        [Time] [datetime] NOT NULL,
 	        [ProjectId] [varchar](100) NULL,
 	        [Confirmed] [int] NULL,
 	        [Confirmer] [varchar](100) NULL,
 	        [ConfirmedTime] [datetime] NULL,
-         CONSTRAINT [PK_H_ExtendAlms{0}] PRIMARY KEY CLUSTERED 
+         CONSTRAINT [PK_H_ExtAlarms{0}] PRIMARY KEY CLUSTERED 
         (
 	        [Id] ASC,
-	        [FsuId] ASC
+	        [SerialNo] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
         ) ON [PRIMARY]
         END
-        UPDATE [dbo].[H_ExtendAlms{0}] SET [Start] = @Start,[End] = @End,[ProjectId] = @ProjectId,[Confirmed] = @Confirmed,[Confirmer] = @Confirmer,[ConfirmedTime] = @ConfirmedTime WHERE [Id] = @Id AND [FsuId] = @FsuId;
+        UPDATE [dbo].[H_ExtAlarms{0}] SET [Time] = @Time,[ProjectId] = @ProjectId,[Confirmed] = @Confirmed,[Confirmer] = @Confirmer,[ConfirmedTime] = @ConfirmedTime WHERE [Id] = @Id AND [SerialNo] = @SerialNo;
         IF(@@ROWCOUNT = 0)
         BEGIN
-	        INSERT INTO [dbo].[H_ExtendAlms{0}]([Id],[FsuId],[Start],[End],[ProjectId],[Confirmed],[Confirmer],[ConfirmedTime]) VALUES(@Id,@FsuId,@Start,@End,@ProjectId,@Confirmed,@Confirmer,@ConfirmedTime);
+	        INSERT INTO [dbo].[H_ExtAlarms{0}]([Id],[SerialNo],[Time],[ProjectId],[Confirmed],[Confirmer],[ConfirmedTime]) VALUES(@Id,@SerialNo,@Time,@ProjectId,@Confirmed,@Confirmer,@ConfirmedTime);
         END";
-        public const string Sql_ExtendAlm_Repository_DeleteEntities = @"
+        public const string Sql_ExtAlarm_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
                 @SQL NVARCHAR(MAX) = N'';
@@ -42,22 +41,22 @@ namespace iPem.Data.Common {
         SET @tpDate = @Start;
         WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
         BEGIN
-            SET @tbName = N'[dbo].[H_ExtendAlms'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            SET @tbName = N'[dbo].[H_ExtAlarms'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [Start] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [Time] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
         EXECUTE sp_executesql @SQL;";
-        public const string Sql_ExtendAlm_Repository_SaveActEntities = @"
-        UPDATE [dbo].[H_ExtendAlms] SET [ProjectId] = @ProjectId WHERE [Id] = @Id AND [FsuId] = @FsuId;
+        public const string Sql_ExtAlarm_Repository_SaveActEntities = @"
+        UPDATE [dbo].[H_ExtAlarms] SET [ProjectId] = @ProjectId WHERE [Id] = @Id AND [SerialNo] = @SerialNo;
         IF(@@ROWCOUNT = 0)
         BEGIN
-	        INSERT INTO [dbo].[H_ExtendAlms]([Id],[FsuId],[Start],[End],[ProjectId]) VALUES(@Id,@FsuId,@Start,@End,@ProjectId);
+	        INSERT INTO [dbo].[H_ExtAlarms]([Id],[SerialNo],[Time],[ProjectId]) VALUES(@Id,@SerialNo,@Time,@ProjectId);
         END";
-        public const string Sql_ExtendAlm_Repository_DeleteActEntities = @"DELETE FROM [dbo].[H_ExtendAlms] WHERE [Id] = @Id AND [FsuId] = @FsuId;";
+        public const string Sql_ExtAlarm_Repository_DeleteActEntities = @"DELETE FROM [dbo].[H_ExtAlarms] WHERE [Id] = @Id AND [SerialNo] = @SerialNo;";
         //Formula Repository
         public const string Sql_Formula_Repository_GetEntity = @"SELECT [Id],[Type],[FormulaType],[Formula],[Comment],[CreatedTime] FROM [dbo].[M_Formulas] WHERE [Id]=@Id AND [Type]=@Type AND [FormulaType]=@FormulaType;";
         public const string Sql_Formula_Repository_GetEntities = @"SELECT [Id],[Type],[FormulaType],[Formula],[Comment],[CreatedTime] FROM [dbo].[M_Formulas] WHERE [Id]=@Id AND [Type]=@Type;";

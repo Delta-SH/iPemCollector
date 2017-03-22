@@ -68,14 +68,14 @@ namespace iPem.Task {
                         _details.Add(new VariableDetail { Device = _device.Current, Point = _point, Variable = _variable });
                     }
 
-                    var _hisValueRepository = new HisValueRepository();
+                    var _hisMeasureRepository = new HisMeasureRepository();
                     var _result = new List<HisElec>();
                     foreach(var _date in _dates) {
                         var _current = _formulaText;
                         var _value = 0d;
                         try {
                             foreach(var _detail in _details) {
-                                var _diff = _hisValueRepository.GetValDiff(_detail.Device.Id, _detail.Point.Id, _date, _date.AddDays(1).AddMilliseconds(-1));
+                                var _diff = _hisMeasureRepository.GetValDiff(_detail.Device.Id, _detail.Point.Id, _date, _date.AddDays(1).AddMilliseconds(-1));
                                 _current = _current.Replace(_detail.Variable, _diff.ToString());
                             }
 

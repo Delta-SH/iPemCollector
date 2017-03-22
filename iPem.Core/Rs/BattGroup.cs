@@ -10,6 +10,6 @@ namespace iPem.Core {
 
         public int SingVoltGrade { get; set; }
 
-        public int SingGroupBattNumber { get; set; }
+        public string SingGroupBattNumber { get; set; }
     }
 }

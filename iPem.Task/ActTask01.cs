@@ -12,7 +12,7 @@ namespace iPem.Task {
         }
 
         public string Name {
-            get { return "实时告警扩展任务"; }
+            get { return "实时告警处理任务"; }
         }
 
         public long Seconds { get; set; }
@@ -36,27 +36,27 @@ namespace iPem.Task {
             var end = this.Next;
 
             var _actAlmRepository = new ActAlmRepository();
-            var _extendAlmRepository = new ExtendAlmRepository();
+            var _extAlarmRepository = new ExtAlarmRepository();
             var _appointmentRepository = new AppointmentRepository();
             var _nodesInAppointmentRepository = new NodesInAppointmentRepository();
 
             #region 处理告警扩展
-            var _allalms = _actAlmRepository.GetEntities();
-            var _extalms = _extendAlmRepository.GetEntities();
-            var _almkeys = new HashSet<string>();
-            foreach(var _alarm in _allalms) {
-                _almkeys.Add(CommonHelper.JoinKeys(_alarm.FsuId, _alarm.Id));
+            var _allAlarms = _actAlmRepository.GetEntities();
+            var _extAlarms = _extAlarmRepository.GetEntities();
+            var _almKeys = new HashSet<string>();
+            foreach(var _alarm in _allAlarms) {
+                _almKeys.Add(CommonHelper.JoinKeys(_alarm.Id, _alarm.SerialNo));
             }
             
-            if(_extalms.Count > 0) {
-                var deletes = new List<ExtAlm>();
-                foreach(var _ext in _extalms) {
-                    if(!_almkeys.Contains(CommonHelper.JoinKeys(_ext.FsuId, _ext.Id)))
+            if(_extAlarms.Count > 0) {
+                var deletes = new List<ExtAlarm>();
+                foreach(var _ext in _extAlarms) {
+                    if(!_almKeys.Contains(CommonHelper.JoinKeys(_ext.Id, _ext.SerialNo)))
                         deletes.Add(_ext);
                 }
 
                 if(deletes.Count > 0)
-                    _extendAlmRepository.DeleteActEntities(deletes);
+                    _extAlarmRepository.DeleteActEntities(deletes);
             }
             #endregion
 
@@ -96,18 +96,17 @@ namespace iPem.Task {
             }
 
             if(_appsets.Count > 0) {
-                var _entities = new List<ExtAlm>();
+                var _entities = new List<ExtAlarm>();
                 var _alarms = _actAlmRepository.GetEntities(start, end);
                 foreach(var _alarm in _alarms) {
                     foreach(var _appset in _appsets) {
                         if(_appset.Value.Contains(_alarm.DeviceId) 
-                            && _appset.Id.StartTime >= _alarm.StartTime 
-                            && _appset.Id.EndTime <= _alarm.StartTime) {
-                            _entities.Add(new ExtAlm {
+                            && _appset.Id.StartTime >= _alarm.AlarmTime 
+                            && _appset.Id.EndTime <= _alarm.AlarmTime) {
+                            _entities.Add(new ExtAlarm {
                                 Id = _alarm.Id,
-                                FsuId = _alarm.FsuId,
-                                Start = _alarm.StartTime,
-                                End = _alarm.EndTime,
+                                SerialNo = _alarm.SerialNo,
+                                Time = _alarm.AlarmTime,
                                 ProjectId = _appset.Id.Id
                             });
                             break;
@@ -116,7 +115,7 @@ namespace iPem.Task {
                 }
 
                 if(_entities.Count > 0) 
-                    _extendAlmRepository.SaveActEntities(_entities);
+                    _extAlarmRepository.SaveActEntities(_entities);
             }
             #endregion
         }

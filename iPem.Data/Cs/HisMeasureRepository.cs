@@ -1,13 +1,12 @@
 ﻿using iPem.Core;
 using iPem.Data.Common;
-using iPem.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
 namespace iPem.Data {
-    public partial class HisValueRepository {
+    public partial class HisMeasureRepository {
 
         #region Fields
 
@@ -20,7 +19,7 @@ namespace iPem.Data {
         /// <summary>
         /// Ctor
         /// </summary>
-        public HisValueRepository() {
+        public HisMeasureRepository() {
             this._databaseConnectionString = SqlHelper.ConnectionStringCsTransaction;
         }
 
@@ -28,17 +27,17 @@ namespace iPem.Data {
 
         #region Methods
 
-        public List<HisValue> GetEntities(DateTime start, DateTime end) {
+        public List<HisMeasure> GetEntities(DateTime start, DateTime end) {
             SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
             parms[0].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
             parms[1].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
 
-            var entities = new List<HisValue>();
-            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_HisValue_Repository_GetEntities, parms)) {
+            var entities = new List<HisMeasure>();
+            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_HisMeasure_Repository_GetEntities, parms)) {
                 while(rdr.Read()) {
-                    var entity = new HisValue();
+                    var entity = new HisMeasure();
                     entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
                     entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
@@ -47,10 +46,9 @@ namespace iPem.Data {
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
                     entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
-                    entity.PointType = SqlTypeConverter.DBNullEnmPointHandler(rdr["PointType"]);
-                    entity.RecordType = SqlTypeConverter.DBNullInt32Handler(rdr["RecordType"]);
+                    entity.SignalDesc = SqlTypeConverter.DBNullStringHandler(rdr["SignalDesc"]);
+                    entity.Type = SqlTypeConverter.DBNullEnmPointHandler(rdr["Type"]);
                     entity.Value = SqlTypeConverter.DBNullDoubleHandler(rdr["Value"]);
-                    entity.State = SqlTypeConverter.DBNullEnmStateHandler(rdr["State"]);
                     entity.UpdateTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["UpdateTime"]);
                     entities.Add(entity);
                 }
@@ -58,7 +56,7 @@ namespace iPem.Data {
             return entities;
         }
 
-        public List<HisValue> GetEntities(string device, string point, DateTime start, DateTime end) {
+        public List<HisMeasure> GetEntities(string device, string point, DateTime start, DateTime end) {
             SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar, 100),
                                      new SqlParameter("@PointId", SqlDbType.VarChar, 100),
                                      new SqlParameter("@Start", SqlDbType.DateTime),
@@ -69,10 +67,10 @@ namespace iPem.Data {
             parms[2].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
             parms[3].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
 
-            var entities = new List<HisValue>();
-            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_HisValue_Repository_GetEntitiesByPoint, parms)) {
+            var entities = new List<HisMeasure>();
+            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_HisMeasure_Repository_GetEntitiesByPoint, parms)) {
                 while(rdr.Read()) {
-                    var entity = new HisValue();
+                    var entity = new HisMeasure();
                     entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
                     entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
@@ -81,10 +79,9 @@ namespace iPem.Data {
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
                     entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
-                    entity.PointType = SqlTypeConverter.DBNullEnmPointHandler(rdr["PointType"]);
-                    entity.RecordType = SqlTypeConverter.DBNullInt32Handler(rdr["RecordType"]);
+                    entity.SignalDesc = SqlTypeConverter.DBNullStringHandler(rdr["SignalDesc"]);
+                    entity.Type = SqlTypeConverter.DBNullEnmPointHandler(rdr["Type"]);
                     entity.Value = SqlTypeConverter.DBNullDoubleHandler(rdr["Value"]);
-                    entity.State = SqlTypeConverter.DBNullEnmStateHandler(rdr["State"]);
                     entity.UpdateTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["UpdateTime"]);
                     entities.Add(entity);
                 }
@@ -104,7 +101,7 @@ namespace iPem.Data {
             parms[3].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
 
             var value = 0d;
-            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_HisValue_Repository_GetProcedure, parms)) {
+            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_HisMeasure_Repository_GetProcedure, parms)) {
                 if(rdr.Read()) {
                     var max = SqlTypeConverter.DBNullDoubleHandler(rdr["MaxValue"]);
                     var min = SqlTypeConverter.DBNullDoubleHandler(rdr["MinValue"]);

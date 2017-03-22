@@ -50,16 +50,16 @@ namespace iPem.Core {
     }
 
     /// <remarks>
-    /// 0-遥信信号（DI）
-    /// 1-遥测信号（AI）
-    /// 2-遥控信号（DO）
-    /// 3-遥调信号（AO）
+    /// 4-遥信信号（DI）
+    /// 3-遥测信号（AI）
+    /// 1-遥控信号（DO）
+    /// 2-遥调信号（AO）
     /// </remarks>
     public enum EnmPoint {
-        DI,
-        AI,
-        DO,
-        AO
+        DI = 4,
+        AI = 3,
+        DO = 1,
+        AO = 2
     }
 
     /// <summary>
@@ -67,18 +67,7 @@ namespace iPem.Core {
     /// </summary>
     public enum EnmState {
         Normal,
-        Level1,
-        Level2,
-        Level3,
-        Level4,
-        Opevent,
         Invalid
-    }
-
-    public enum EnmValType {
-        Relative,
-        Absolute,
-        Percent
     }
 
     public enum EnmAlarm {
@@ -92,23 +81,6 @@ namespace iPem.Core {
     public enum EnmConfirm {
         Unconfirmed,
         Confirmed
-    }
-
-    /// <remarks>
-    /// Normal - 正常结束
-    /// UpLevel - 升级结束
-    /// Filter - 过滤结束
-    /// Mask - 手动屏蔽结束
-    /// NodeRemove - 节点删除
-    /// DeviceRemove - 设备删除
-    /// </remarks>
-    public enum EnmEndType {
-        Normal,
-        UpLevel,
-        Filter,
-        Mask,
-        NodeRemove,
-        DeviceRemove
     }
 
     public enum EnmFlag {

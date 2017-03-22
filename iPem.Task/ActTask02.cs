@@ -11,7 +11,7 @@ namespace iPem.Task {
         }
 
         public string Name {
-            get { return "历史告警扩展任务"; }
+            get { return "历史告警处理任务"; }
         }
 
         public long Seconds { get; set; }
@@ -35,7 +35,7 @@ namespace iPem.Task {
             var end = this.Next;
 
             var _hisAlmRepository = new HisAlmRepository();
-            var _extendAlmRepository = new ExtendAlmRepository();
+            var _extendAlmRepository = new ExtAlarmRepository();
             var _appointmentRepository = new AppointmentRepository();
             var _nodesInAppointmentRepository = new NodesInAppointmentRepository();
 
@@ -76,18 +76,17 @@ namespace iPem.Task {
 
             _extendAlmRepository.DeleteEntities(start, end);
             if(_appsets.Count > 0) {
-                var _entities = new List<ExtAlm>();
+                var _entities = new List<ExtAlarm>();
                 var _alarms = _hisAlmRepository.GetEntities(start, end);
                 foreach(var _alarm in _alarms) {
                     foreach(var _appset in _appsets) {
                         if(_appset.Value.Contains(_alarm.DeviceId)
-                            && _appset.Id.StartTime >= _alarm.StartTime
-                            && _appset.Id.EndTime <= _alarm.StartTime) {
-                            _entities.Add(new ExtAlm {
-                                Id = _alarm.Id,
-                                FsuId = _alarm.FsuId,
-                                Start = _alarm.StartTime,
-                                End = _alarm.EndTime,
+                            && _appset.Id.StartTime >= _alarm.AlarmTime
+                            && _appset.Id.EndTime <= _alarm.AlarmTime) {
+                            _entities.Add(new ExtAlarm {
+                                SerialNo = _alarm.SerialNo,
+                                Id = _alarm.FsuId,
+                                Time = _alarm.AlarmTime,
                                 ProjectId = _appset.Id.Id
                             });
                             break;

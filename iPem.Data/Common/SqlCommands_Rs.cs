@@ -154,6 +154,18 @@ namespace iPem.Data.Common {
         INNER JOIN [dbo].[S_Station] S ON R.[StationID] = S.[ID]
         INNER JOIN [dbo].[C_SubDeviceType] SD ON D.[SubDeviceTypeId] = SD.[Id]
         INNER JOIN [dbo].[C_DeviceType] DT ON SD.[DeviceTypeId] = DT.[Id];";
+        public const string Sql_BattGroup_Repository_GetEntity = @"
+        WITH Fsus AS (
+	        SELECT D.[Id] AS [FsuId],D.[Name] AS [FsuName] FROM [dbo].[D_Device] D INNER JOIN [dbo].[D_FSU] F ON D.[Id] = F.[DeviceId]
+        )
+        SELECT D.[Id],D.[Code],D.[Name],D.[SysName],D.[SysCode],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],D.[SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],D.[Model],D.[ProdId],D.[BrandId],D.[SuppId],D.[SubCompId],D.[StartTime],D.[ScrapTime],D.[StatusId],D.[Contact],S.[AreaId],S.[Id] AS [StationId],S.[Name] AS [StationName],D.[RoomId],R.[Name] AS [RoomName],D.[FsuId],F.[FsuName],D.[ProtocolId],D.[Desc] AS [Comment],D.[Enabled],BG.[SingGroupCap],BG.[SingVoltGrade],BG.[SingGroupBattNumber] FROM [dbo].[D_Device] D
+        INNER JOIN [dbo].[D_BattGroup] BG ON D.[Id] = BG.[DeviceID]
+        INNER JOIN Fsus F ON D.[FsuId] = F.[FsuId]
+        INNER JOIN [dbo].[S_Room] R ON D.[RoomID] = R.[ID]
+        INNER JOIN [dbo].[S_Station] S ON R.[StationID] = S.[ID]
+        INNER JOIN [dbo].[C_SubDeviceType] SD ON D.[SubDeviceTypeId] = SD.[Id]
+        INNER JOIN [dbo].[C_DeviceType] DT ON SD.[DeviceTypeId] = DT.[Id]
+        WHERE D.[Id] = @Id;";
         //CombSwitElecSour Repository
         public const string Sql_CombSwitElecSour_Repository_GetEntities = @"
         WITH Fsus AS (

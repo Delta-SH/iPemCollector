@@ -48,6 +48,7 @@
     <Compile Include="Cs\HisBatTime.cs" />
     <Compile Include="Cs\HisElec.cs" />
     <Compile Include="Cs\HisLoadRate.cs" />
+    <Compile Include="Cs\HisMeasure.cs" />
     <Compile Include="Cs\HisStatic.cs" />
     <Compile Include="Cs\HisValue.cs" />
     <Compile Include="ListItem.cs" />
@@ -70,7 +71,7 @@
     <Compile Include="Rs\SubLogicType.cs" />
     <Compile Include="Sc\Appointment.cs" />
     <Compile Include="Sc\Dictionary.cs" />
-    <Compile Include="Sc\ExtAlm.cs" />
+    <Compile Include="Sc\ExtAlarm.cs" />
     <Compile Include="Sc\Formula.cs" />
     <Compile Include="Sc\NodesInAppointment.cs" />
     <Compile Include="Sc\Project.cs" />

@@ -120,5 +120,16 @@ namespace iPem.Core {
             }
             return dates;
         }
+
+        public static int GetPointFlag(Point point, string name, int defaultValue = 2) {
+            var units = point.UnitState.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach(var unit in units) {
+                var flag = unit.Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+                if(flag.Length != 2) continue;
+                if(flag[1].Contains(name)) return int.Parse(flag[0]);
+            }
+
+            return defaultValue;
+        }
     }
 }

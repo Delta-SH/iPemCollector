@@ -2,7 +2,7 @@
 
 namespace iPem.Core {
     [Serializable]
-    public partial class HisBat {
+    public partial class HisMeasure {
         /// <summary>
         /// Gets or sets the area identifier
         /// </summary>
@@ -34,9 +34,24 @@ namespace iPem.Core {
         public string PointId { get; set; }
 
         /// <summary>
-        /// Gets or sets the datetime
+        /// Gets or sets the signal identifier
         /// </summary>
-        public DateTime StartTime { get; set; }
+        public string SignalId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the signal number
+        /// </summary>
+        public string SignalNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the signal description
+        /// </summary>
+        public string SignalDesc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type
+        /// </summary>
+        public EnmPoint Type { get; set; }
 
         /// <summary>
         /// Gets or sets the value
@@ -46,6 +61,6 @@ namespace iPem.Core {
         /// <summary>
         /// Gets or sets the datetime
         /// </summary>
-        public DateTime ValueTime { get; set; }
+        public DateTime UpdateTime { get; set; }
     }
 }

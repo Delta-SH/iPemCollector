@@ -4,6 +4,26 @@ namespace iPem.Core {
     [Serializable]
     public partial class HisValue {
         /// <summary>
+        /// Gets or sets the area identifier
+        /// </summary>
+        public string AreaId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the station identifier
+        /// </summary>
+        public string StationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the room identifier
+        /// </summary>
+        public string RoomId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the fsu identifier
+        /// </summary>
+        public string FsuId { get; set; }
+
+        /// <summary>
         /// Gets or sets the device identifier
         /// </summary>
         public string DeviceId { get; set; }
@@ -14,19 +34,29 @@ namespace iPem.Core {
         public string PointId { get; set; }
 
         /// <summary>
+        /// Gets or sets the signal identifier
+        /// </summary>
+        public string SignalId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the signal number
+        /// </summary>
+        public string SignalNumber { get; set; }
+
+        /// <summary>
         /// Gets or sets the type
         /// </summary>
-        public EnmValType ValType { get; set; }
+        public EnmPoint PointType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the record type
+        /// </summary>
+        public int RecordType { get; set; }
 
         /// <summary>
         /// Gets or sets the value
         /// </summary>
         public double Value { get; set; }
-
-        /// <summary>
-        /// Gets or sets the threshold
-        /// </summary>
-        public double Threshold { get; set; }
 
         /// <summary>
         /// Gets or sets the state
@@ -36,6 +66,6 @@ namespace iPem.Core {
         /// <summary>
         /// Gets or sets the datetime
         /// </summary>
-        public DateTime Time { get; set; }
+        public DateTime UpdateTime { get; set; }
     }
 }

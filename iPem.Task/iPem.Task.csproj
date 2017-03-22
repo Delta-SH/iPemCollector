@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,12 +45,12 @@
   <ItemGroup>
     <Compile Include="ActTask01.cs" />
     <Compile Include="ActTask02.cs" />
-    <Compile Include="ActTask03.cs" />
-    <Compile Include="ActTask04.cs" />
     <Compile Include="HisTask01.cs" />
     <Compile Include="HisTask02.cs" />
     <Compile Include="HisTask03.cs" />
     <Compile Include="HisTask04.cs" />
+    <Compile Include="HisTask05.cs" />
+    <Compile Include="HisTask06.cs" />
     <Compile Include="IActTask.cs" />
     <Compile Include="IHisTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,6 +68,9 @@
       <Project>{c8924c85-f838-4baf-a230-5e7ad12f0253}</Project>
       <Name>iPem.Model</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="DbEntity.cs" />
     <Compile Include="Event.cs" />
+    <Compile Include="RtValues.cs" />
     <Compile Include="VariableDetail.cs" />
     <Compile Include="WorkContext\iPemWorkContext.cs" />
     <Compile Include="PlanEntity.cs" />

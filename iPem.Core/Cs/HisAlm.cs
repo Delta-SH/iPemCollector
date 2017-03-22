@@ -9,6 +9,11 @@ namespace iPem.Core {
         public string Id { get; set; }
 
         /// <summary>
+        /// Gets or sets the identifier
+        /// </summary>
+        public string SerialNo { get; set; }
+
+        /// <summary>
         /// Gets or sets the area identifier
         /// </summary>
         public string AreaId { get; set; }
@@ -39,29 +44,24 @@ namespace iPem.Core {
         public string PointId { get; set; }
 
         /// <summary>
-        /// Gets or sets the alarm level
+        /// Gets or sets the signal identifier
         /// </summary>
-        public EnmAlarm AlmLevel { get; set; }
+        public string SignalId { get; set; }
 
         /// <summary>
-        /// Gets or sets the frequency
+        /// Gets or sets the signal number
         /// </summary>
-        public int Frequency { get; set; }
+        public string SignalNumber { get; set; }
 
         /// <summary>
-        /// Gets or sets the alarm descripetion
+        /// Gets or sets the nmalarm identifier
         /// </summary>
-        public string AlmDesc { get; set; }
+        public string NMAlarmId { get; set; }
 
         /// <summary>
-        /// Gets or sets the normal descripretion
+        /// Gets or sets the alarm datetime
         /// </summary>
-        public string NormalDesc { get; set; }
-
-        /// <summary>
-        /// Gets or sets the start datetime
-        /// </summary>
-        public DateTime StartTime { get; set; }
+        public DateTime AlarmTime { get; set; }
 
         /// <summary>
         /// Gets or sets the end datetime
@@ -69,9 +69,9 @@ namespace iPem.Core {
         public DateTime EndTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the start value
+        /// Gets or sets the alarm value
         /// </summary>
-        public double StartValue { get; set; }
+        public double AlarmValue { get; set; }
 
         /// <summary>
         /// Gets or sets the end value
@@ -79,13 +79,28 @@ namespace iPem.Core {
         public double EndValue { get; set; }
 
         /// <summary>
-        /// Gets or sets the value unit
+        /// Gets or sets the alarm level
         /// </summary>
-        public string ValueUnit { get; set; }
+        public EnmAlarm AlarmLevel { get; set; }
 
         /// <summary>
-        /// Gets or sets the end type
+        /// Gets or sets the alarm flag
         /// </summary>
-        public EnmEndType EndType { get; set; }
+        public EnmFlag AlarmFlag { get; set; }
+
+        /// <summary>
+        /// Gets or sets the alarm descripetion
+        /// </summary>
+        public string AlarmDesc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the alarm remark
+        /// </summary>
+        public string AlarmRemark { get; set; }
+
+        /// <summary>
+        /// Gets or sets the frequency
+        /// </summary>
+        public int Frequency { get; set; }
     }
 }

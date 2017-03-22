@@ -250,17 +250,6 @@ namespace iPem.Data.Common {
         }
 
         /// <summary>
-        /// DBNull EndType Handler
-        /// </summary>
-        /// <param name="val">val</param>
-        public static EnmEndType DBNullEnmEndTypeHandler(object val) {
-            if(val == DBNull.Value) { return EnmEndType.Normal; }
-
-            var v = (Int32)val;
-            return Enum.IsDefined(typeof(EnmEndType), v) ? (EnmEndType)v : EnmEndType.Normal;
-        }
-
-        /// <summary>
         /// DBNull EnmFormula Handler
         /// </summary>
         /// <param name="val">val</param>
@@ -269,17 +258,6 @@ namespace iPem.Data.Common {
 
             var v = (Int32)val;
             return Enum.IsDefined(typeof(EnmFormula), v) ? (EnmFormula)v : EnmFormula.KT;
-        }
-
-        /// <summary>
-        /// DBNull EnmValType Handler
-        /// </summary>
-        /// <param name="val">val</param>
-        public static EnmValType DBNullEnmValTypeHandler(object val) {
-            if(val == DBNull.Value) { return EnmValType.Relative; }
-
-            var v = (Int32)val;
-            return Enum.IsDefined(typeof(EnmValType), v) ? (EnmValType)v : EnmValType.Relative;
         }
 
         public static String CreateConnectionString(DbEntity database) {

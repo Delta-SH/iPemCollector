@@ -3,20 +3,18 @@ using System;
 using System.Collections.Generic;
 
 namespace iPem.Task {
-    public partial class ActTask03 : IActTask {
+    public partial class HisTask05 : IHisTask {
         public string Id {
-            get { return "actTask03"; }
+            get { return "hisTask05"; }
         }
 
         public string Name {
-            get { return "实时任务1"; }
+            get { return "电池曲线处理任务"; }
         }
 
         public long Seconds { get; set; }
 
-        public DateTime Start { get; set; }
-
-        public DateTime End { get; set; }
+        public DateTime Time { get; set; }
 
         public DateTime Last { get; set; }
 
@@ -25,11 +23,10 @@ namespace iPem.Task {
         public List<Event> Events { get; set; }
 
         public int Order {
-            get { return 3; }
+            get { return 5; }
         }
 
         public void Execute() {
-            
         }
     }
 }
