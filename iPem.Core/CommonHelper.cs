@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace iPem.Core {
     public partial class CommonHelper {
@@ -130,6 +131,38 @@ namespace iPem.Core {
             }
 
             return defaultValue;
+        }
+
+        public static void SetAutoRun(string file, string key, bool isAutoRun) {
+            RegistryKey reg = null;
+            try {
+                if(!System.IO.File.Exists(file)) throw new Exception("未找到应用程序");
+
+                reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+                if(reg == null) reg = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run");
+
+                if(isAutoRun)
+                    reg.SetValue(key, file);
+                else
+                    reg.DeleteValue(key, false);
+            } finally {
+                if(reg != null)
+                    reg.Close();
+            }
+        }
+
+        public static bool IsAutoRun(string key) {
+            RegistryKey reg = null;
+            try {
+                reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", false);
+                if(reg == null) return false;
+
+                var valueNames = reg.GetValueNames();
+                return valueNames.Contains(key);
+            } finally {
+                if(reg != null)
+                    reg.Close();
+            }
         }
     }
 }

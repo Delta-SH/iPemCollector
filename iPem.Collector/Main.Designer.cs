@@ -31,7 +31,6 @@
             this.sysMenu0102 = new System.Windows.Forms.ToolStripMenuItem();
             this.sysMenuSeparator0101 = new System.Windows.Forms.ToolStripSeparator();
             this.sysMenu0103 = new System.Windows.Forms.ToolStripMenuItem();
-            this.sysMenu0104 = new System.Windows.Forms.ToolStripMenuItem();
             this.sysMenuSeparator0102 = new System.Windows.Forms.ToolStripSeparator();
             this.sysMenu0105 = new System.Windows.Forms.ToolStripMenuItem();
             this.sysMenu02 = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,7 +50,6 @@
             this.notifyMenu02 = new System.Windows.Forms.ToolStripMenuItem();
             this.notifySeparator01 = new System.Windows.Forms.ToolStripSeparator();
             this.notifyMenu03 = new System.Windows.Forms.ToolStripMenuItem();
-            this.notifyMenu04 = new System.Windows.Forms.ToolStripMenuItem();
             this.notifySeparator02 = new System.Windows.Forms.ToolStripSeparator();
             this.notifyMenu05 = new System.Windows.Forms.ToolStripMenuItem();
             this.sysTabs = new System.Windows.Forms.TabControl();
@@ -60,23 +58,23 @@
             this.sysEventContext = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cleanEventsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.actTab = new System.Windows.Forms.TabPage();
-            this.hisTab = new System.Windows.Forms.TabPage();
-            this.actCkPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.actCkFx = new System.Windows.Forms.CheckBox();
-            this.actCkAll = new System.Windows.Forms.CheckBox();
-            this.actTaskBox = new System.Windows.Forms.GroupBox();
-            this.actTasks = new System.Windows.Forms.CheckedListBox();
+            this.actViewport = new System.Windows.Forms.TableLayoutPanel();
             this.actConditionBox = new System.Windows.Forms.GroupBox();
             this.actConditionTable = new System.Windows.Forms.TableLayoutPanel();
-            this.actMessageLbl = new System.Windows.Forms.Label();
-            this.actDoTask = new System.Windows.Forms.Button();
-            this.actClean = new System.Windows.Forms.CheckBox();
-            this.actEnd = new System.Windows.Forms.DateTimePicker();
-            this.actStart = new System.Windows.Forms.DateTimePicker();
-            this.actCleanLbl = new System.Windows.Forms.Label();
-            this.actEndLbl = new System.Windows.Forms.Label();
             this.actStartLbl = new System.Windows.Forms.Label();
-            this.actViewport = new System.Windows.Forms.TableLayoutPanel();
+            this.actEndLbl = new System.Windows.Forms.Label();
+            this.actCleanLbl = new System.Windows.Forms.Label();
+            this.actStart = new System.Windows.Forms.DateTimePicker();
+            this.actEnd = new System.Windows.Forms.DateTimePicker();
+            this.actClean = new System.Windows.Forms.CheckBox();
+            this.actDoTask = new System.Windows.Forms.Button();
+            this.actMessageLbl = new System.Windows.Forms.Label();
+            this.actTaskBox = new System.Windows.Forms.GroupBox();
+            this.actTasks = new System.Windows.Forms.CheckedListBox();
+            this.actCkPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.actCkAll = new System.Windows.Forms.CheckBox();
+            this.actCkFx = new System.Windows.Forms.CheckBox();
+            this.hisTab = new System.Windows.Forms.TabPage();
             this.hisViewport = new System.Windows.Forms.TableLayoutPanel();
             this.hisConditionBox = new System.Windows.Forms.GroupBox();
             this.hisConditionTable = new System.Windows.Forms.TableLayoutPanel();
@@ -94,8 +92,8 @@
             this.hisCkAll = new System.Windows.Forms.CheckBox();
             this.hisCkFx = new System.Windows.Forms.CheckBox();
             this.sysStatus = new System.Windows.Forms.StatusStrip();
-            this.sysViewport = new System.Windows.Forms.TableLayoutPanel();
             this.svrStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.sysViewport = new System.Windows.Forms.TableLayoutPanel();
             this.sysMenus.SuspendLayout();
             this.sysShortcuts.SuspendLayout();
             this.notifyContextMenu.SuspendLayout();
@@ -103,12 +101,12 @@
             this.eventTab.SuspendLayout();
             this.sysEventContext.SuspendLayout();
             this.actTab.SuspendLayout();
-            this.hisTab.SuspendLayout();
-            this.actCkPanel.SuspendLayout();
-            this.actTaskBox.SuspendLayout();
+            this.actViewport.SuspendLayout();
             this.actConditionBox.SuspendLayout();
             this.actConditionTable.SuspendLayout();
-            this.actViewport.SuspendLayout();
+            this.actTaskBox.SuspendLayout();
+            this.actCkPanel.SuspendLayout();
+            this.hisTab.SuspendLayout();
             this.hisViewport.SuspendLayout();
             this.hisConditionBox.SuspendLayout();
             this.hisConditionTable.SuspendLayout();
@@ -139,7 +137,6 @@
             this.sysMenu0102,
             this.sysMenuSeparator0101,
             this.sysMenu0103,
-            this.sysMenu0104,
             this.sysMenuSeparator0102,
             this.sysMenu0105});
             this.sysMenu01.Image = global::iPem.Collector.Properties.Resources.system;
@@ -151,7 +148,7 @@
             // 
             this.sysMenu0101.Image = global::iPem.Collector.Properties.Resources.start;
             this.sysMenu0101.Name = "sysMenu0101";
-            this.sysMenu0101.Size = new System.Drawing.Size(140, 22);
+            this.sysMenu0101.Size = new System.Drawing.Size(152, 22);
             this.sysMenu0101.Text = "运行(&R)";
             this.sysMenu0101.Click += new System.EventHandler(this.sysMenu0101_Click);
             // 
@@ -160,43 +157,33 @@
             this.sysMenu0102.Enabled = false;
             this.sysMenu0102.Image = global::iPem.Collector.Properties.Resources.stop;
             this.sysMenu0102.Name = "sysMenu0102";
-            this.sysMenu0102.Size = new System.Drawing.Size(140, 22);
+            this.sysMenu0102.Size = new System.Drawing.Size(152, 22);
             this.sysMenu0102.Text = "停止(&S)";
             this.sysMenu0102.Click += new System.EventHandler(this.sysMenu0102_Click);
             // 
             // sysMenuSeparator0101
             // 
             this.sysMenuSeparator0101.Name = "sysMenuSeparator0101";
-            this.sysMenuSeparator0101.Size = new System.Drawing.Size(137, 6);
+            this.sysMenuSeparator0101.Size = new System.Drawing.Size(149, 6);
             // 
             // sysMenu0103
             // 
             this.sysMenu0103.Image = global::iPem.Collector.Properties.Resources.config;
             this.sysMenu0103.Name = "sysMenu0103";
-            this.sysMenu0103.Size = new System.Drawing.Size(140, 22);
+            this.sysMenu0103.Size = new System.Drawing.Size(152, 22);
             this.sysMenu0103.Text = "系统参数(&P)";
             this.sysMenu0103.Click += new System.EventHandler(this.sysMenu0103_Click);
-            // 
-            // sysMenu0104
-            // 
-            this.sysMenu0104.Checked = true;
-            this.sysMenu0104.CheckOnClick = true;
-            this.sysMenu0104.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.sysMenu0104.Name = "sysMenu0104";
-            this.sysMenu0104.Size = new System.Drawing.Size(140, 22);
-            this.sysMenu0104.Text = "开机启动(&A)";
-            this.sysMenu0104.CheckedChanged += new System.EventHandler(this.sysMenu0104_CheckedChanged);
             // 
             // sysMenuSeparator0102
             // 
             this.sysMenuSeparator0102.Name = "sysMenuSeparator0102";
-            this.sysMenuSeparator0102.Size = new System.Drawing.Size(137, 6);
+            this.sysMenuSeparator0102.Size = new System.Drawing.Size(149, 6);
             // 
             // sysMenu0105
             // 
             this.sysMenu0105.Image = global::iPem.Collector.Properties.Resources.exit;
             this.sysMenu0105.Name = "sysMenu0105";
-            this.sysMenu0105.Size = new System.Drawing.Size(140, 22);
+            this.sysMenu0105.Size = new System.Drawing.Size(152, 22);
             this.sysMenu0105.Text = "退出系统(&X)";
             this.sysMenu0105.Click += new System.EventHandler(this.sysMenu0105_Click);
             // 
@@ -315,12 +302,11 @@
             this.notifyMenu02,
             this.notifySeparator01,
             this.notifyMenu03,
-            this.notifyMenu04,
             this.notifySeparator02,
             this.notifyMenu05});
             this.notifyContextMenu.Name = "notifyContextMenu";
             this.notifyContextMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.notifyContextMenu.Size = new System.Drawing.Size(141, 126);
+            this.notifyContextMenu.Size = new System.Drawing.Size(141, 104);
             // 
             // notifyMenu01
             // 
@@ -351,16 +337,6 @@
             this.notifyMenu03.Size = new System.Drawing.Size(140, 22);
             this.notifyMenu03.Text = "系统参数(&P)";
             this.notifyMenu03.Click += new System.EventHandler(this.notifyMenu03_Click);
-            // 
-            // notifyMenu04
-            // 
-            this.notifyMenu04.Checked = true;
-            this.notifyMenu04.CheckOnClick = true;
-            this.notifyMenu04.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.notifyMenu04.Name = "notifyMenu04";
-            this.notifyMenu04.Size = new System.Drawing.Size(140, 22);
-            this.notifyMenu04.Text = "开机启动(&A)";
-            this.notifyMenu04.CheckedChanged += new System.EventHandler(this.notifyMenu04_CheckedChanged);
             // 
             // notifySeparator02
             // 
@@ -436,88 +412,42 @@
             this.actTab.Location = new System.Drawing.Point(4, 26);
             this.actTab.Margin = new System.Windows.Forms.Padding(0);
             this.actTab.Name = "actTab";
-            this.actTab.Size = new System.Drawing.Size(776, 479);
+            this.actTab.Size = new System.Drawing.Size(774, 455);
             this.actTab.TabIndex = 1;
             this.actTab.Text = "实时任务";
             // 
-            // hisTab
+            // actViewport
             // 
-            this.hisTab.BackColor = System.Drawing.Color.White;
-            this.hisTab.Controls.Add(this.hisViewport);
-            this.hisTab.Location = new System.Drawing.Point(4, 26);
-            this.hisTab.Margin = new System.Windows.Forms.Padding(0);
-            this.hisTab.Name = "hisTab";
-            this.hisTab.Size = new System.Drawing.Size(776, 479);
-            this.hisTab.TabIndex = 2;
-            this.hisTab.Text = "历史任务";
-            // 
-            // actCkPanel
-            // 
-            this.actCkPanel.Controls.Add(this.actCkAll);
-            this.actCkPanel.Controls.Add(this.actCkFx);
-            this.actCkPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actCkPanel.Location = new System.Drawing.Point(20, 434);
-            this.actCkPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.actCkPanel.Name = "actCkPanel";
-            this.actCkPanel.Size = new System.Drawing.Size(286, 25);
-            this.actCkPanel.TabIndex = 4;
-            // 
-            // actCkFx
-            // 
-            this.actCkFx.Location = new System.Drawing.Point(60, 0);
-            this.actCkFx.Margin = new System.Windows.Forms.Padding(0);
-            this.actCkFx.Name = "actCkFx";
-            this.actCkFx.Size = new System.Drawing.Size(60, 25);
-            this.actCkFx.TabIndex = 3;
-            this.actCkFx.Text = "反选";
-            this.actCkFx.UseVisualStyleBackColor = true;
-            this.actCkFx.CheckedChanged += new System.EventHandler(this.actCkFx_CheckedChanged);
-            // 
-            // actCkAll
-            // 
-            this.actCkAll.Location = new System.Drawing.Point(0, 0);
-            this.actCkAll.Margin = new System.Windows.Forms.Padding(0);
-            this.actCkAll.Name = "actCkAll";
-            this.actCkAll.Size = new System.Drawing.Size(60, 25);
-            this.actCkAll.TabIndex = 2;
-            this.actCkAll.Text = "全选";
-            this.actCkAll.UseVisualStyleBackColor = true;
-            this.actCkAll.CheckedChanged += new System.EventHandler(this.actCkAll_CheckedChanged);
-            // 
-            // actTaskBox
-            // 
-            this.actTaskBox.Controls.Add(this.actTasks);
-            this.actTaskBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actTaskBox.Location = new System.Drawing.Point(20, 20);
-            this.actTaskBox.Margin = new System.Windows.Forms.Padding(0);
-            this.actTaskBox.Name = "actTaskBox";
-            this.actTaskBox.Padding = new System.Windows.Forms.Padding(10);
-            this.actTaskBox.Size = new System.Drawing.Size(286, 414);
-            this.actTaskBox.TabIndex = 1;
-            this.actTaskBox.TabStop = false;
-            this.actTaskBox.Text = "任务列表";
-            // 
-            // actTasks
-            // 
-            this.actTasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.actTasks.CheckOnClick = true;
-            this.actTasks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actTasks.FormattingEnabled = true;
-            this.actTasks.Location = new System.Drawing.Point(10, 26);
-            this.actTasks.Margin = new System.Windows.Forms.Padding(0);
-            this.actTasks.Name = "actTasks";
-            this.actTasks.Size = new System.Drawing.Size(266, 378);
-            this.actTasks.TabIndex = 1;
+            this.actViewport.ColumnCount = 5;
+            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
+            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.actViewport.Controls.Add(this.actConditionBox, 3, 1);
+            this.actViewport.Controls.Add(this.actTaskBox, 1, 1);
+            this.actViewport.Controls.Add(this.actCkPanel, 1, 2);
+            this.actViewport.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actViewport.Location = new System.Drawing.Point(0, 0);
+            this.actViewport.Margin = new System.Windows.Forms.Padding(0);
+            this.actViewport.Name = "actViewport";
+            this.actViewport.RowCount = 4;
+            this.actViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.actViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.actViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.actViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.actViewport.Size = new System.Drawing.Size(774, 455);
+            this.actViewport.TabIndex = 1;
             // 
             // actConditionBox
             // 
             this.actConditionBox.Controls.Add(this.actConditionTable);
             this.actConditionBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actConditionBox.Location = new System.Drawing.Point(326, 20);
+            this.actConditionBox.Location = new System.Drawing.Point(324, 20);
             this.actConditionBox.Margin = new System.Windows.Forms.Padding(0);
             this.actConditionBox.Name = "actConditionBox";
             this.actConditionBox.Padding = new System.Windows.Forms.Padding(10);
-            this.actConditionBox.Size = new System.Drawing.Size(429, 414);
+            this.actConditionBox.Size = new System.Drawing.Size(427, 390);
             this.actConditionBox.TabIndex = 4;
             this.actConditionBox.TabStop = false;
             this.actConditionBox.Text = "任务条件";
@@ -551,91 +481,8 @@
             this.actConditionTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.actConditionTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.actConditionTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.actConditionTable.Size = new System.Drawing.Size(409, 378);
+            this.actConditionTable.Size = new System.Drawing.Size(407, 354);
             this.actConditionTable.TabIndex = 1;
-            // 
-            // actMessageLbl
-            // 
-            this.actMessageLbl.AutoSize = true;
-            this.actConditionTable.SetColumnSpan(this.actMessageLbl, 3);
-            this.actMessageLbl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actMessageLbl.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.actMessageLbl.Location = new System.Drawing.Point(0, 140);
-            this.actMessageLbl.Margin = new System.Windows.Forms.Padding(0);
-            this.actMessageLbl.Name = "actMessageLbl";
-            this.actMessageLbl.Size = new System.Drawing.Size(409, 238);
-            this.actMessageLbl.TabIndex = 7;
-            // 
-            // actDoTask
-            // 
-            this.actDoTask.Enabled = false;
-            this.actDoTask.Location = new System.Drawing.Point(70, 105);
-            this.actDoTask.Margin = new System.Windows.Forms.Padding(0);
-            this.actDoTask.Name = "actDoTask";
-            this.actDoTask.Size = new System.Drawing.Size(120, 25);
-            this.actDoTask.TabIndex = 6;
-            this.actDoTask.Text = "执行选中任务";
-            this.actDoTask.UseVisualStyleBackColor = true;
-            this.actDoTask.Click += new System.EventHandler(this.actDoTask_Click);
-            // 
-            // actClean
-            // 
-            this.actClean.AutoSize = true;
-            this.actClean.Checked = true;
-            this.actClean.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.actClean.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actClean.Location = new System.Drawing.Point(73, 73);
-            this.actClean.Name = "actClean";
-            this.actClean.Size = new System.Drawing.Size(333, 19);
-            this.actClean.TabIndex = 5;
-            this.actClean.Text = "执行之前清理已存在的数据";
-            this.actClean.UseVisualStyleBackColor = true;
-            // 
-            // actEnd
-            // 
-            this.actEnd.CustomFormat = "yyyy-MM-dd HH:mm:ss";
-            this.actEnd.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.actEnd.Location = new System.Drawing.Point(70, 35);
-            this.actEnd.Margin = new System.Windows.Forms.Padding(0);
-            this.actEnd.Name = "actEnd";
-            this.actEnd.Size = new System.Drawing.Size(200, 23);
-            this.actEnd.TabIndex = 3;
-            this.actEnd.Value = new System.DateTime(2017, 1, 1, 23, 59, 59, 0);
-            // 
-            // actStart
-            // 
-            this.actStart.CustomFormat = "yyyy-MM-dd HH:mm:ss";
-            this.actStart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.actStart.Location = new System.Drawing.Point(70, 0);
-            this.actStart.Margin = new System.Windows.Forms.Padding(0);
-            this.actStart.Name = "actStart";
-            this.actStart.Size = new System.Drawing.Size(200, 23);
-            this.actStart.TabIndex = 1;
-            this.actStart.Value = new System.DateTime(2017, 1, 1, 0, 0, 0, 0);
-            // 
-            // actCleanLbl
-            // 
-            this.actCleanLbl.AutoSize = true;
-            this.actCleanLbl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actCleanLbl.Location = new System.Drawing.Point(0, 70);
-            this.actCleanLbl.Margin = new System.Windows.Forms.Padding(0);
-            this.actCleanLbl.Name = "actCleanLbl";
-            this.actCleanLbl.Size = new System.Drawing.Size(60, 25);
-            this.actCleanLbl.TabIndex = 4;
-            this.actCleanLbl.Text = "数据清理";
-            this.actCleanLbl.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // actEndLbl
-            // 
-            this.actEndLbl.AutoSize = true;
-            this.actEndLbl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actEndLbl.Location = new System.Drawing.Point(0, 35);
-            this.actEndLbl.Margin = new System.Windows.Forms.Padding(0);
-            this.actEndLbl.Name = "actEndLbl";
-            this.actEndLbl.Size = new System.Drawing.Size(60, 25);
-            this.actEndLbl.TabIndex = 2;
-            this.actEndLbl.Text = "结束时间";
-            this.actEndLbl.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // actStartLbl
             // 
@@ -649,28 +496,157 @@
             this.actStartLbl.Text = "开始时间";
             this.actStartLbl.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // actViewport
+            // actEndLbl
             // 
-            this.actViewport.ColumnCount = 5;
-            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
-            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
-            this.actViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 21F));
-            this.actViewport.Controls.Add(this.actConditionBox, 3, 1);
-            this.actViewport.Controls.Add(this.actTaskBox, 1, 1);
-            this.actViewport.Controls.Add(this.actCkPanel, 1, 2);
-            this.actViewport.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actViewport.Location = new System.Drawing.Point(0, 0);
-            this.actViewport.Margin = new System.Windows.Forms.Padding(0);
-            this.actViewport.Name = "actViewport";
-            this.actViewport.RowCount = 4;
-            this.actViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.actViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.actViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.actViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.actViewport.Size = new System.Drawing.Size(776, 479);
-            this.actViewport.TabIndex = 1;
+            this.actEndLbl.AutoSize = true;
+            this.actEndLbl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actEndLbl.Location = new System.Drawing.Point(0, 35);
+            this.actEndLbl.Margin = new System.Windows.Forms.Padding(0);
+            this.actEndLbl.Name = "actEndLbl";
+            this.actEndLbl.Size = new System.Drawing.Size(60, 25);
+            this.actEndLbl.TabIndex = 2;
+            this.actEndLbl.Text = "结束时间";
+            this.actEndLbl.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // actCleanLbl
+            // 
+            this.actCleanLbl.AutoSize = true;
+            this.actCleanLbl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actCleanLbl.Location = new System.Drawing.Point(0, 70);
+            this.actCleanLbl.Margin = new System.Windows.Forms.Padding(0);
+            this.actCleanLbl.Name = "actCleanLbl";
+            this.actCleanLbl.Size = new System.Drawing.Size(60, 25);
+            this.actCleanLbl.TabIndex = 4;
+            this.actCleanLbl.Text = "数据清理";
+            this.actCleanLbl.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // actStart
+            // 
+            this.actStart.CustomFormat = "yyyy-MM-dd HH:mm:ss";
+            this.actStart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.actStart.Location = new System.Drawing.Point(70, 0);
+            this.actStart.Margin = new System.Windows.Forms.Padding(0);
+            this.actStart.Name = "actStart";
+            this.actStart.Size = new System.Drawing.Size(200, 23);
+            this.actStart.TabIndex = 1;
+            this.actStart.Value = new System.DateTime(2017, 1, 1, 0, 0, 0, 0);
+            // 
+            // actEnd
+            // 
+            this.actEnd.CustomFormat = "yyyy-MM-dd HH:mm:ss";
+            this.actEnd.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.actEnd.Location = new System.Drawing.Point(70, 35);
+            this.actEnd.Margin = new System.Windows.Forms.Padding(0);
+            this.actEnd.Name = "actEnd";
+            this.actEnd.Size = new System.Drawing.Size(200, 23);
+            this.actEnd.TabIndex = 3;
+            this.actEnd.Value = new System.DateTime(2017, 1, 1, 23, 59, 59, 0);
+            // 
+            // actClean
+            // 
+            this.actClean.AutoSize = true;
+            this.actClean.Checked = true;
+            this.actClean.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.actClean.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actClean.Location = new System.Drawing.Point(73, 73);
+            this.actClean.Name = "actClean";
+            this.actClean.Size = new System.Drawing.Size(331, 19);
+            this.actClean.TabIndex = 5;
+            this.actClean.Text = "执行之前清理已存在的数据";
+            this.actClean.UseVisualStyleBackColor = true;
+            // 
+            // actDoTask
+            // 
+            this.actDoTask.Enabled = false;
+            this.actDoTask.Location = new System.Drawing.Point(70, 105);
+            this.actDoTask.Margin = new System.Windows.Forms.Padding(0);
+            this.actDoTask.Name = "actDoTask";
+            this.actDoTask.Size = new System.Drawing.Size(120, 25);
+            this.actDoTask.TabIndex = 6;
+            this.actDoTask.Text = "执行选中任务";
+            this.actDoTask.UseVisualStyleBackColor = true;
+            this.actDoTask.Click += new System.EventHandler(this.actDoTask_Click);
+            // 
+            // actMessageLbl
+            // 
+            this.actMessageLbl.AutoSize = true;
+            this.actConditionTable.SetColumnSpan(this.actMessageLbl, 3);
+            this.actMessageLbl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actMessageLbl.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.actMessageLbl.Location = new System.Drawing.Point(0, 140);
+            this.actMessageLbl.Margin = new System.Windows.Forms.Padding(0);
+            this.actMessageLbl.Name = "actMessageLbl";
+            this.actMessageLbl.Size = new System.Drawing.Size(407, 214);
+            this.actMessageLbl.TabIndex = 7;
+            // 
+            // actTaskBox
+            // 
+            this.actTaskBox.Controls.Add(this.actTasks);
+            this.actTaskBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actTaskBox.Location = new System.Drawing.Point(20, 20);
+            this.actTaskBox.Margin = new System.Windows.Forms.Padding(0);
+            this.actTaskBox.Name = "actTaskBox";
+            this.actTaskBox.Padding = new System.Windows.Forms.Padding(10);
+            this.actTaskBox.Size = new System.Drawing.Size(284, 390);
+            this.actTaskBox.TabIndex = 1;
+            this.actTaskBox.TabStop = false;
+            this.actTaskBox.Text = "任务列表";
+            // 
+            // actTasks
+            // 
+            this.actTasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.actTasks.CheckOnClick = true;
+            this.actTasks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actTasks.FormattingEnabled = true;
+            this.actTasks.Location = new System.Drawing.Point(10, 26);
+            this.actTasks.Margin = new System.Windows.Forms.Padding(0);
+            this.actTasks.Name = "actTasks";
+            this.actTasks.Size = new System.Drawing.Size(264, 354);
+            this.actTasks.TabIndex = 1;
+            // 
+            // actCkPanel
+            // 
+            this.actCkPanel.Controls.Add(this.actCkAll);
+            this.actCkPanel.Controls.Add(this.actCkFx);
+            this.actCkPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.actCkPanel.Location = new System.Drawing.Point(20, 410);
+            this.actCkPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.actCkPanel.Name = "actCkPanel";
+            this.actCkPanel.Size = new System.Drawing.Size(284, 25);
+            this.actCkPanel.TabIndex = 4;
+            // 
+            // actCkAll
+            // 
+            this.actCkAll.Location = new System.Drawing.Point(0, 0);
+            this.actCkAll.Margin = new System.Windows.Forms.Padding(0);
+            this.actCkAll.Name = "actCkAll";
+            this.actCkAll.Size = new System.Drawing.Size(60, 25);
+            this.actCkAll.TabIndex = 2;
+            this.actCkAll.Text = "全选";
+            this.actCkAll.UseVisualStyleBackColor = true;
+            this.actCkAll.CheckedChanged += new System.EventHandler(this.actCkAll_CheckedChanged);
+            // 
+            // actCkFx
+            // 
+            this.actCkFx.Location = new System.Drawing.Point(60, 0);
+            this.actCkFx.Margin = new System.Windows.Forms.Padding(0);
+            this.actCkFx.Name = "actCkFx";
+            this.actCkFx.Size = new System.Drawing.Size(60, 25);
+            this.actCkFx.TabIndex = 3;
+            this.actCkFx.Text = "反选";
+            this.actCkFx.UseVisualStyleBackColor = true;
+            this.actCkFx.CheckedChanged += new System.EventHandler(this.actCkFx_CheckedChanged);
+            // 
+            // hisTab
+            // 
+            this.hisTab.BackColor = System.Drawing.Color.White;
+            this.hisTab.Controls.Add(this.hisViewport);
+            this.hisTab.Location = new System.Drawing.Point(4, 26);
+            this.hisTab.Margin = new System.Windows.Forms.Padding(0);
+            this.hisTab.Name = "hisTab";
+            this.hisTab.Size = new System.Drawing.Size(774, 455);
+            this.hisTab.TabIndex = 2;
+            this.hisTab.Text = "历史任务";
             // 
             // hisViewport
             // 
@@ -679,7 +655,7 @@
             this.hisViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
             this.hisViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.hisViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
-            this.hisViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 21F));
+            this.hisViewport.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.hisViewport.Controls.Add(this.hisConditionBox, 3, 1);
             this.hisViewport.Controls.Add(this.hisTaskBox, 1, 1);
             this.hisViewport.Controls.Add(this.hisCkPanel, 1, 2);
@@ -692,18 +668,18 @@
             this.hisViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.hisViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
             this.hisViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.hisViewport.Size = new System.Drawing.Size(776, 479);
+            this.hisViewport.Size = new System.Drawing.Size(774, 455);
             this.hisViewport.TabIndex = 3;
             // 
             // hisConditionBox
             // 
             this.hisConditionBox.Controls.Add(this.hisConditionTable);
             this.hisConditionBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hisConditionBox.Location = new System.Drawing.Point(326, 20);
+            this.hisConditionBox.Location = new System.Drawing.Point(324, 20);
             this.hisConditionBox.Margin = new System.Windows.Forms.Padding(0);
             this.hisConditionBox.Name = "hisConditionBox";
             this.hisConditionBox.Padding = new System.Windows.Forms.Padding(10);
-            this.hisConditionBox.Size = new System.Drawing.Size(429, 414);
+            this.hisConditionBox.Size = new System.Drawing.Size(427, 390);
             this.hisConditionBox.TabIndex = 4;
             this.hisConditionBox.TabStop = false;
             this.hisConditionBox.Text = "任务条件";
@@ -737,7 +713,7 @@
             this.hisConditionTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.hisConditionTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.hisConditionTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.hisConditionTable.Size = new System.Drawing.Size(409, 378);
+            this.hisConditionTable.Size = new System.Drawing.Size(407, 354);
             this.hisConditionTable.TabIndex = 1;
             // 
             // hisStartLbl
@@ -806,7 +782,7 @@
             this.hisClean.Dock = System.Windows.Forms.DockStyle.Fill;
             this.hisClean.Location = new System.Drawing.Point(73, 73);
             this.hisClean.Name = "hisClean";
-            this.hisClean.Size = new System.Drawing.Size(333, 19);
+            this.hisClean.Size = new System.Drawing.Size(331, 19);
             this.hisClean.TabIndex = 5;
             this.hisClean.Text = "执行之前清理已存在的数据";
             this.hisClean.UseVisualStyleBackColor = true;
@@ -832,7 +808,7 @@
             this.hisMessageLbl.Location = new System.Drawing.Point(0, 140);
             this.hisMessageLbl.Margin = new System.Windows.Forms.Padding(0);
             this.hisMessageLbl.Name = "hisMessageLbl";
-            this.hisMessageLbl.Size = new System.Drawing.Size(409, 238);
+            this.hisMessageLbl.Size = new System.Drawing.Size(407, 214);
             this.hisMessageLbl.TabIndex = 7;
             // 
             // hisTaskBox
@@ -843,7 +819,7 @@
             this.hisTaskBox.Margin = new System.Windows.Forms.Padding(0);
             this.hisTaskBox.Name = "hisTaskBox";
             this.hisTaskBox.Padding = new System.Windows.Forms.Padding(10);
-            this.hisTaskBox.Size = new System.Drawing.Size(286, 414);
+            this.hisTaskBox.Size = new System.Drawing.Size(284, 390);
             this.hisTaskBox.TabIndex = 1;
             this.hisTaskBox.TabStop = false;
             this.hisTaskBox.Text = "任务列表";
@@ -857,7 +833,7 @@
             this.hisTasks.Location = new System.Drawing.Point(10, 26);
             this.hisTasks.Margin = new System.Windows.Forms.Padding(0);
             this.hisTasks.Name = "hisTasks";
-            this.hisTasks.Size = new System.Drawing.Size(266, 378);
+            this.hisTasks.Size = new System.Drawing.Size(264, 354);
             this.hisTasks.TabIndex = 1;
             // 
             // hisCkPanel
@@ -865,10 +841,10 @@
             this.hisCkPanel.Controls.Add(this.hisCkAll);
             this.hisCkPanel.Controls.Add(this.hisCkFx);
             this.hisCkPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hisCkPanel.Location = new System.Drawing.Point(20, 434);
+            this.hisCkPanel.Location = new System.Drawing.Point(20, 410);
             this.hisCkPanel.Margin = new System.Windows.Forms.Padding(0);
             this.hisCkPanel.Name = "hisCkPanel";
-            this.hisCkPanel.Size = new System.Drawing.Size(286, 25);
+            this.hisCkPanel.Size = new System.Drawing.Size(284, 25);
             this.hisCkPanel.TabIndex = 4;
             // 
             // hisCkAll
@@ -904,6 +880,13 @@
             this.sysStatus.Size = new System.Drawing.Size(784, 22);
             this.sysStatus.TabIndex = 3;
             // 
+            // svrStatus
+            // 
+            this.svrStatus.Name = "svrStatus";
+            this.svrStatus.Size = new System.Drawing.Size(32, 17);
+            this.svrStatus.Text = "就绪";
+            this.svrStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // sysViewport
             // 
             this.sysViewport.ColumnCount = 1;
@@ -918,13 +901,6 @@
             this.sysViewport.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.sysViewport.Size = new System.Drawing.Size(784, 487);
             this.sysViewport.TabIndex = 4;
-            // 
-            // svrStatus
-            // 
-            this.svrStatus.Name = "svrStatus";
-            this.svrStatus.Size = new System.Drawing.Size(32, 17);
-            this.svrStatus.Text = "就绪";
-            this.svrStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // Main
             // 
@@ -954,13 +930,13 @@
             this.eventTab.ResumeLayout(false);
             this.sysEventContext.ResumeLayout(false);
             this.actTab.ResumeLayout(false);
-            this.hisTab.ResumeLayout(false);
-            this.actCkPanel.ResumeLayout(false);
-            this.actTaskBox.ResumeLayout(false);
+            this.actViewport.ResumeLayout(false);
             this.actConditionBox.ResumeLayout(false);
             this.actConditionTable.ResumeLayout(false);
             this.actConditionTable.PerformLayout();
-            this.actViewport.ResumeLayout(false);
+            this.actTaskBox.ResumeLayout(false);
+            this.actCkPanel.ResumeLayout(false);
+            this.hisTab.ResumeLayout(false);
             this.hisViewport.ResumeLayout(false);
             this.hisConditionBox.ResumeLayout(false);
             this.hisConditionTable.ResumeLayout(false);
@@ -984,7 +960,6 @@
         private System.Windows.Forms.ToolStripMenuItem sysMenu0102;
         private System.Windows.Forms.ToolStripSeparator sysMenuSeparator0101;
         private System.Windows.Forms.ToolStripMenuItem sysMenu0103;
-        private System.Windows.Forms.ToolStripMenuItem sysMenu0104;
         private System.Windows.Forms.ToolStripSeparator sysMenuSeparator0102;
         private System.Windows.Forms.ToolStripMenuItem sysMenu0105;
         private System.Windows.Forms.ToolStripMenuItem sysMenu0201;
@@ -1003,7 +978,6 @@
         private System.Windows.Forms.ToolStripMenuItem notifyMenu02;
         private System.Windows.Forms.ToolStripSeparator notifySeparator01;
         private System.Windows.Forms.ToolStripMenuItem notifyMenu03;
-        private System.Windows.Forms.ToolStripMenuItem notifyMenu04;
         private System.Windows.Forms.ToolStripSeparator notifySeparator02;
         private System.Windows.Forms.ToolStripMenuItem notifyMenu05;
         private System.Windows.Forms.TabControl sysTabs;

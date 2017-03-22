@@ -590,6 +590,7 @@ namespace iPem.Collector {
         }
 
         #region events
+
         private void sysMenu0101_Click(object sender, EventArgs e) {
             this.Start();
         }
@@ -600,10 +601,6 @@ namespace iPem.Collector {
 
         private void sysMenu0103_Click(object sender, EventArgs e) {
             new Config().ShowDialog();
-        }
-
-        private void sysMenu0104_CheckedChanged(object sender, EventArgs e) {
-
         }
 
         private void sysMenu0105_Click(object sender, EventArgs e) {
@@ -721,6 +718,7 @@ namespace iPem.Collector {
                 hisDoTask.Enabled = true;
             }
         }
+
         #endregion
 
         #region short
@@ -770,10 +768,6 @@ namespace iPem.Collector {
             this.sysMenu0103_Click(sender, e);
         }
 
-        private void notifyMenu04_CheckedChanged(object sender, EventArgs e) {
-            this.sysMenu0104_CheckedChanged(sender, e);
-        }
-
         private void notifyMenu05_Click(object sender, EventArgs e) {
             this.sysMenu0105_Click(sender, e);
         }
@@ -794,5 +788,6 @@ namespace iPem.Collector {
             _firstBalloonTip = false;
         }
         #endregion
+
     }
 }
