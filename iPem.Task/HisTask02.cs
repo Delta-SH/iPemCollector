@@ -31,8 +31,6 @@ namespace iPem.Task {
         }
 
         public void Execute() {
-            //TODO: 蓄电池电压、蓄电池电流、蓄电池工作状态(均充、浮充、放电)
-            //TODO: 蓄电池后备时长 = (蓄电池单组容量 * 单组蓄电池个数) / 蓄电池放电状态下的放电电流
             var _dates = CommonHelper.GetDateSpan(this.Last, this.Next);
             if(_dates.Count == 0) return;
 
@@ -44,86 +42,74 @@ namespace iPem.Task {
 
                 var _variable = JsonConvert.DeserializeObject<RtValues>(_param.ValuesJson);
                 if(_variable.qtxdchbschglLeiXing == null || _variable.qtxdchbschglLeiXing.Length == 0)
-                    throw new Exception("未设置蓄电池设备类型参数。");
-                if(_variable.qtxdchbschglztXinHao == null || _variable.qtxdchbschglztXinHao.Length == 0)
-                    throw new Exception("未设置蓄电池工作状态参数。");
-                if(_variable.qtxdchbschglfzXinHao == null || _variable.qtxdchbschglfzXinHao.Length == 0)
-                    throw new Exception("未设置蓄电池负载电流参数。");
+                    throw new Exception("未设置开关电源设备类型参数。");
+                if(_variable.qtxdchbschgldyXinHao == null || _variable.qtxdchbschgldyXinHao.Length == 0)
+                    throw new Exception("未设置直流输出电压参数。");
 
                 var _hisValueRepository = new HisValueRepository();
-                var _battGroupRepository = new BattGroupRepository();
                 var _hisBatTimeRepository = new HisBatTimeRepository();
-                var _devices = _battGroupRepository.GetEntities().FindAll(d => _variable.qtxdchbschglLeiXing.Contains(d.SubType.Id));
+                var _devices = iPemWorkContext.Devices.FindAll(d => _variable.qtxdchbschglLeiXing.Contains(d.Current.SubType.Id));
                 foreach(var _device in _devices) {
                     try {
-                        var _current = iPemWorkContext.Devices.Find(d=>d.Current.Id == _device.Id);
-                        if(_current == null) continue;
-                        var _ztPoint = _current.Protocol.Points.FindAll(p => p.Type == EnmPoint.DI && _variable.qtxdchbschglztXinHao.Contains(p.Id)).FirstOrDefault();
-                        if(_ztPoint == null) continue;
-                        var _fzPoint = _current.Protocol.Points.FindAll(p => p.Type == EnmPoint.AI && _variable.qtxdchbschglfzXinHao.Contains(p.Id)).FirstOrDefault();
-                        if(_fzPoint == null) continue;
-                        var _ztFlag = CommonHelper.GetPointFlag(_ztPoint, "放电");
+                        var _dyPoint = _device.Protocol.Points.FirstOrDefault(p => p.Type == EnmPoint.AI && _variable.qtxdchbschgldyXinHao.Contains(p.Id));
+                        if(_dyPoint == null) continue;
                         foreach(var _date in _dates) {
                             var _end = _date.AddDays(1).AddMilliseconds(-1);
-                            var _ztValues = _hisValueRepository.GetEntities(_device.Id, _ztPoint.Id, _date, _end);
-                            var _intervals = new List<IdValuePair<DateTime, DateTime>>();
+                            var _result = new List<HisBatTime>();
+                            var _procedure = new List<HisValue>();
 
-                            DateTime? _start = null;
-                            foreach(var _value in _ztValues.OrderBy(v => v.UpdateTime)) {
-                                if(_value.Value == _ztFlag && !_start.HasValue) {
-                                    _start = _value.UpdateTime;
-                                } else if(_value.Value != _ztFlag && _start.HasValue) {
-                                    _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                        Id = _start.Value,
-                                        Value = _value.UpdateTime
+                            var _dyValues = _hisValueRepository.GetEntities(_device.Current.Id, _dyPoint.Id, _date, _end);
+                            foreach(var _value in _dyValues.OrderBy(v => v.UpdateTime)) {
+                                if(_value.Value < _variable.qtxdchbschglMax) {
+                                    _procedure.Add(_value);
+                                } else if(_value.Value >= _variable.qtxdchbschglMax && _procedure.Count > 0) {
+                                    var _ordered = _procedure.OrderBy(p => p.Value);
+                                    var _min = _ordered.First();
+                                    var _max = _ordered.Last();
+                                    _result.Add(new HisBatTime {
+                                        AreaId = _value.AreaId,
+                                        StationId = _value.StationId,
+                                        RoomId = _value.RoomId,
+                                        DeviceId = _value.DeviceId,
+                                        StartTime = _max.UpdateTime,
+                                        EndTime = _min.UpdateTime,
+                                        StartValue = _max.Value,
+                                        EndValue = _min.Value,
+                                        CreatedTime = DateTime.Now
                                     });
 
-                                    _start = null;
+                                    _procedure.Clear();
                                 }
                             }
 
-                            if(_start.HasValue) {
-                                _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                    Id = _start.Value,
-                                    Value = _end
+                            if(_procedure.Count > 0) {
+                                var _ordered = _procedure.OrderBy(p => p.Value);
+                                var _min = _ordered.First();
+                                var _max = _ordered.Last();
+                                _result.Add(new HisBatTime {
+                                    AreaId = _max.AreaId,
+                                    StationId = _max.StationId,
+                                    RoomId = _max.RoomId,
+                                    DeviceId = _max.DeviceId,
+                                    StartTime = _max.UpdateTime,
+                                    EndTime = _min.UpdateTime,
+                                    StartValue = _max.Value,
+                                    EndValue = _min.Value,
+                                    CreatedTime = DateTime.Now
                                 });
 
-                                _start = null;
-                            }
-
-                            var _fzMatchs = new List<HisValue>();
-                            if(_intervals.Count > 0) {
-                                var _fzValues = _hisValueRepository.GetEntities(_device.Id, _fzPoint.Id, _date, _end);
-                                foreach(var _interval in _intervals) {
-                                    var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
-                                    if(_fzMatch.Count > 0) _fzMatchs.AddRange(_fzMatch);
-                                }
-                            }
-
-                            var _batValue = -1d;
-                            if(_fzMatchs.Count > 0) {
-                                var _fzAverage = _fzMatchs.Average(f => f.Value);
-                                if(_fzAverage != 0) {
-                                    _batValue = (double.Parse(_device.SingGroupCap) * int.Parse(_device.SingGroupBattNumber)) / _fzAverage;
-                                }
+                                _procedure.Clear();
                             }
 
                             _hisBatTimeRepository.DeleteEntities(_date, _end);
-                            _hisBatTimeRepository.SaveEntities(new List<HisBatTime> {
-                                new HisBatTime {
-                                    DeviceId = _device.Id,
-                                    Period = _date,
-                                    Value = _batValue,
-                                    CreatedTime = DateTime.Now
-                                }
-                            });
+                            _hisBatTimeRepository.SaveEntities(_result);
                         }
                     } catch(Exception err) {
                         this.Events.Add(new Event {
                             Id = Guid.NewGuid(),
                             Type = EventType.Error,
                             Time = DateTime.Now,
-                            Message = string.Format("{0}({1})", err.Message, _device.Id),
+                            Message = string.Format("{0}({1})", err.Message, _device.Current.Id),
                             FullMessage = err.StackTrace
                         });
                     }

@@ -28,9 +28,14 @@ namespace iPem.Data {
         #region Methods
 
         public void SaveEntities(List<HisBatTime> entities) {
-            SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar,100),
-                                     new SqlParameter("@Period", SqlDbType.DateTime),
-                                     new SqlParameter("@Value", SqlDbType.Float),
+            SqlParameter[] parms = { new SqlParameter("@AreaId", SqlDbType.VarChar,100),
+                                     new SqlParameter("@StationId", SqlDbType.VarChar,100),
+                                     new SqlParameter("@RoomId", SqlDbType.VarChar,100),
+                                     new SqlParameter("@DeviceId", SqlDbType.VarChar,100),
+                                     new SqlParameter("@StartTime", SqlDbType.DateTime),
+                                     new SqlParameter("@EndTime", SqlDbType.DateTime),
+                                     new SqlParameter("@StartValue", SqlDbType.Float),
+                                     new SqlParameter("@EndValue", SqlDbType.Float),
                                      new SqlParameter("@CreatedTime", SqlDbType.DateTime)};
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
@@ -38,11 +43,16 @@ namespace iPem.Data {
                 var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
                 try {
                     foreach(var entity in entities) {
-                        parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.DeviceId);
-                        parms[1].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.Period);
-                        parms[2].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
-                        parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.CreatedTime);
-                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_HisBatTime_Repository_SaveEntities, entity.Period.ToString("yyyyMM")), parms);
+                        parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.AreaId);
+                        parms[1].Value = SqlTypeConverter.DBNullStringChecker(entity.StationId);
+                        parms[2].Value = SqlTypeConverter.DBNullStringChecker(entity.RoomId);
+                        parms[3].Value = SqlTypeConverter.DBNullStringChecker(entity.DeviceId);
+                        parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
+                        parms[5].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
+                        parms[6].Value = SqlTypeConverter.DBNullDoubleChecker(entity.StartValue);
+                        parms[7].Value = SqlTypeConverter.DBNullDoubleChecker(entity.EndValue);
+                        parms[8].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.CreatedTime);
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_HisBatTime_Repository_SaveEntities, entity.StartTime.ToString("yyyyMM")), parms);
                     }
                     trans.Commit();
                 } catch {
@@ -56,8 +66,8 @@ namespace iPem.Data {
             SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
-            parms[0].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
-            parms[1].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
+            parms[0].Value = SqlTypeConverter.DBNullDateTimeChecker(start);
+            parms[1].Value = SqlTypeConverter.DBNullDateTimeChecker(end);
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();

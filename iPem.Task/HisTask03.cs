@@ -32,8 +32,6 @@ namespace iPem.Task {
         }
 
         public void Execute() {
-            //TODO: 开关电源负载电流、工作状态(均充、浮充、放电)
-            //TODO: 开关电源带载合格率 = 浮充工作状态下最大负载电流 / 模块数量 * 模块额定电流
             var _dates = CommonHelper.GetDateSpan(this.Last, this.Next);
             if(_dates.Count == 0) return;
 
@@ -63,14 +61,18 @@ namespace iPem.Task {
                     try {
                         var _current = iPemWorkContext.Devices.Find(d => d.Current.Id == _device.Id);
                         if(_current == null) continue;
-                        var _ztPoint = _current.Protocol.Points.FindAll(p => p.Type == EnmPoint.DI && _variable.qtkgdydzhglztXinHao.Contains(p.Id)).FirstOrDefault();
+                        var _ztPoint = _current.Protocol.Points.FirstOrDefault(p => p.Type == EnmPoint.DI && _variable.qtkgdydzhglztXinHao.Contains(p.Id));
                         if(_ztPoint == null) continue;
-                        var _fzPoint = _current.Protocol.Points.FindAll(p => p.Type == EnmPoint.AI && _variable.qtkgdydzhglfzXinHao.Contains(p.Id)).FirstOrDefault();
+                        var _fzPoint = _current.Protocol.Points.FirstOrDefault(p => p.Type == EnmPoint.AI && _variable.qtkgdydzhglfzXinHao.Contains(p.Id));
                         if(_fzPoint == null) continue;
+                        var _fzCap = double.Parse(_device.SingRModuleRatedOPCap) * int.Parse(_device.ExisRModuleCount);
+                        if(_fzCap == 0) continue;
+
                         var _ztFlag = CommonHelper.GetPointFlag(_ztPoint, "浮充");
                         foreach(var _date in _dates) {
                             var _end = _date.AddDays(1).AddMilliseconds(-1);
                             var _ztValues = _hisValueRepository.GetEntities(_device.Id, _ztPoint.Id, _date, _end);
+                            var _result = new List<HisLoadRate>();
                             var _intervals = new List<IdValuePair<DateTime, DateTime>>();
 
                             DateTime? _start = null;
@@ -96,33 +98,27 @@ namespace iPem.Task {
                                 _start = null;
                             }
 
-                            var _fzMatchs = new List<HisValue>();
                             if(_intervals.Count > 0) {
                                 var _fzValues = _hisValueRepository.GetEntities(_device.Id, _fzPoint.Id, _date, _end);
                                 foreach(var _interval in _intervals) {
                                     var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
-                                    if(_fzMatch.Count > 0) _fzMatchs.AddRange(_fzMatch);
-                                }
-                            }
-
-                            var _loadValue = -1d;
-                            if(_fzMatchs.Count > 0) {
-                                var _fzMax = _fzMatchs.Max(f => f.Value);
-                                var _fzCap = double.Parse(_device.SingRModuleRatedOPCap) * int.Parse(_device.ExisRModuleCount);
-                                if(_fzCap != 0) {
-                                    _loadValue = _fzMax / _fzCap;
+                                    var _fzMax = _fzMatch.Max(f => f.Value);
+                                    var _loadValue = _fzMax / _fzCap;
+                                    _result.Add(new HisLoadRate {
+                                        AreaId = _device.AreaId,
+                                        StationId = _device.StationId,
+                                        RoomId = _device.RoomId,
+                                        DeviceId = _device.Id,
+                                        StartTime = _interval.Id,
+                                        EndTime = _interval.Value,
+                                        Value = _loadValue,
+                                        CreatedTime = DateTime.Now
+                                    });
                                 }
                             }
 
                             _hisLoadRateRepository.DeleteEntities(_date, _end);
-                            _hisLoadRateRepository.SaveEntities(new List<HisLoadRate> {
-                                new HisLoadRate {
-                                    DeviceId = _device.Id,
-                                    Period = _date,
-                                    Value = _loadValue,
-                                    CreatedTime = DateTime.Now
-                                }
-                            });
+                            _hisLoadRateRepository.SaveEntities(_result);
                         }
                     } catch(Exception err) {
                         this.Events.Add(new Event {
@@ -140,14 +136,18 @@ namespace iPem.Task {
                     try {
                         var _current = iPemWorkContext.Devices.Find(d => d.Current.Id == _device.Id);
                         if(_current == null) continue;
-                        var _ztPoint = _current.Protocol.Points.FindAll(p => p.Type == EnmPoint.DI && _variable.qtkgdydzhglztXinHao.Contains(p.Id)).FirstOrDefault();
+                        var _ztPoint = _current.Protocol.Points.FirstOrDefault(p => p.Type == EnmPoint.DI && _variable.qtkgdydzhglztXinHao.Contains(p.Id));
                         if(_ztPoint == null) continue;
-                        var _fzPoint = _current.Protocol.Points.FindAll(p => p.Type == EnmPoint.AI && _variable.qtkgdydzhglfzXinHao.Contains(p.Id)).FirstOrDefault();
+                        var _fzPoint = _current.Protocol.Points.FirstOrDefault(p => p.Type == EnmPoint.AI && _variable.qtkgdydzhglfzXinHao.Contains(p.Id));
                         if(_fzPoint == null) continue;
+                        var _fzCap = double.Parse(_device.SingRModuleRatedOPCap) * int.Parse(_device.ExisRModuleCount);
+                        if(_fzCap == 0) continue;
+
                         var _ztFlag = CommonHelper.GetPointFlag(_ztPoint, "浮充");
                         foreach(var _date in _dates) {
                             var _end = _date.AddDays(1).AddMilliseconds(-1);
                             var _ztValues = _hisValueRepository.GetEntities(_device.Id, _ztPoint.Id, _date, _end);
+                            var _result = new List<HisLoadRate>();
                             var _intervals = new List<IdValuePair<DateTime, DateTime>>();
 
                             DateTime? _start = null;
@@ -173,33 +173,27 @@ namespace iPem.Task {
                                 _start = null;
                             }
 
-                            var _fzMatchs = new List<HisValue>();
                             if(_intervals.Count > 0) {
                                 var _fzValues = _hisValueRepository.GetEntities(_device.Id, _fzPoint.Id, _date, _end);
                                 foreach(var _interval in _intervals) {
                                     var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
-                                    if(_fzMatch.Count > 0) _fzMatchs.AddRange(_fzMatch);
-                                }
-                            }
-
-                            var _loadValue = -1d;
-                            if(_fzMatchs.Count > 0) {
-                                var _fzMax = _fzMatchs.Max(f => f.Value);
-                                var _fzCap = double.Parse(_device.SingRModuleRatedOPCap) * int.Parse(_device.ExisRModuleCount);
-                                if(_fzCap != 0) {
-                                    _loadValue = _fzMax / _fzCap;
+                                    var _fzMax = _fzMatch.Max(f => f.Value);
+                                    var _loadValue = _fzMax / _fzCap;
+                                    _result.Add(new HisLoadRate {
+                                        AreaId = _device.AreaId,
+                                        StationId = _device.StationId,
+                                        RoomId = _device.RoomId,
+                                        DeviceId = _device.Id,
+                                        StartTime = _interval.Id,
+                                        EndTime = _interval.Value,
+                                        Value = _loadValue,
+                                        CreatedTime = DateTime.Now
+                                    });
                                 }
                             }
 
                             _hisLoadRateRepository.DeleteEntities(_date, _end);
-                            _hisLoadRateRepository.SaveEntities(new List<HisLoadRate> {
-                                new HisLoadRate {
-                                    DeviceId = _device.Id,
-                                    Period = _date,
-                                    Value = _loadValue,
-                                    CreatedTime = DateTime.Now
-                                }
-                            });
+                            _hisLoadRateRepository.SaveEntities(_result);
                         }
                     } catch(Exception err) {
                         this.Events.Add(new Event {

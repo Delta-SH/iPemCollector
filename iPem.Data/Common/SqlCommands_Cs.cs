@@ -82,21 +82,29 @@ namespace iPem.Data.Common {
         IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'TT_BatTime{0}') AND type in (N'U'))
         BEGIN
             CREATE TABLE [dbo].[TT_BatTime{0}](
+	            [AreaId] [varchar](100) NOT NULL,
+	            [StationId] [varchar](100) NOT NULL,
+	            [RoomId] [varchar](100) NOT NULL,
 	            [DeviceId] [varchar](100) NOT NULL,
-	            [Period] [datetime] NOT NULL,
-	            [Value] [float] NOT NULL,
+	            [StartTime] [datetime] NOT NULL,
+	            [EndTime] [datetime] NOT NULL,
+	            [StartValue] [float] NOT NULL,
+	            [EndValue] [float] NOT NULL,
 	            [CreatedTime] [datetime] NOT NULL,
-                CONSTRAINT [PK_TT_BatTime{0}] PRIMARY KEY CLUSTERED 
+             CONSTRAINT [PK_TT_BatTime{0}] PRIMARY KEY CLUSTERED 
             (
+	            [AreaId] ASC,
+	            [StationId] ASC,
+	            [RoomId] ASC,
 	            [DeviceId] ASC,
-	            [Period] ASC
+	            [StartTime] ASC
             )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
             ) ON [PRIMARY]
         END
-        UPDATE [dbo].[TT_BatTime{0}] SET [Value] = @Value WHERE [DeviceId] = @DeviceId AND [Period] = @Period;
+        UPDATE [dbo].[TT_BatTime{0}] SET [EndTime] = @EndTime,[StartValue] = @StartValue,[EndValue] = @EndValue,[CreatedTime] = @CreatedTime WHERE [AreaId] = @AreaId AND [StationId] = @StationId AND [RoomId] = @RoomId AND [DeviceId] = @DeviceId AND [StartTime] = @StartTime;
         IF(@@ROWCOUNT = 0)
         BEGIN
-	        INSERT INTO [dbo].[TT_BatTime{0}]([DeviceId],[Period],[Value],[CreatedTime]) VALUES(@DeviceId,@Period,@Value,@CreatedTime);
+            INSERT INTO [dbo].[TT_BatTime{0}]([AreaId],[StationId],[RoomId],[DeviceId],[StartTime],[EndTime],[StartValue],[EndValue],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@StartTime,@EndTime,@StartValue,@EndValue,@CreatedTime);
         END";
         public const string Sql_HisBatTime_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
@@ -110,7 +118,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [Period] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
@@ -161,21 +169,28 @@ namespace iPem.Data.Common {
         IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'TT_LoadRate{0}') AND type in (N'U'))
         BEGIN
         CREATE TABLE [dbo].[TT_LoadRate{0}](
+	        [AreaId] [varchar](100) NOT NULL,
+	        [StationId] [varchar](100) NOT NULL,
+	        [RoomId] [varchar](100) NOT NULL,
 	        [DeviceId] [varchar](100) NOT NULL,
-	        [Period] [datetime] NOT NULL,
+	        [StartTime] [datetime] NOT NULL,
+	        [EndTime] [datetime] NOT NULL,
 	        [Value] [float] NOT NULL,
 	        [CreatedTime] [datetime] NOT NULL,
          CONSTRAINT [PK_TT_LoadRate{0}] PRIMARY KEY CLUSTERED 
         (
+	        [AreaId] ASC,
+	        [StationId] ASC,
+	        [RoomId] ASC,
 	        [DeviceId] ASC,
-	        [Period] ASC
+	        [StartTime] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
         ) ON [PRIMARY]
         END
-        UPDATE [dbo].[TT_LoadRate{0}] SET [Value] = @Value WHERE [DeviceId] = @DeviceId AND [Period] = @Period;
+        UPDATE [dbo].[TT_LoadRate{0}] SET [EndTime] = @EndTime,[Value] = @Value,[CreatedTime] = @CreatedTime WHERE [AreaId] = @AreaId AND [StationId] = @StationId AND [RoomId] = @RoomId AND [DeviceId] = @DeviceId AND [StartTime] = @StartTime;
         IF(@@ROWCOUNT = 0)
         BEGIN
-	        INSERT INTO [dbo].[TT_LoadRate{0}]([DeviceId],[Period],[Value],[CreatedTime]) VALUES(@DeviceId,@Period,@Value,@CreatedTime);
+            INSERT INTO [dbo].[TT_LoadRate{0}]([AreaId],[StationId],[RoomId],[DeviceId],[StartTime],[EndTime],[Value],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@StartTime,@EndTime,@Value,@CreatedTime);
         END";
         public const string Sql_HisLoadRate_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
@@ -189,7 +204,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [Period] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
