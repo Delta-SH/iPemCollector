@@ -75,7 +75,6 @@
     <Compile Include="Cs\HisBatTimeRepository.cs" />
     <Compile Include="Cs\HisElecRepository.cs" />
     <Compile Include="Cs\HisLoadRateRepository.cs" />
-    <Compile Include="Cs\HisMeasureRepository.cs" />
     <Compile Include="Cs\HisStaticRepository.cs" />
     <Compile Include="Cs\HisValueRepository.cs" />
     <Compile Include="Logger.cs" />

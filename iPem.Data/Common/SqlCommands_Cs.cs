@@ -255,7 +255,7 @@ namespace iPem.Data.Common {
         SET @tpDate = @Start;
         WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
         BEGIN
-            SET @tbName = N'[dbo].[V_HPoint'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 IF(@tableCnt>0)
@@ -290,7 +290,7 @@ namespace iPem.Data.Common {
         SET @tpDate = @Start;
         WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
         BEGIN
-            SET @tbName = N'[dbo].[V_HPoint'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 IF(@tableCnt>0)
@@ -325,7 +325,7 @@ namespace iPem.Data.Common {
         SET @tpDate = @Start;
         WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
         BEGIN
-            SET @tbName = N'[dbo].[V_HPoint'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 IF(@tableCnt>0)
@@ -348,113 +348,6 @@ namespace iPem.Data.Common {
 			        ' + @SQL + N'
 		        )
 		        SELECT MAX([Value]) AS [MaxValue], MIN([Value]) AS [MinValue] FROM HisValue;'
-        END
-
-        EXECUTE sp_executesql @SQL;";
-
-        //HMeasure Repository
-        public const string Sql_HisMeasure_Repository_GetEntities = @"
-        DECLARE @tpDate DATETIME, 
-                @tbName NVARCHAR(255),
-                @tableCnt INT = 0,
-                @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-            BEGIN
-                IF(@tableCnt>0)
-                BEGIN
-                SET @SQL += N' 
-                UNION ALL 
-                ';
-                END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
-                SET @tableCnt += 1;
-            END
-            SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        IF(@tableCnt>0)
-        BEGIN
-	        SET @SQL = N';WITH HisMeasure AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM HisMeasure ORDER BY [UpdateTime];'
-        END
-
-        EXECUTE sp_executesql @SQL;";
-        public const string Sql_HisMeasure_Repository_GetEntitiesByPoint = @"
-        DECLARE @tpDate DATETIME, 
-                @tbName NVARCHAR(255),
-                @tableCnt INT = 0,
-                @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-            BEGIN
-                IF(@tableCnt>0)
-                BEGIN
-                SET @SQL += N' 
-                UNION ALL 
-                ';
-                END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ' + @DeviceId + N' AND [PointId] = ' + @PointId + N' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
-                SET @tableCnt += 1;
-            END
-            SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        IF(@tableCnt>0)
-        BEGIN
-	        SET @SQL = N';WITH HisMeasure AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM HisMeasure ORDER BY [UpdateTime];'
-        END
-
-        EXECUTE sp_executesql @SQL;";
-        public const string Sql_HisMeasure_Repository_GetProcedure = @"
-        DECLARE @tpDate DATETIME, 
-                @tbName NVARCHAR(255),
-                @tableCnt INT = 0,
-                @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-            BEGIN
-                IF(@tableCnt>0)
-                BEGIN
-                SET @SQL += N' 
-                UNION ALL 
-                ';
-                END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ' + @DeviceId + N' AND [PointId] = ' + @PointId + N' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
-                SET @tableCnt += 1;
-            END
-            SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        IF(@tableCnt>0)
-        BEGIN
-	        SET @SQL = N';WITH HisMeasure AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT MAX([Value]) AS [MaxValue], MIN([Value]) AS [MinValue] FROM HisMeasure;'
         END
 
         EXECUTE sp_executesql @SQL;";

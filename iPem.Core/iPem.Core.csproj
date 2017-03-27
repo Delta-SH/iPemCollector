@@ -48,7 +48,6 @@
     <Compile Include="Cs\HisBatTime.cs" />
     <Compile Include="Cs\HisElec.cs" />
     <Compile Include="Cs\HisLoadRate.cs" />
-    <Compile Include="Cs\HisMeasure.cs" />
     <Compile Include="Cs\HisStatic.cs" />
     <Compile Include="Cs\HisValue.cs" />
     <Compile Include="ListItem.cs" />

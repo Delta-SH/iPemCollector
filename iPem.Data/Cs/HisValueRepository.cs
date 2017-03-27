@@ -47,10 +47,9 @@ namespace iPem.Data {
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
                     entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
-                    entity.PointType = SqlTypeConverter.DBNullEnmPointHandler(rdr["PointType"]);
-                    entity.RecordType = SqlTypeConverter.DBNullInt32Handler(rdr["RecordType"]);
+                    entity.SignalDesc = SqlTypeConverter.DBNullStringHandler(rdr["SignalDesc"]);
+                    entity.Type = SqlTypeConverter.DBNullEnmPointHandler(rdr["Type"]);
                     entity.Value = SqlTypeConverter.DBNullDoubleHandler(rdr["Value"]);
-                    entity.State = SqlTypeConverter.DBNullEnmStateHandler(rdr["State"]);
                     entity.UpdateTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["UpdateTime"]);
                     entities.Add(entity);
                 }
@@ -81,10 +80,9 @@ namespace iPem.Data {
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
                     entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
-                    entity.PointType = SqlTypeConverter.DBNullEnmPointHandler(rdr["PointType"]);
-                    entity.RecordType = SqlTypeConverter.DBNullInt32Handler(rdr["RecordType"]);
+                    entity.SignalDesc = SqlTypeConverter.DBNullStringHandler(rdr["SignalDesc"]);
+                    entity.Type = SqlTypeConverter.DBNullEnmPointHandler(rdr["Type"]);
                     entity.Value = SqlTypeConverter.DBNullDoubleHandler(rdr["Value"]);
-                    entity.State = SqlTypeConverter.DBNullEnmStateHandler(rdr["State"]);
                     entity.UpdateTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["UpdateTime"]);
                     entities.Add(entity);
                 }
