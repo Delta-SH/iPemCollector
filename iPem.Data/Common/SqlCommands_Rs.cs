@@ -106,8 +106,8 @@ namespace iPem.Data.Common {
         INNER JOIN [dbo].[C_StationType] ST ON P.[StationTypeId] = ST.[Id];";
         //Protocol Repository
         public const string Sql_Protocol_Repository_GetEntities = @"
-        SELECT PP.[Id],PP.[Name],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],PP.[SubDevTypeId] AS [SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],PP.[Desc] AS [Comment],PP.[Enabled] FROM [dbo].[P_Protocol] PP
-        INNER JOIN [dbo].[C_SubDeviceType] SD ON PP.[SubDevTypeId] = SD.[Id] 
+        SELECT PP.[Id],PP.[Name],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],PP.[SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],PP.[Desc] AS [Comment],PP.[Enabled] FROM [dbo].[P_Protocol] PP
+        INNER JOIN [dbo].[C_SubDeviceType] SD ON PP.[SubDeviceTypeId] = SD.[Id] 
         INNER JOIN [dbo].[C_DeviceType] DT ON SD.[DeviceTypeId] = DT.[Id];";
         //Room Repository
         public const string Sql_Room_Repository_GetEntity = @"

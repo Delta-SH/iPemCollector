@@ -214,6 +214,8 @@ namespace iPem.Task {
                     FullMessage = err.StackTrace
                 });
             }
+
+            if(this.Events.Count > 0) throw new Exception(string.Format("执行完成，发生{0}次错误(详见日志)。", this.Events.Count));
         }
     }
 }

@@ -29,41 +29,57 @@ namespace iPem.Task {
         }
 
         public void Execute() {
-            #region 处理接口设备数据
-            var amDevices = new List<AmDevice>();
-            foreach(var device in iPemWorkContext.Devices) {
-                amDevices.Add(new AmDevice {
-                    Id = device.Current.Id,
-                    Name = device.Current.Name,
-                    Type = device.Current.Type.Name,
-                    ParentId = device.Current.StationId,
-                    CreatedTime = DateTime.Now
+            try {
+                if(this.Last.Year == DateTime.Today.Year && this.Last.Month == DateTime.Today.Month)
+                    throw new Exception("此任务本月已经执行，本次将被忽略。");
+
+                #region 处理接口设备数据
+                var amDevices = new List<AmDevice>();
+                foreach(var device in iPemWorkContext.Devices) {
+                    amDevices.Add(new AmDevice {
+                        Id = device.Current.Id,
+                        Name = device.Current.Name,
+                        Type = device.Current.Type.Name,
+                        ParentId = device.Current.StationId,
+                        CreatedTime = DateTime.Now
+                    });
+                }
+
+                var _amDeviceRepository = new AmDeviceRepository();
+                _amDeviceRepository.DeleteEntities();
+                _amDeviceRepository.SaveEntities(amDevices);
+                #endregion
+
+                #region 处理接口站点数据
+                var amStations = new List<AmStation>();
+                foreach(var station in iPemWorkContext.Stations) {
+                    var parent = iPemWorkContext.Areas.Find(a => a.Current.Id == station.Current.AreaId);
+                    if(parent == null) continue;
+                    amStations.Add(new AmStation {
+                        Id = station.Current.Id,
+                        Name = station.Current.Name,
+                        Type = station.Current.Type.Name,
+                        Parent = parent.Current.Name,
+                        CreatedTime = DateTime.Now
+                    });
+                }
+
+                var _amStationRepository = new AmStationRepository();
+                _amStationRepository.DeleteEntities();
+                _amStationRepository.SaveEntities(amStations);
+                #endregion
+
+            } catch(Exception err) {
+                this.Events.Add(new Event {
+                    Id = Guid.NewGuid(),
+                    Type = EventType.Error,
+                    Time = DateTime.Now,
+                    Message = err.Message,
+                    FullMessage = err.StackTrace
                 });
             }
 
-            var _amDeviceRepository = new AmDeviceRepository();
-            _amDeviceRepository.DeleteEntities();
-            _amDeviceRepository.SaveEntities(amDevices);
-            #endregion
-
-            #region 处理接口站点数据
-            var amStations = new List<AmStation>();
-            foreach(var station in iPemWorkContext.Stations) {
-                var parent = iPemWorkContext.Areas.Find(a => a.Current.Id == station.Current.AreaId);
-                if(parent == null) continue;
-                amStations.Add(new AmStation {
-                    Id = station.Current.Id,
-                    Name = station.Current.Name,
-                    Type = station.Current.Type.Name,
-                    Parent = parent.Current.Name,
-                    CreatedTime = DateTime.Now
-                });
-            }
-
-            var _amStationRepository = new AmStationRepository();
-            _amStationRepository.DeleteEntities();
-            _amStationRepository.SaveEntities(amStations);
-            #endregion
+            if(this.Events.Count > 0) throw new Exception(string.Format("执行完成，发生{0}次错误(详见日志)。", this.Events.Count));
         }
     }
 }
