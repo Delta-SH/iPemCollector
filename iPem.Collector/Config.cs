@@ -475,7 +475,7 @@ namespace iPem.Collector {
                         Plan = PlanId.Act,
                         Last = new DateTime(2016, 1, 1),
                         Next = new DateTime(2016, 1, 1),
-                        Order = task.Index
+                        Index = task.Index
                     });
                 }
 
@@ -486,7 +486,7 @@ namespace iPem.Collector {
                         Plan = PlanId.His,
                         Last = new DateTime(2016, 1, 1),
                         Next = new DateTime(2016, 1, 1),
-                        Order = task.Index
+                        Index = task.Index
                     });
                 }
 
@@ -533,8 +533,8 @@ namespace iPem.Collector {
                     Password = databasepwd_sc.Text
                 };
 
-                var planCollection = new List<PlanEntity>();
-                planCollection.Add(new PlanEntity {
+                var planCollection = new List<ParamEntity>();
+                planCollection.Add(new ParamEntity {
                     Id = PlanId.Act,
                     Name = "实时任务计划",
                     Interval = (long)interval_act.Value,
@@ -543,7 +543,7 @@ namespace iPem.Collector {
                     End = end_act.Value
                 });
 
-                planCollection.Add(new PlanEntity {
+                planCollection.Add(new ParamEntity {
                     Id = PlanId.His,
                     Name = "历史任务计划",
                     Interval = (long)interval_his.Value,

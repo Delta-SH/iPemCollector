@@ -166,25 +166,11 @@ namespace iPem.Data.Common {
             return (byte[])val;
         }
 
-        public static DatabaseId DBNullDatabaseIdHandler(object val) {
-            if(val == DBNull.Value) { return DatabaseId.Rs; }
-
-            var v = (Int32)val;
-            return Enum.IsDefined(typeof(DatabaseId), v) ? (DatabaseId)v : DatabaseId.Rs;
-        }
-
         public static DatabaseType DBNullDatabaseTypeHandler(object val) {
             if(val == DBNull.Value) { return DatabaseType.SQLServer; }
 
             var v = (Int32)val;
             return Enum.IsDefined(typeof(DatabaseType), v) ? (DatabaseType)v : DatabaseType.SQLServer;
-        }
-
-        public static PlanId DBNullPlanIdHandler(object val) {
-            if(val == DBNull.Value) { return PlanId.Act; }
-
-            var v = (Int32)val;
-            return Enum.IsDefined(typeof(PlanId), v) ? (PlanId)v : PlanId.Act;
         }
 
         public static EnmPoint DBNullEnmPointHandler(object val) {
@@ -260,8 +246,19 @@ namespace iPem.Data.Common {
             return Enum.IsDefined(typeof(EnmFormula), v) ? (EnmFormula)v : EnmFormula.KT;
         }
 
+        /// <summary>
+        /// DBNull EnmFtpEvent Handler
+        /// </summary>
+        /// <param name="val">val</param>
+        public static EnmFtpEvent DBNullEnmFtpEventHandler(object val) {
+            if (val == DBNull.Value) { return EnmFtpEvent.Undefined; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(EnmFtpEvent), v) ? (EnmFtpEvent)v : EnmFtpEvent.Undefined;
+        }
+
         public static String CreateConnectionString(DbEntity database) {
-            return SqlHelper.CreateConnectionString(false, database.IP, database.Port, database.Name, database.Uid, database.Password, 120);
+            return SqlHelper.CreateConnectionString(false, database.IP, database.Port, database.Db, database.Uid, database.Password, 120);
         }
     }
 }

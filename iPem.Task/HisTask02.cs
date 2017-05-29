@@ -46,8 +46,8 @@ namespace iPem.Task {
                 if(_variable.qtxdchbschgldyXinHao == null || _variable.qtxdchbschgldyXinHao.Length == 0)
                     throw new Exception("未设置直流输出电压参数。");
 
-                var _hisValueRepository = new HisValueRepository();
-                var _hisBatTimeRepository = new HisBatTimeRepository();
+                var _hisValueRepository = new V_HMeasureRepository();
+                var _hisBatTimeRepository = new V_BatTimeRepository();
                 var _devices = iPemWorkContext.Devices.FindAll(d => _variable.qtxdchbschglLeiXing.Contains(d.Current.SubType.Id));
                 foreach(var _device in _devices) {
                     try {
@@ -55,7 +55,7 @@ namespace iPem.Task {
                         if(_dyPoint == null) continue;
                         foreach(var _date in _dates) {
                             var _end = _date.AddDays(1).AddMilliseconds(-1);
-                            var _result = new List<HisBatTime>();
+                            var _result = new List<V_BatTime>();
                             var _procedure = new List<HisValue>();
 
                             var _dyValues = _hisValueRepository.GetEntities(_device.Current.Id, _dyPoint.Id, _date, _end);
@@ -66,7 +66,7 @@ namespace iPem.Task {
                                     var _ordered = _procedure.OrderBy(p => p.Value);
                                     var _min = _ordered.First();
                                     var _max = _ordered.Last();
-                                    _result.Add(new HisBatTime {
+                                    _result.Add(new V_BatTime {
                                         AreaId = _value.AreaId,
                                         StationId = _value.StationId,
                                         RoomId = _value.RoomId,
@@ -86,7 +86,7 @@ namespace iPem.Task {
                                 var _ordered = _procedure.OrderBy(p => p.Value);
                                 var _min = _ordered.First();
                                 var _max = _ordered.Last();
-                                _result.Add(new HisBatTime {
+                                _result.Add(new V_BatTime {
                                     AreaId = _max.AreaId,
                                     StationId = _max.StationId,
                                     RoomId = _max.RoomId,

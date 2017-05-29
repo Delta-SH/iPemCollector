@@ -57,13 +57,15 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.FsuName = SqlTypeConverter.DBNullStringHandler(rdr["FsuName"]);
+                    entity.FsuCode = SqlTypeConverter.DBNullStringHandler(rdr["FsuCode"]);
                     entity.ProtocolId = SqlTypeConverter.DBNullStringHandler(rdr["ProtocolId"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
-                    entity.SingGroupCap = SqlTypeConverter.DBNullStringHandler(rdr["SingGroupCap"]);
+                    var cap = SqlTypeConverter.DBNullStringHandler(rdr["SingGroupCap"]);
+                    entity.SingGroupCap = string.IsNullOrWhiteSpace(cap) ? 0d : double.Parse(cap);
                     entity.SingVoltGrade = SqlTypeConverter.DBNullInt32Handler(rdr["SingVoltGrade"]);
-                    entity.SingGroupBattNumber = SqlTypeConverter.DBNullStringHandler(rdr["SingGroupBattNumber"]);
+                    var num = SqlTypeConverter.DBNullStringHandler(rdr["SingGroupBattNumber"]);
+                    entity.SingGroupBattNumber = string.IsNullOrWhiteSpace(num) ? 0 : int.Parse(num);
                 }
             }
             return entity;
@@ -96,13 +98,15 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.FsuName = SqlTypeConverter.DBNullStringHandler(rdr["FsuName"]);
+                    entity.FsuCode = SqlTypeConverter.DBNullStringHandler(rdr["FsuCode"]);
                     entity.ProtocolId = SqlTypeConverter.DBNullStringHandler(rdr["ProtocolId"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
-                    entity.SingGroupCap = SqlTypeConverter.DBNullStringHandler(rdr["SingGroupCap"]);
+                    var cap = SqlTypeConverter.DBNullStringHandler(rdr["SingGroupCap"]);
+                    entity.SingGroupCap = string.IsNullOrWhiteSpace(cap) ? 0d : double.Parse(cap);
                     entity.SingVoltGrade = SqlTypeConverter.DBNullInt32Handler(rdr["SingVoltGrade"]);
-                    entity.SingGroupBattNumber = SqlTypeConverter.DBNullStringHandler(rdr["SingGroupBattNumber"]);
+                    var num = SqlTypeConverter.DBNullStringHandler(rdr["SingGroupBattNumber"]);
+                    entity.SingGroupBattNumber = string.IsNullOrWhiteSpace(num) ? 0 : int.Parse(num);
                     entities.Add(entity);
                 }
             }

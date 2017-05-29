@@ -2,37 +2,37 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents a protocol
+    /// 模版信息
     /// </summary>
     [Serializable]
     public partial class Protocol {
         /// <summary>
-        /// Gets or sets the identifier
+        /// 模版编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 模版名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the device type
+        /// 所属设备类型
         /// </summary>
         public DeviceType DeviceType { get; set; }
 
         /// <summary>
-        /// Gets or sets the sub device type
+        /// 所属设备子类
         /// </summary>
         public SubDeviceType SubDeviceType { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the entity has been enabled
+        /// 状态
         /// </summary>
         public bool Enabled { get; set; }
     }

@@ -2,107 +2,115 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents a station
+    /// 站点信息
     /// </summary>
     [Serializable]
     public partial class Station {
         /// <summary>
-        /// Gets or sets the identifier
+        /// 站点编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the code
+        /// 外部编码
         /// </summary>
         public string Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 站点名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the station
+        /// 站点类型
         /// </summary>
         public StationType Type { get; set; }
 
         /// <summary>
-        /// Gets or sets the longitude
+        /// 经度
         /// </summary>
         public string Longitude { get; set; }
 
         /// <summary>
-        /// Gets or sets the latitude
+        /// 纬度
         /// </summary>
         public string Latitude { get; set; }
 
         /// <summary>
-        /// Gets or sets the altitude
+        /// 海拔标高
         /// </summary>
         public string Altitude { get; set; }
 
         /// <summary>
-        /// Gets or sets the city electric load type
+        /// 市电引入方式
         /// </summary>
         public int CityElecLoadTypeId { get; set; }
 
         /// <summary>
-        /// Gets or sets the city electric capacity
+        /// 市电容量
         /// </summary>
         public string CityElecCap { get; set; }
 
         /// <summary>
-        /// Gets or sets the city electric load
+        /// 市电路数
+        /// </summary>
+        public int CityElectNumber { get; set; }
+
+        /// <summary>
+        /// 市电引入
         /// </summary>
         public string CityElecLoad { get; set; }
 
         /// <summary>
-        /// Gets or sets the contact
+        /// 维护负责人
         /// </summary>
         public string Contact { get; set; }
 
         /// <summary>
-        /// Gets or sets the line radius size
+        /// 线径
         /// </summary>
         public string LineRadiusSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the line length
+        /// 线缆长度
         /// </summary>
         public string LineLength { get; set; }
 
         /// <summary>
-        /// Gets or sets the supply power type
+        /// 供电性质
         /// </summary>
+        /// <remarks>
+        /// 枚举值：转供、直供
+        /// </remarks>
         public int SuppPowerTypeId { get; set; }
 
         /// <summary>
-        /// Gets or sets the transmission information
+        /// 转供信息
         /// </summary>
         public string TranInfo { get; set; }
 
         /// <summary>
-        /// Gets or sets the transmission contact number
+        /// 供电合同号
         /// </summary>
         public string TranContNo { get; set; }
 
         /// <summary>
-        /// Gets or sets the transmission phone
+        /// 变电站电话
         /// </summary>
         public string TranPhone { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the area
+        /// 区域编码
         /// </summary>
         public string AreaId { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the entity is enabled.
+        /// 状态
         /// </summary>
         public bool Enabled { get; set; }
     }

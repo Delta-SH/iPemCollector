@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPem.Core", "iPem.Core\iPem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPem.Task", "iPem.Task\iPem.Task.csproj", "{3A265980-91C6-4D89-89B8-4AF94C8F3EA3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPem.Configurator", "iPem.Configurator\iPem.Configurator.csproj", "{7D81937D-EBDA-4AF0-954A-1DA297D2D13A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPem.TaskServer", "iPem.TaskServer\iPem.TaskServer.csproj", "{672BFA19-B196-4E30-9851-651B2E3F2335}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{3A265980-91C6-4D89-89B8-4AF94C8F3EA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A265980-91C6-4D89-89B8-4AF94C8F3EA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A265980-91C6-4D89-89B8-4AF94C8F3EA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D81937D-EBDA-4AF0-954A-1DA297D2D13A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D81937D-EBDA-4AF0-954A-1DA297D2D13A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D81937D-EBDA-4AF0-954A-1DA297D2D13A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D81937D-EBDA-4AF0-954A-1DA297D2D13A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{672BFA19-B196-4E30-9851-651B2E3F2335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{672BFA19-B196-4E30-9851-651B2E3F2335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{672BFA19-B196-4E30-9851-651B2E3F2335}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{672BFA19-B196-4E30-9851-651B2E3F2335}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

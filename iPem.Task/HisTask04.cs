@@ -45,7 +45,7 @@ namespace iPem.Task {
                     });
                 }
 
-                var _amDeviceRepository = new AmDeviceRepository();
+                var _amDeviceRepository = new H_IDeviceRepository();
                 _amDeviceRepository.DeleteEntities();
                 _amDeviceRepository.SaveEntities(amDevices);
                 #endregion
@@ -64,7 +64,7 @@ namespace iPem.Task {
                     });
                 }
 
-                var _amStationRepository = new AmStationRepository();
+                var _amStationRepository = new H_IStationRepository();
                 _amStationRepository.DeleteEntities();
                 _amStationRepository.SaveEntities(amStations);
                 #endregion

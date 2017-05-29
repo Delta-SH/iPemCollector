@@ -37,8 +37,8 @@ namespace iPem.Task {
 
             var _actAlmRepository = new ActAlmRepository();
             var _extAlarmRepository = new ExtAlarmRepository();
-            var _appointmentRepository = new AppointmentRepository();
-            var _nodesInAppointmentRepository = new NodesInAppointmentRepository();
+            var _appointmentRepository = new ReservationRepository();
+            var _nodesInAppointmentRepository = new NodesInReservationRepository();
 
             #region 处理告警扩展
             var _allAlarms = _actAlmRepository.GetEntities();
@@ -62,7 +62,7 @@ namespace iPem.Task {
 
             #region 处理工程预约
             var _appointments = _appointmentRepository.GetEntities(start, end);
-            var _appsets = new List<IdValuePair<Appointment, HashSet<string>>>();
+            var _appsets = new List<IdValuePair<Reservation, HashSet<string>>>();
             foreach(var _appointment in _appointments) {
                 var _appnodes = _nodesInAppointmentRepository.GetEntities(_appointment.Id);
                 var _appdevices = new HashSet<string>();
@@ -89,7 +89,7 @@ namespace iPem.Task {
                     }
                 }
 
-                _appsets.Add(new IdValuePair<Appointment, HashSet<string>> {
+                _appsets.Add(new IdValuePair<Reservation, HashSet<string>> {
                     Id = _appointment,
                     Value = _appdevices
                 });

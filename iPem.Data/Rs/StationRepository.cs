@@ -44,6 +44,7 @@ namespace iPem.Data {
                     entity.Altitude = SqlTypeConverter.DBNullStringHandler(rdr["Altitude"]);
                     entity.CityElecLoadTypeId = SqlTypeConverter.DBNullInt32Handler(rdr["CityElecLoadTypeID"]);
                     entity.CityElecCap = SqlTypeConverter.DBNullStringHandler(rdr["CityElecCap"]);
+                    entity.CityElectNumber = SqlTypeConverter.DBNullInt32Handler(rdr["CityElectNumber"]);
                     entity.CityElecLoad = SqlTypeConverter.DBNullStringHandler(rdr["CityElecLoad"]);
                     entity.Contact = SqlTypeConverter.DBNullStringHandler(rdr["Contact"]);
                     entity.LineRadiusSize = SqlTypeConverter.DBNullStringHandler(rdr["LineRadiusSize"]);
@@ -77,6 +78,7 @@ namespace iPem.Data {
                     entity.Altitude = SqlTypeConverter.DBNullStringHandler(rdr["Altitude"]);
                     entity.CityElecLoadTypeId = SqlTypeConverter.DBNullInt32Handler(rdr["CityElecLoadTypeID"]);
                     entity.CityElecCap = SqlTypeConverter.DBNullStringHandler(rdr["CityElecCap"]);
+                    entity.CityElectNumber = SqlTypeConverter.DBNullInt32Handler(rdr["CityElectNumber"]);
                     entity.CityElecLoad = SqlTypeConverter.DBNullStringHandler(rdr["CityElecLoad"]);
                     entity.Contact = SqlTypeConverter.DBNullStringHandler(rdr["Contact"]);
                     entity.LineRadiusSize = SqlTypeConverter.DBNullStringHandler(rdr["LineRadiusSize"]);
@@ -108,6 +110,7 @@ namespace iPem.Data {
                     entity.Altitude = SqlTypeConverter.DBNullStringHandler(rdr["Altitude"]);
                     entity.CityElecLoadTypeId = SqlTypeConverter.DBNullInt32Handler(rdr["CityElecLoadTypeID"]);
                     entity.CityElecCap = SqlTypeConverter.DBNullStringHandler(rdr["CityElecCap"]);
+                    entity.CityElectNumber = SqlTypeConverter.DBNullInt32Handler(rdr["CityElectNumber"]);
                     entity.CityElecLoad = SqlTypeConverter.DBNullStringHandler(rdr["CityElecLoad"]);
                     entity.Contact = SqlTypeConverter.DBNullStringHandler(rdr["Contact"]);
                     entity.LineRadiusSize = SqlTypeConverter.DBNullStringHandler(rdr["LineRadiusSize"]);

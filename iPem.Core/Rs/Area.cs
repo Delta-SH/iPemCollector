@@ -2,42 +2,42 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents an area
+    /// 区域信息
     /// </summary>
     [Serializable]
     public partial class Area {
         /// <summary>
-        /// Gets or sets the area identifier
+        /// 区域编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the area code
+        /// 外部编码
         /// </summary>
         public string Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the area name
+        /// 区域名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the area type
+        /// 区域类型
         /// </summary>
         public IdValuePair<int, string> Type { get; set; }
 
         /// <summary>
-        /// Gets or sets the area's parent identifer
+        /// 父级区域编码
         /// </summary>
         public string ParentId { get; set; }
 
         /// <summary>
-        /// Gets or sets the area's comment identifer
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the area is enabled.
+        /// 状态
         /// </summary>
         public bool Enabled { get; set; }
     }

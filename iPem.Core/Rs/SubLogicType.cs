@@ -2,22 +2,22 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents a logic type
+    /// 逻辑子类信息
     /// </summary>
     [Serializable]
     public partial class SubLogicType {
         /// <summary>
-        /// Gets or sets the identifier
+        /// 逻辑子类编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 逻辑子类名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier
+        /// 逻辑分类编码
         /// </summary>
         public string LogicTypeId { get; set; }
     }

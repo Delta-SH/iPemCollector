@@ -1,150 +1,176 @@
 ﻿using System;
 
 namespace iPem.Core {
+    /// <summary>
+    /// 信号信息
+    /// </summary>
     [Serializable]
     public partial class Point {
         /// <summary>
-        /// Gets or sets the identifier
+        /// 信号编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the code
+        /// 外部编码
         /// </summary>
         public string Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 信号名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the type
+        /// 信号类型
         /// </summary>
         public EnmPoint Type { get; set; }
 
         /// <summary>
-        /// Gets or sets the unit or state
+        /// 单位/描述
         /// </summary>
         public string UnitState { get; set; }
 
         /// <summary>
-        /// Gets or sets the number
+        /// 顺序号
         /// </summary>
         public string Number { get; set; }
 
         /// <summary>
-        /// Gets or sets the station type
+        /// 标准告警编号
+        /// </summary>
+        public string AlarmId { get; set; }
+
+        /// <summary>
+        /// 网管告警编号
+        /// </summary>
+        public string NMAlarmId { get; set; }
+
+        /// <summary>
+        /// 站点类型
         /// </summary>
         public StationType StationType { get; set; }
 
         /// <summary>
-        /// Gets or sets the device type
+        /// 设备类型
         /// </summary>
         public DeviceType DeviceType { get; set; }
 
         /// <summary>
-        /// Gets or sets the sub device type
+        /// 设备子类型
         /// </summary>
         public SubDeviceType SubDeviceType { get; set; }
 
         /// <summary>
-        /// Gets or sets the logic type
+        /// 逻辑分类
         /// </summary>
         public LogicType LogicType { get; set; }
 
         /// <summary>
-        /// Gets or sets the sub logic type
+        /// 逻辑子类
         /// </summary>
         public SubLogicType SubLogicType { get; set; }
 
         /// <summary>
-        /// Gets or sets the alarm description
+        /// 告警时描述
         /// </summary>
         public string AlarmComment { get; set; }
 
         /// <summary>
-        /// Gets or sets the normal description
+        /// 正常时描述
         /// </summary>
         public string NormalComment { get; set; }
 
         /// <summary>
-        /// Gets or sets the alarm level
+        /// 告警对设备的影响
+        /// </summary>
+        public string DeviceEffect { get; set; }
+
+        /// <summary>
+        /// 告警对业务的影响
+        /// </summary>
+        public string BusiEffect { get; set; }
+
+        /// <summary>
+        /// 告警级别
         /// </summary>
         public EnmAlarm AlarmLevel { get; set; }
 
         /// <summary>
-        /// Gets or sets the trigger type
+        /// 触发模式
         /// </summary>
+        /// <remarks>
+        /// >、<、=、！= (针对遥信)
+        /// </remarks>
         public int TriggerTypeId { get; set; }
 
         /// <summary>
-        /// Gets or sets the interpret
+        /// 信号解释
         /// </summary>
         public string Interpret { get; set; }
 
         /// <summary>
-        /// Gets or sets the alarm limit
+        /// 告警门限
         /// </summary>
         public double AlarmLimit { get; set; }
 
         /// <summary>
-        /// Gets or sets the alarm return diff
+        /// 告警回差
         /// </summary>
         public double AlarmReturnDiff { get; set; }
 
         /// <summary>
-        /// Gets or sets the alarm recovery delay
+        /// 告警恢复延时（秒）
         /// </summary>
         public int AlarmRecoveryDelay { get; set; }
 
         /// <summary>
-        /// Gets or sets the alarm delay
+        /// 告警延时（秒）
         /// </summary>
         public int AlarmDelay { get; set; }
 
         /// <summary>
-        /// Gets or sets the save period
+        /// 存储周期（秒）
         /// </summary>
         public int SavedPeriod { get; set; }
 
         /// <summary>
-        /// Gets or sets the static period
+        /// 统计周期(分钟，5的倍数)
         /// </summary>
         public int StaticPeriod { get; set; }
 
         /// <summary>
-        /// Gets or sets the absolute threshold
+        /// 绝对阀值
         /// </summary>
         public double AbsoluteThreshold { get; set; }
 
         /// <summary>
-        /// Gets or sets the per threshold
+        /// 百分比阀值
         /// </summary>
         public double PerThreshold { get; set; }
 
         /// <summary>
-        /// Gets or sets the extend set
+        /// 扩展设置1
         /// </summary>
         public string ExtSet1 { get; set; }
 
         /// <summary>
-        /// Gets or sets the extend set
+        /// 扩展设置2
         /// </summary>
         public string ExtSet2 { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 信号说明
         /// </summary>
         public string Comment { get; set; }
 
         /// <summary>
-        /// Gets or sets the description
+        /// 备注
         /// </summary>
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the entity has been enabled
+        /// 状态
         /// </summary>
         public bool Enabled { get; set; }
     }

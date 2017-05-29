@@ -2,22 +2,22 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents an room type
+    /// 机房类型信息
     /// </summary>
     [Serializable]
     public partial class RoomType {
         /// <summary>
-        ///Gets or sets the identifier
+        /// 机房类型编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 机房类型名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
     }

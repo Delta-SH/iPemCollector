@@ -2,62 +2,62 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents a project
+    /// 工程信息
     /// </summary>
     [Serializable]
     public partial class Project {
         /// <summary>
-        /// Gets or sets the id
+        /// 工程编码
         /// </summary>
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 工程名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the startTime
+        /// 开始时间
         /// </summary>
         public DateTime StartTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the endTime
+        /// 结束时间
         /// </summary>
         public DateTime EndTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the responsible
+        /// 工程负责人
         /// </summary>
         public string Responsible { get; set; }
 
         /// <summary>
-        /// Gets or sets the contactPhone
+        /// 联系电话
         /// </summary>
         public string ContactPhone { get; set; }
 
         /// <summary>
-        /// Gets or sets the company
+        /// 工程公司
         /// </summary>
         public string Company { get; set; }
 
         /// <summary>
-        /// Gets or sets the creator
+        /// 创建人员
         /// </summary>
         public string Creator { get; set; }
 
         /// <summary>
-        /// Gets or sets the createdTime
+        /// 创建时间
         /// </summary>
         public DateTime CreatedTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
 
         /// <summary>
-        /// Gets or sets the enabled
+        /// 状态
         /// </summary>
         public bool Enabled { get; set; }
     }

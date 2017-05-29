@@ -2,22 +2,22 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents a StationType
+    /// 站点类型信息
     /// </summary>
     [Serializable]
     public partial class StationType {
         /// <summary>
-        ///Gets or sets the identifier
+        /// 站点类型编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 站点类型名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
     }

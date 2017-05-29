@@ -3,42 +3,47 @@ using System;
 
 namespace iPem.Model {
     /// <summary>
-    /// Represents a database
+    /// 数据库信息
     /// </summary>
     public partial class DbEntity {
         /// <summary>
-        /// Database Id
+        /// 唯一标识
         /// </summary>
-        public DatabaseId Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
-        /// Database Type
+        /// 名称
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// 数据库类型
         /// </summary>
         public DatabaseType Type { get; set; }
 
         /// <summary>
-        /// Database IP
+        /// 服务器地址
         /// </summary>
-        public String IP { get; set; }
+        public string IP { get; set; }
 
         /// <summary>
-        /// Database Port
+        /// 数据库端口
         /// </summary>
-        public Int32 Port { get; set; }
+        public int Port { get; set; }
 
         /// <summary>
-        /// Database Uid
+        /// 登录用户
         /// </summary>
-        public String Uid { get; set; }
+        public string Uid { get; set; }
 
         /// <summary>
-        /// Database Password
+        /// 登录密码
         /// </summary>
-        public String Password { get; set; }
+        public string Password { get; set; }
 
         /// <summary>
-        /// Database Name
+        /// 数据库名称
         /// </summary>
-        public String Name { get; set; }
+        public string Db { get; set; }
     }
 }

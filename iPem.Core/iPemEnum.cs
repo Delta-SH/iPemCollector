@@ -1,11 +1,36 @@
 ﻿using System;
 
 namespace iPem.Core {
+    public partial class DbIds {
+        /// <summary>
+        /// 资源数据库
+        /// </summary>
+        public static string Rs {
+            get { return "D001"; }
+        }
 
-    public enum DatabaseId {
-        Rs = 1,
-        Cs,
-        Sc
+        /// <summary>
+        /// 应用数据库
+        /// </summary>
+        public static string Sc {
+            get { return "D002"; }
+        }
+
+        /// <summary>
+        /// 历史数据库
+        /// </summary>
+        public static string Cs {
+            get { return "D003"; }
+        }
+    }
+
+    public partial class ParamIds {
+        /// <summary>
+        /// 常规参数
+        /// </summary>
+        public static string Default {
+            get { return "P001"; }
+        }
     }
 
     public enum DatabaseType {
@@ -13,24 +38,10 @@ namespace iPem.Core {
         Oracle
     }
 
-    public enum PlanId {
-        Act = 1,
-        His
-    }
-
-    public enum EventType {
-        Error = 1,
-        Warning,
-        Info,
-        Other
-    }
-
-    public enum TestStatus {
-        Default,
-        Testing,
-        Success,
-        Failure,
-        Stop
+    public enum PlanType {
+        Hour = 1,
+        Day = 24,
+        Month = 720
     }
 
     public enum RunStatus {
@@ -40,6 +51,20 @@ namespace iPem.Core {
         Pause,
         Stop
     }
+
+    public enum EventType {
+        Error = 1,
+        Warning,
+        Info,
+        Other
+    }
+
+    public enum EnmFtpEvent {
+        Undefined,
+        FTP
+    }
+
+    
 
     public enum EnmOrganization {
         Area,
@@ -62,9 +87,6 @@ namespace iPem.Core {
         AO = 2
     }
 
-    /// <summary>
-    /// Represents the point state enumeration
-    /// </summary>
     public enum EnmState {
         Normal,
         Invalid

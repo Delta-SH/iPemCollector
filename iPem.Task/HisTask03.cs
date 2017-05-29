@@ -1,6 +1,5 @@
 ﻿using iPem.Core;
 using iPem.Data;
-using iPem.Data.Cs;
 using iPem.Model;
 using Newtonsoft.Json;
 using System;
@@ -49,10 +48,10 @@ namespace iPem.Task {
                 if(_variable.qtkgdydzhglfzXinHao == null || _variable.qtkgdydzhglfzXinHao.Length == 0)
                     throw new Exception("未设置开关电源负载电流参数。");
 
-                var _hisValueRepository = new HisValueRepository();
+                var _hisValueRepository = new V_HMeasureRepository();
                 var _combSwitElecSourRepository = new CombSwitElecSourRepository();
                 var _divSwitElecSourRepository = new DivSwitElecSourRepository();
-                var _hisLoadRateRepository = new HisLoadRateRepository();
+                var _hisLoadRateRepository = new V_LoadRepository();
                 var _comDevices = _combSwitElecSourRepository.GetEntities().FindAll(d => _variable.qtkgdydzhglLeiXing.Contains(d.SubType.Id));
                 var _divDevices = _divSwitElecSourRepository.GetEntities().FindAll(d => _variable.qtkgdydzhglLeiXing.Contains(d.SubType.Id));
 

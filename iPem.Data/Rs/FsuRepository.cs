@@ -57,17 +57,23 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.FsuName = SqlTypeConverter.DBNullStringHandler(rdr["FsuName"]);
+                    entity.FsuCode = SqlTypeConverter.DBNullStringHandler(rdr["FsuCode"]);
                     entity.ProtocolId = SqlTypeConverter.DBNullStringHandler(rdr["ProtocolId"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
 
+                    entity.IP = SqlTypeConverter.DBNullStringHandler(rdr["IP"]);
+                    entity.Port = SqlTypeConverter.DBNullInt32Handler(rdr["Port"]);
                     entity.Uid = SqlTypeConverter.DBNullStringHandler(rdr["Uid"]);
                     entity.Pwd = SqlTypeConverter.DBNullStringHandler(rdr["Pwd"]);
                     entity.FtpUid = SqlTypeConverter.DBNullStringHandler(rdr["FtpUid"]);
                     entity.FtpPwd = SqlTypeConverter.DBNullStringHandler(rdr["FtpPwd"]);
                     entity.FtpFilePath = SqlTypeConverter.DBNullStringHandler(rdr["FtpFilePath"]);
                     entity.FtpAuthority = SqlTypeConverter.DBNullInt32Handler(rdr["FtpAuthority"]);
+                    entity.ChangeTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["ChangeTime"]);
+                    entity.LastTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["LastTime"]);
+                    entity.Status = SqlTypeConverter.DBNullBooleanHandler(rdr["Status"]);
+                    entity.Desc = SqlTypeConverter.DBNullStringHandler(rdr["Desc"]); 
                 }
             }
             return entity;
@@ -103,17 +109,23 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.FsuName = SqlTypeConverter.DBNullStringHandler(rdr["FsuName"]);
+                    entity.FsuCode = SqlTypeConverter.DBNullStringHandler(rdr["FsuCode"]);
                     entity.ProtocolId = SqlTypeConverter.DBNullStringHandler(rdr["ProtocolId"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
 
+                    entity.IP = SqlTypeConverter.DBNullStringHandler(rdr["IP"]);
+                    entity.Port = SqlTypeConverter.DBNullInt32Handler(rdr["Port"]);
                     entity.Uid = SqlTypeConverter.DBNullStringHandler(rdr["Uid"]);
                     entity.Pwd = SqlTypeConverter.DBNullStringHandler(rdr["Pwd"]);
                     entity.FtpUid = SqlTypeConverter.DBNullStringHandler(rdr["FtpUid"]);
                     entity.FtpPwd = SqlTypeConverter.DBNullStringHandler(rdr["FtpPwd"]);
                     entity.FtpFilePath = SqlTypeConverter.DBNullStringHandler(rdr["FtpFilePath"]);
                     entity.FtpAuthority = SqlTypeConverter.DBNullInt32Handler(rdr["FtpAuthority"]);
+                    entity.ChangeTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["ChangeTime"]);
+                    entity.LastTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["LastTime"]);
+                    entity.Status = SqlTypeConverter.DBNullBooleanHandler(rdr["Status"]);
+                    entity.Desc = SqlTypeConverter.DBNullStringHandler(rdr["Desc"]); 
                     entities.Add(entity);
                 }
             }
@@ -147,17 +159,23 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.FsuName = SqlTypeConverter.DBNullStringHandler(rdr["FsuName"]);
+                    entity.FsuCode = SqlTypeConverter.DBNullStringHandler(rdr["FsuCode"]);
                     entity.ProtocolId = SqlTypeConverter.DBNullStringHandler(rdr["ProtocolId"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
 
+                    entity.IP = SqlTypeConverter.DBNullStringHandler(rdr["IP"]);
+                    entity.Port = SqlTypeConverter.DBNullInt32Handler(rdr["Port"]);
                     entity.Uid = SqlTypeConverter.DBNullStringHandler(rdr["Uid"]);
                     entity.Pwd = SqlTypeConverter.DBNullStringHandler(rdr["Pwd"]);
                     entity.FtpUid = SqlTypeConverter.DBNullStringHandler(rdr["FtpUid"]);
                     entity.FtpPwd = SqlTypeConverter.DBNullStringHandler(rdr["FtpPwd"]);
                     entity.FtpFilePath = SqlTypeConverter.DBNullStringHandler(rdr["FtpFilePath"]);
                     entity.FtpAuthority = SqlTypeConverter.DBNullInt32Handler(rdr["FtpAuthority"]);
+                    entity.ChangeTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["ChangeTime"]);
+                    entity.LastTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["LastTime"]);
+                    entity.Status = SqlTypeConverter.DBNullBooleanHandler(rdr["Status"]);
+                    entity.Desc = SqlTypeConverter.DBNullStringHandler(rdr["Desc"]); 
                     entities.Add(entity);
                 }
             }

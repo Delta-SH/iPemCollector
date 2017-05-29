@@ -68,8 +68,8 @@ namespace iPem.Task {
                         _details.Add(new VariableDetail { Device = _device.Current, Point = _point, Variable = _variable });
                     }
 
-                    var _hisValueRepository = new HisValueRepository();
-                    var _result = new List<HisElec>();
+                    var _hisValueRepository = new V_HMeasureRepository();
+                    var _result = new List<V_Elec>();
                     foreach(var _date in _dates) {
                         var _current = _formulaText;
                         var _value = 0d;
@@ -82,7 +82,7 @@ namespace iPem.Task {
                             _value = (double)_computer.Compute(_current, "");
                         } catch {}
 
-                        _result.Add(new HisElec {
+                        _result.Add(new V_Elec {
                             Id = _formula.Id,
                             Type = _formula.Type,
                             FormulaType = _formula.FormulaType,
@@ -92,7 +92,7 @@ namespace iPem.Task {
                     }
 
                     if(_result.Count > 0) {
-                        var _hisElecRepository = new HisElecRepository();
+                        var _hisElecRepository = new V_ElecRepository();
                         _hisElecRepository.SaveEntities(_result);
                     }
                 } catch(Exception err) {

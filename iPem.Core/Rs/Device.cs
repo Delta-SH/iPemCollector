@@ -2,137 +2,140 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents a device
+    /// 设备信息
     /// </summary>
     [Serializable]
     public partial class Device {
         /// <summary>
-        /// Gets or sets the identifier
+        /// 设备编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the code
+        /// 外部编码
         /// </summary>
         public string Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 设备名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the device type
+        /// 设备类型
         /// </summary>
         public DeviceType Type { get; set; }
 
         /// <summary>
-        /// Gets or sets the sub device type
+        /// 设备子类型
         /// </summary>
         public SubDeviceType SubType { get; set; }
 
         /// <summary>
-        /// Gets or sets the system name
+        /// 系统名称
         /// </summary>
         public string SysName { get; set; }
 
         /// <summary>
-        /// Gets or sets the system code
+        /// 系统编码
         /// </summary>
         public string SysCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the model
+        /// 设备型号
         /// </summary>
         public string Model { get; set; }
 
         /// <summary>
-        /// Gets or sets the product identifier
+        /// 生产厂家
         /// </summary>
         public string ProdId { get; set; }
 
         /// <summary>
-        /// Gets or sets the brand identifier
+        /// 品牌
         /// </summary>
         public string BrandId { get; set; }
 
         /// <summary>
-        /// Gets or sets the supplier identifier
+        /// 供应商
         /// </summary>
         public string SuppId { get; set; }
 
         /// <summary>
-        /// Gets or sets the sub company identifier
+        /// 维护厂家
         /// </summary>
         public string SubCompId { get; set; }
 
         /// <summary>
-        /// Gets or sets the start time
+        /// 开始使用时间
         /// </summary>
         public DateTime StartTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the scrap time
+        /// 预计报废时间
         /// </summary>
         public DateTime ScrapTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the status identifier
+        /// 使用状态
         /// </summary>
+        /// <remarks>
+        /// 枚举值：在用-良好,在用-故障,闲置-良好,闲置-故障,返修,报废
+        /// </remarks>
         public int StatusId { get; set; }
 
         /// <summary>
-        /// Gets or sets the contact
+        /// 维护负责人
         /// </summary>
         public string Contact { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the area
+        /// 所属区域
         /// </summary>
         public string AreaId { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the station
+        /// 所属站点
         /// </summary>
         public string StationId { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the station
+        /// 所属站点
         /// </summary>
         public string StationName { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the room
+        /// 所属机房
         /// </summary>
         public string RoomId { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the room
+        /// 所属机房
         /// </summary>
         public string RoomName { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the fsu
+        /// 所属FSU编码
         /// </summary>
         public string FsuId { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the fsu
+        /// 所属FSU外部编码
         /// </summary>
-        public string FsuName { get; set; }
+        public string FsuCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the protcol
+        /// 设备模版
         /// </summary>
         public string ProtocolId { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the entity is enabled.
+        /// 状态
         /// </summary>
         public bool Enabled { get; set; }
     }

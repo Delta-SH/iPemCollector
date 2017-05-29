@@ -2,22 +2,22 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents a device type
+    /// 设备类型信息
     /// </summary>
     [Serializable]
     public partial class DeviceType {
         /// <summary>
-        /// Gets or sets the identifier
+        /// 设备类型编码
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 设备类型名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
     }

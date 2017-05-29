@@ -2,32 +2,32 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// Represents an enum methods
+    /// 自定义枚举信息
     /// </summary>
     [Serializable]
     public partial class EnumMethods {
         /// <summary>
-        /// Gets or sets the identifier
+        /// 编号
         /// </summary>
         public int Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the name
+        /// 名称
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the type
+        /// 枚举类型
         /// </summary>
         public int TypeId { get; set; }
 
         /// <summary>
-        /// Gets or sets the index
+        /// 枚举索引
         /// </summary>
         public int Index { get; set; }
 
         /// <summary>
-        /// Gets or sets the comment
+        /// 备注
         /// </summary>
         public string Comment { get; set; }
     }
