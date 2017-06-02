@@ -144,7 +144,8 @@ namespace iPem.Configurator {
                                 Id = SqlTypeConverter.DBNullStringHandler(rdr["id"]),
                                 Name = SqlTypeConverter.DBNullStringHandler(rdr["name"]),
                                 Json = SqlTypeConverter.DBNullStringHandler(rdr["json"]),
-                                Last = SqlTypeConverter.DBNullDateTimeHandler(rdr["last"]),
+                                Start = SqlTypeConverter.DBNullDateTimeHandler(rdr["start"]),
+                                End = SqlTypeConverter.DBNullDateTimeHandler(rdr["end"]),
                                 Next = SqlTypeConverter.DBNullDateTimeHandler(rdr["next"]),
                                 Index = SqlTypeConverter.DBNullInt32Handler(rdr["index"])
                             });
@@ -163,8 +164,6 @@ namespace iPem.Configurator {
             SQLiteParameter[] parms = { new SQLiteParameter("@id", DbType.String,50),
                                         new SQLiteParameter("@name", DbType.String,200),
                                         new SQLiteParameter("@json", DbType.String),
-                                        new SQLiteParameter("@last", DbType.DateTime),
-                                        new SQLiteParameter("@next", DbType.DateTime),
                                         new SQLiteParameter("@index", DbType.Int32) };
 
             using(var conn = new SQLiteConnection(registryConnectionString)) {
@@ -175,9 +174,7 @@ namespace iPem.Configurator {
                         parms[0].Value = SqlTypeConverter.DBNullStringChecker(task.Id);
                         parms[1].Value = SqlTypeConverter.DBNullStringChecker(task.Name);
                         parms[2].Value = SqlTypeConverter.DBNullStringChecker(task.Json);
-                        parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(task.Last);
-                        parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(task.Next);
-                        parms[5].Value = task.Index;
+                        parms[3].Value = task.Index;
 
                         command.Parameters.Clear();
                         command.Parameters.AddRange(parms);

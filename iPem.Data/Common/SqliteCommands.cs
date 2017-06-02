@@ -12,13 +12,13 @@ namespace iPem.Data.Common {
         SELECT [id],[name],[type],[ip],[port],[uid],[password],[db] FROM [databases] where [id] = @id;";
 
         public const string Registry_Get_Tasks = @"
-        SELECT [id],[name],[json],[last],[next],[index] FROM [tasks];";
+        SELECT [id],[name],[json],[start],[end],[next],[index] FROM [tasks];";
 
         public const string Registry_Get_Task = @"
-        SELECT [id],[name],[json],[last],[next],[index] FROM [tasks] where [id] = @id;";
+        SELECT [id],[name],[json],[start],[end],[next],[index] FROM [tasks] where [id] = @id;";
         
         public const string Registry_Update_Task = @"
-        UPDATE [tasks] SET [last] = @last,[next] = @next WHERE [id] = @id;";
+        UPDATE [tasks] SET [start] = @start,[end] = @end,[next] = @next WHERE [id] = @id;";
 
         public const string Registry_Get_Params = @"
         SELECT [id],[name],[json],[time] FROM [params];";

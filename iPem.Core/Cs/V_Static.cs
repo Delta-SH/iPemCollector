@@ -34,7 +34,7 @@ namespace iPem.Core {
         /// <summary>
         /// 开始时间
         /// </summary>
-        public DateTime BeginTime { get; set; }
+        public DateTime StartTime { get; set; }
 
         /// <summary>
         /// 结束时间

@@ -22,12 +22,17 @@ namespace iPem.Core {
         public EnmFormula FormulaType { get; set; }
 
         /// <summary>
-        /// 汇聚日期
+        /// 开始日期
         /// </summary>
-        public DateTime Period { get; set; }
+        public DateTime StartTime { get; set; }
 
         /// <summary>
-        /// 汇聚能耗值
+        /// 结束日期
+        /// </summary>
+        public DateTime EndTime { get; set; }
+
+        /// <summary>
+        /// 能耗值
         /// </summary>
         public double Value { get; set; }
     }

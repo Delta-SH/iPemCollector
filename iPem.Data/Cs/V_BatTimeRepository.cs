@@ -32,6 +32,8 @@ namespace iPem.Data {
                                      new SqlParameter("@StationId", SqlDbType.VarChar,100),
                                      new SqlParameter("@RoomId", SqlDbType.VarChar,100),
                                      new SqlParameter("@DeviceId", SqlDbType.VarChar,100),
+                                     new SqlParameter("@PointId", SqlDbType.VarChar,100),
+                                     new SqlParameter("@PackId", SqlDbType.Int),
                                      new SqlParameter("@StartTime", SqlDbType.DateTime),
                                      new SqlParameter("@EndTime", SqlDbType.DateTime),
                                      new SqlParameter("@StartValue", SqlDbType.Float),
@@ -47,11 +49,13 @@ namespace iPem.Data {
                         parms[1].Value = SqlTypeConverter.DBNullStringChecker(entity.StationId);
                         parms[2].Value = SqlTypeConverter.DBNullStringChecker(entity.RoomId);
                         parms[3].Value = SqlTypeConverter.DBNullStringChecker(entity.DeviceId);
-                        parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
-                        parms[5].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
-                        parms[6].Value = SqlTypeConverter.DBNullDoubleChecker(entity.StartValue);
-                        parms[7].Value = SqlTypeConverter.DBNullDoubleChecker(entity.EndValue);
-                        parms[8].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.CreatedTime);
+                        parms[4].Value = SqlTypeConverter.DBNullStringChecker(entity.PointId);
+                        parms[5].Value = SqlTypeConverter.DBNullInt32Checker(entity.PackId);
+                        parms[6].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
+                        parms[7].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
+                        parms[8].Value = SqlTypeConverter.DBNullDoubleChecker(entity.StartValue);
+                        parms[9].Value = SqlTypeConverter.DBNullDoubleChecker(entity.EndValue);
+                        parms[10].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.CreatedTime);
                         SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_BatTime_Repository_SaveEntities, entity.StartTime.ToString("yyyyMM")), parms);
                     }
                     trans.Commit();

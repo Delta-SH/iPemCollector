@@ -12,6 +12,38 @@ namespace iPem.Model {
 
         public static List<TaskEntity> CurTasks { get; set; }
 
+        public static void SetTaskPloy(TaskEntity task) {
+            var model = task.Json;
+            if (model.Type == PlanType.Hour) {
+                var next = DateTime.Today.AddHours(DateTime.Now.Hour + model.Interval);
+                var timeRangs = next.Hour * 3600 + next.Minute * 60 + next.Second;
+                var timeRangsMin = model.StartTime.Hour * 3600 + model.StartTime.Minute * 60 + model.StartTime.Second;
+                var timeRangsMax = model.EndTime.Hour * 3600 + model.EndTime.Minute * 60 + model.EndTime.Second;
+                if (timeRangs < timeRangsMin)
+                    next = next.Date.AddSeconds(timeRangsMin);
+                else if(timeRangs > timeRangsMax)
+                    next = next.AddDays(1).Date.AddSeconds(timeRangsMin);
+
+                task.Start = task.End.AddSeconds(1);
+                task.End = next.Date.AddHours(next.Hour).AddSeconds(-1);
+                task.Next = next;
+            } else if (model.Type == PlanType.Day) {
+                var next = DateTime.Today.AddDays(model.Interval).AddSeconds(model.StartTime.Hour * 3600 + model.StartTime.Minute * 60 + model.StartTime.Second);
+
+                task.Start = task.End.AddSeconds(1);
+                task.End = next.Date.AddSeconds(-1);
+                task.Next = next;
+            } else if (model.Type == PlanType.Month) {
+                var next = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(model.Interval);
+
+                task.Start = task.End.AddSeconds(1);
+                task.End = next.AddSeconds(-1);
+                task.Next = next.AddSeconds(model.StartTime.Hour * 3600 + model.StartTime.Minute * 60 + model.StartTime.Second);
+            } else {
+                task.Start = task.End = task.Next = new DateTime(2099, 12, 31, 23, 59, 59);
+            }
+        }
+
         public static Dictionary<string, RedefinePoint> RedefinePoints { get; set; }
 
         public static DateTime RedefineLoadTime { get; set; }
@@ -21,6 +53,8 @@ namespace iPem.Model {
         public static DateTime ReservationLoadTime { get; set; }
 
         public static Dictionary<string, ReversalModel> ReversalKeys { get; set; }
+
+        public static List<StaticModel> StaticModels { get; set; }
 
         #region 告警相关
 

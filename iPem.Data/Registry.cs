@@ -109,7 +109,8 @@ namespace iPem.Core {
                                 Id = SqlTypeConverter.DBNullStringHandler(rdr["id"]),
                                 Name = SqlTypeConverter.DBNullStringHandler(rdr["name"]),
                                 Json = string.IsNullOrWhiteSpace(json) ? null : JsonConvert.DeserializeObject<TaskModel>(json),
-                                Last = SqlTypeConverter.DBNullDateTimeHandler(rdr["last"]),
+                                Start = SqlTypeConverter.DBNullDateTimeHandler(rdr["start"]),
+                                End = SqlTypeConverter.DBNullDateTimeHandler(rdr["end"]),
                                 Next = SqlTypeConverter.DBNullDateTimeHandler(rdr["next"]),
                                 Index = SqlTypeConverter.DBNullInt32Handler(rdr["index"])
                             });
@@ -140,7 +141,8 @@ namespace iPem.Core {
                                 Id = SqlTypeConverter.DBNullStringHandler(rdr["id"]),
                                 Name = SqlTypeConverter.DBNullStringHandler(rdr["name"]),
                                 Json = string.IsNullOrWhiteSpace(json) ? null : JsonConvert.DeserializeObject<TaskModel>(json),
-                                Last = SqlTypeConverter.DBNullDateTimeHandler(rdr["last"]),
+                                Start = SqlTypeConverter.DBNullDateTimeHandler(rdr["start"]),
+                                End = SqlTypeConverter.DBNullDateTimeHandler(rdr["end"]),
                                 Next = SqlTypeConverter.DBNullDateTimeHandler(rdr["next"]),
                                 Index = SqlTypeConverter.DBNullInt32Handler(rdr["index"])
                             };
@@ -156,7 +158,8 @@ namespace iPem.Core {
         /// </summary>
         public void UpdateTasks(List<TaskEntity> tasks) {
             SQLiteParameter[] parms = { new SQLiteParameter("@id", DbType.String,50),
-                                        new SQLiteParameter("@last", DbType.DateTime),
+                                        new SQLiteParameter("@start", DbType.DateTime),
+                                        new SQLiteParameter("@end", DbType.DateTime),
                                         new SQLiteParameter("@next", DbType.DateTime) };
 
             using (var conn = new SQLiteConnection(registryConnectionString)) {
@@ -165,8 +168,9 @@ namespace iPem.Core {
                 using (var command = new SQLiteCommand(SqliteCommands.Registry_Update_Task, conn)) {
                     foreach (var task in tasks) {
                         parms[0].Value = SqlTypeConverter.DBNullStringChecker(task.Id);
-                        parms[1].Value = SqlTypeConverter.DBNullDateTimeChecker(task.Last);
-                        parms[2].Value = SqlTypeConverter.DBNullDateTimeChecker(task.Next);
+                        parms[1].Value = SqlTypeConverter.DBNullDateTimeChecker(task.Start);
+                        parms[2].Value = SqlTypeConverter.DBNullDateTimeChecker(task.End);
+                        parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(task.Next);
 
                         command.Parameters.Clear();
                         command.Parameters.AddRange(parms);

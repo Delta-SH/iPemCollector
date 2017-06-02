@@ -20,9 +20,9 @@ namespace iPem.Collector {
         private RunStatus _runStatus;
         private Registry _registry;
         private List<IActTask> _actAllTasks;
-        private List<IHisTask> _hisAllTasks;
+        private List<ITask> _hisAllTasks;
         private List<IActTask> _actAutoTasks;
-        private List<IHisTask> _hisAutoTasks;
+        private List<ITask> _hisAutoTasks;
         private Thread _workerThread;
         private List<Thread> _workerThreads;
         private Queue<Event> _eventQueue;
@@ -88,7 +88,7 @@ namespace iPem.Collector {
                 //global
                 _runStatus = RunStatus.Default;
                 _actAutoTasks = new List<IActTask>();
-                _hisAutoTasks = new List<IHisTask>();
+                _hisAutoTasks = new List<ITask>();
                 _workerThreads = new List<Thread>();
                 _eventQueue = new Queue<Event>();
                 _allDone = new EventWaitHandle(false, EventResetMode.ManualReset);
@@ -689,7 +689,7 @@ namespace iPem.Collector {
                 hisDoTask.Enabled = false;
                 hisMessageLbl.ResetText();
 
-                var _tasks = new List<IHisTask>();
+                var _tasks = new List<ITask>();
                 foreach(ListItem<string> item in hisTasks.CheckedItems) {
                     var _task = this._hisAllTasks.Find(t => t.Id == item.Id);
                     if(_task != null) _tasks.Add(_task);

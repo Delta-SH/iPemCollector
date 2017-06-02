@@ -17,13 +17,13 @@ namespace iPem.Collector {
             return _tasks;
         }
 
-        public static List<IHisTask> GetHisTasks() {
-            var _tasks = new List<IHisTask>();
+        public static List<ITask> GetHisTasks() {
+            var _tasks = new List<ITask>();
             var _dll = Assembly.LoadFrom("iPem.Task.dll");
-            var _type = typeof(IHisTask);
+            var _type = typeof(ITask);
             var _classes = _dll.GetTypes().Where(t => t.IsClass && _type.IsAssignableFrom(t));
             foreach(var _class in _classes) {
-                _tasks.Add((IHisTask)Activator.CreateInstance(_class));
+                _tasks.Add((ITask)Activator.CreateInstance(_class));
             }
             return _tasks;
         }

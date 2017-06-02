@@ -7,7 +7,7 @@ using System.Data;
 using System.Linq;
 
 namespace iPem.Task {
-    public partial class HisTask01 : IHisTask {
+    public partial class HisTask01 : ITask {
         public string Id {
             get { return "hisTask01"; }
         }

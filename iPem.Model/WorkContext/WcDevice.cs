@@ -1,5 +1,6 @@
 ﻿using iPem.Core;
 using System;
+using System.Collections.Generic;
 
 namespace iPem.Model {
     [Serializable]

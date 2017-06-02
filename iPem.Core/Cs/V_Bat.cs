@@ -32,6 +32,11 @@ namespace iPem.Core {
         public string PointId { get; set; }
 
         /// <summary>
+        /// 电池组号
+        /// </summary>
+        public int PackId { get; set; }
+
+        /// <summary>
         /// 放电开始时间
         /// </summary>
         public DateTime StartTime { get; set; }

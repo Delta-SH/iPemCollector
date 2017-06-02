@@ -8,7 +8,9 @@ namespace iPem.Configurator {
 
         public string Json { get; set; }
 
-        public DateTime Last { get; set; }
+        public DateTime Start { get; set; }
+
+        public DateTime End { get; set; }
 
         public DateTime Next { get; set; }
 

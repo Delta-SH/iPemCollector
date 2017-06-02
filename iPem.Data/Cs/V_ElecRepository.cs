@@ -31,7 +31,8 @@ namespace iPem.Data {
             SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.VarChar,100),
                                      new SqlParameter("@Type", SqlDbType.Int),
                                      new SqlParameter("@FormulaType", SqlDbType.Int),
-                                     new SqlParameter("@Period", SqlDbType.DateTime),
+                                     new SqlParameter("@StartTime", SqlDbType.DateTime),
+                                     new SqlParameter("@EndTime", SqlDbType.DateTime),
                                      new SqlParameter("@Value", SqlDbType.Float)};
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
@@ -42,9 +43,10 @@ namespace iPem.Data {
                         parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.Id);
                         parms[1].Value = (int)entity.Type;
                         parms[2].Value = (int)entity.FormulaType;
-                        parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.Period);
-                        parms[4].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
-                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_Elec_Repository_SaveEntities, entity.Period.ToString("yyyyMM")), parms);
+                        parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
+                        parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
+                        parms[5].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_Elec_Repository_SaveEntities, entity.StartTime.ToString("yyyyMM")), parms);
                     }
                     trans.Commit();
                 } catch {
@@ -54,8 +56,11 @@ namespace iPem.Data {
             }
         }
 
-        public void DeleteEntities(DateTime start, DateTime end) {
-            SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
+        public void DeleteEntities(string id, EnmOrganization type, EnmFormula formulaType, DateTime start, DateTime end) {
+            SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.VarChar,100),
+                                     new SqlParameter("@Type", SqlDbType.Int),
+                                     new SqlParameter("@FormulaType", SqlDbType.Int),
+                                     new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
             parms[0].Value = SqlTypeConverter.DBNullDateTimeHandler(start);

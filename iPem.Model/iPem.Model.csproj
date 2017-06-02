@@ -39,13 +39,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LoadModel.cs" />
     <Compile Include="ReservationModel.cs" />
     <Compile Include="DbEntity.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="GlobalConfig.cs" />
     <Compile Include="ParamEntity.cs" />
     <Compile Include="ParamModel.cs" />
+    <Compile Include="ReversalModel.cs" />
     <Compile Include="RtValues.cs" />
+    <Compile Include="StaticModel.cs" />
     <Compile Include="TAlarmModel.cs" />
     <Compile Include="TaskEntity.cs" />
     <Compile Include="TaskModel.cs" />

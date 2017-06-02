@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace iPem.Task {
-    public partial class HisTask06 : IHisTask {
+    public partial class HisTask06 : ITask {
         public string Id {
             get { return "hisTask06"; }
         }

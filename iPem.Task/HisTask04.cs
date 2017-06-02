@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 namespace iPem.Task {
-    public partial class HisTask04 : IHisTask {
+    public partial class HisTask04 : ITask {
         public string Id {
             get { return "hisTask04"; }
         }

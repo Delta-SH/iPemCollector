@@ -34,8 +34,7 @@ namespace iPem.Data {
                                      new SqlParameter("@DeviceId", SqlDbType.VarChar,100),
                                      new SqlParameter("@StartTime",SqlDbType.DateTime),
                                      new SqlParameter("@EndTime", SqlDbType.DateTime),
-                                     new SqlParameter("@Value", SqlDbType.Float),
-                                     new SqlParameter("@CreatedTime", SqlDbType.DateTime)};
+                                     new SqlParameter("@Value", SqlDbType.Float)};
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();
@@ -49,7 +48,6 @@ namespace iPem.Data {
                         parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
                         parms[5].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
                         parms[6].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
-                        parms[7].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.CreatedTime);
                         SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_Load_Repository_SaveEntities, entity.StartTime.ToString("yyyyMM")), parms);
                     }
                     trans.Commit();
@@ -60,12 +58,14 @@ namespace iPem.Data {
             }
         }
 
-        public void DeleteEntities(DateTime start, DateTime end) {
-            SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
+        public void DeleteEntities(string device, DateTime start, DateTime end) {
+            SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar, 100),
+                                     new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
-            parms[0].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
-            parms[1].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
+            parms[0].Value = SqlTypeConverter.DBNullStringChecker(device);
+            parms[1].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
+            parms[2].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();

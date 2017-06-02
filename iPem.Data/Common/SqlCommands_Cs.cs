@@ -139,10 +139,25 @@ namespace iPem.Data.Common {
         /// <summary>
         /// V_Bat Repository
         /// </summary>
-        public const string Sql_V_Bat_Repository_GetEntities = @"
+        public const string Sql_V_Bat_Repository_SaveEntities = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Bat{0}') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [dbo].[V_Bat{0}](
+	            [AreaId] [varchar](100) NOT NULL,
+	            [StationId] [varchar](100) NOT NULL,
+	            [RoomId] [varchar](100) NOT NULL,
+	            [DeviceId] [varchar](100) NOT NULL,
+	            [PointId] [varchar](100) NOT NULL,
+	            [PackId] [int] NOT NULL,
+	            [StartTime] [datetime] NOT NULL,
+	            [Value] [float] NOT NULL,
+	            [ValueTime] [datetime] NOT NULL
+            ) ON [PRIMARY]
+        END
+        INSERT INTO [dbo].[V_Bat{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[StartTime],[Value],[ValueTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@StartTime,@Value,@ValueTime);";
+        public const string Sql_V_Bat_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
-                @tableCnt INT = 0,
                 @SQL NVARCHAR(MAX) = N'';
 
         SET @tpDate = @Start;
@@ -151,28 +166,11 @@ namespace iPem.Data.Common {
             SET @tbName = N'[dbo].[V_Bat'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
-                IF(@tableCnt>0)
-                BEGIN
-                SET @SQL += N' 
-                UNION ALL 
-                ';
-                END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [ValueTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
-                SET @tableCnt += 1;
+                SET @SQL += N'
+		        DELETE FROM ' + @tbName + N' WHERE [ValueTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
-
-        IF(@tableCnt>0)
-        BEGIN
-	        SET @SQL = N';WITH HisBat AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM HisBat ORDER BY [ValueTime];'
-        END
-
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
@@ -186,6 +184,8 @@ namespace iPem.Data.Common {
 	            [StationId] [varchar](100) NOT NULL,
 	            [RoomId] [varchar](100) NOT NULL,
 	            [DeviceId] [varchar](100) NOT NULL,
+	            [PointId] [varchar](100) NOT NULL,
+	            [PackId] [int] NOT NULL,
 	            [StartTime] [datetime] NOT NULL,
 	            [EndTime] [datetime] NOT NULL,
 	            [StartValue] [float] NOT NULL,
@@ -193,7 +193,7 @@ namespace iPem.Data.Common {
 	            [CreatedTime] [datetime] NOT NULL
             ) ON [PRIMARY]
         END
-        INSERT INTO [dbo].[V_BatTime{0}]([AreaId],[StationId],[RoomId],[DeviceId],[StartTime],[EndTime],[StartValue],[EndValue],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@StartTime,@EndTime,@StartValue,@EndValue,@CreatedTime);";
+        INSERT INTO [dbo].[V_BatTime{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[StartTime],[EndTime],[StartValue],[EndValue],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@StartTime,@EndTime,@StartValue,@EndValue,@CreatedTime);";
         public const string Sql_V_BatTime_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
@@ -218,26 +218,16 @@ namespace iPem.Data.Common {
         public const string Sql_V_Elec_Repository_SaveEntities = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Elec{0}') AND type in (N'U'))
         BEGIN
-        CREATE TABLE [dbo].[V_Elec{0}](
-	        [Id] [varchar](100) NOT NULL,
-	        [Type] [int] NOT NULL,
-	        [FormulaType] [int] NOT NULL,
-	        [Period] [datetime] NOT NULL,
-	        [Value] [float] NOT NULL,
-         CONSTRAINT [PK_TT_Elec{0}] PRIMARY KEY CLUSTERED 
-        (
-	        [Id] ASC,
-	        [Type] ASC,
-	        [FormulaType] ASC,
-	        [Period] ASC
-        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-        ) ON [PRIMARY]
+            CREATE TABLE [dbo].[V_Elec{0}](
+	            [Id] [varchar](100) NOT NULL,
+	            [Type] [int] NOT NULL,
+	            [FormulaType] [int] NOT NULL,
+	            [StartTime] [datetime] NOT NULL,
+	            [EndTime] [datetime] NOT NULL,
+	            [Value] [float] NOT NULL
+            ) ON [PRIMARY]
         END
-        UPDATE [dbo].[V_Elec{0}] SET [Value] = @Value WHERE [Id] = @Id AND [Type] = @Type AND [FormulaType] = @FormulaType AND [Period] = @Period;
-        IF(@@ROWCOUNT = 0)
-        BEGIN
-	        INSERT INTO [dbo].[V_Elec{0}]([Id],[Type],[FormulaType],[Period],[Value]) VALUES(@Id,@Type,@FormulaType,@Period,@Value);
-        END";
+        INSERT INTO [dbo].[V_Elec{0}]([Id],[Type],[FormulaType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@StartTime,@EndTime,@Value);";
         public const string Sql_V_Elec_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
@@ -250,7 +240,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [Period] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [Id]='''+ @Id + N''' AND [Type] = '+ CAST(@Type AS NVARCHAR) + N' AND [FormulaType] = '+ CAST(@FormulaType AS NVARCHAR) +N' [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
@@ -269,11 +259,10 @@ namespace iPem.Data.Common {
 	        [DeviceId] [varchar](100) NOT NULL,
 	        [StartTime] [datetime] NOT NULL,
 	        [EndTime] [datetime] NOT NULL,
-	        [Value] [float] NOT NULL,
-	        [CreatedTime] [datetime] NOT NULL
+	        [Value] [float] NOT NULL
         ) ON [PRIMARY]
         END
-        INSERT INTO [dbo].[V_Load{0}]([AreaId],[StationId],[RoomId],[DeviceId],[StartTime],[EndTime],[Value],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@StartTime,@EndTime,@Value,@CreatedTime);";
+        INSERT INTO [dbo].[V_Load{0}]([AreaId],[StationId],[RoomId],[DeviceId],[StartTime],[EndTime],[Value]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@StartTime,@EndTime,@Value);";
         public const string Sql_V_Load_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
@@ -286,7 +275,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
@@ -295,10 +284,29 @@ namespace iPem.Data.Common {
         /// <summary>
         /// V_Static Repository
         /// </summary>
-        public const string Sql_V_Static_Repository_GetEntities = @"
+        public const string Sql_V_Static_Repository_SaveEntities = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Static{0}') AND type in (N'U'))
+        BEGIN
+        CREATE TABLE [dbo].[V_Static{0}](
+	        [AreaId] [varchar](100) NULL,
+	        [StationId] [varchar](100) NULL,
+	        [RoomId] [varchar](100) NULL,
+	        [DeviceId] [varchar](100) NOT NULL,
+	        [PointId] [varchar](100) NOT NULL,
+	        [StartTime] [datetime] NOT NULL,
+	        [EndTime] [datetime] NOT NULL,
+	        [MaxTime] [datetime] NOT NULL,
+	        [MinTime] [datetime] NOT NULL,
+	        [MaxValue] [float] NOT NULL,
+	        [MinValue] [float] NOT NULL,
+	        [AvgValue] [float] NOT NULL,
+	        [Total] [int] NOT NULL
+        ) ON [PRIMARY]
+        END
+        INSERT INTO [dbo].[V_Static{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[StartTime],[EndTime],[MaxTime],[MinTime],[MaxValue],[MinValue],[AvgValue],[Total]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@StartTime,@EndTime,@MaxTime,@MinTime,@MaxValue,@MinValue,@AvgValue,@Total);";
+        public const string Sql_V_Static_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
-                @tableCnt INT = 0,
                 @SQL NVARCHAR(MAX) = N'';
 
         SET @tpDate = @Start;
@@ -307,28 +315,11 @@ namespace iPem.Data.Common {
             SET @tbName = N'[dbo].[V_Static'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
-                IF(@tableCnt>0)
-                BEGIN
-                SET @SQL += N' 
-                UNION ALL 
-                ';
-                END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [BeginTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
-                SET @tableCnt += 1;
+                SET @SQL += N'
+		        DELETE FROM ' + @tbName + N' WHERE [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
-
-        IF(@tableCnt>0)
-        BEGIN
-	        SET @SQL = N';WITH HisStatic AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM HisStatic ORDER BY [BeginTime];'
-        END
-
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>

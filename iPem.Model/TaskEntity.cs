@@ -21,12 +21,17 @@ namespace iPem.Model {
         public TaskModel Json { get; set; }
 
         /// <summary>
-        /// 上次执行时间
+        /// 开始时间
         /// </summary>
-        public DateTime Last { get; set; }
+        public DateTime Start { get; set; }
 
         /// <summary>
-        /// 下次执行时间
+        /// 结束时间
+        /// </summary>
+        public DateTime End { get; set; }
+
+        /// <summary>
+        /// 执行时间
         /// </summary>
         public DateTime Next { get; set; }
 

@@ -43,16 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActTask01.cs" />
-    <Compile Include="ActTask02.cs" />
     <Compile Include="HisTask01.cs" />
     <Compile Include="HisTask02.cs" />
     <Compile Include="HisTask03.cs" />
     <Compile Include="HisTask04.cs" />
     <Compile Include="HisTask05.cs" />
     <Compile Include="HisTask06.cs" />
-    <Compile Include="IActTask.cs" />
-    <Compile Include="IHisTask.cs" />
+    <Compile Include="ITask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -230,12 +230,12 @@
             // paramPanel
             // 
             this.paramPanel.Controls.Add(this.paramLayoutPanel);
-            this.paramPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.paramPanel.Location = new System.Drawing.Point(0, 0);
+            this.paramPanel.Location = new System.Drawing.Point(6, 0);
             this.paramPanel.Margin = new System.Windows.Forms.Padding(0);
             this.paramPanel.Name = "paramPanel";
-            this.paramPanel.Size = new System.Drawing.Size(319, 326);
+            this.paramPanel.Size = new System.Drawing.Size(303, 68);
             this.paramPanel.TabIndex = 0;
+            this.paramPanel.Visible = false;
             // 
             // paramLayoutPanel
             // 
@@ -273,7 +273,7 @@
             this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.paramLayoutPanel.Size = new System.Drawing.Size(319, 326);
+            this.paramLayoutPanel.Size = new System.Drawing.Size(303, 68);
             this.paramLayoutPanel.TabIndex = 0;
             // 
             // paramBottomPanel
@@ -283,10 +283,10 @@
             this.paramBottomPanel.Controls.Add(this.paramSaveButton);
             this.paramBottomPanel.Controls.Add(this.paramCloseButton);
             this.paramBottomPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.paramBottomPanel.Location = new System.Drawing.Point(0, 276);
+            this.paramBottomPanel.Location = new System.Drawing.Point(0, 18);
             this.paramBottomPanel.Margin = new System.Windows.Forms.Padding(0);
             this.paramBottomPanel.Name = "paramBottomPanel";
-            this.paramBottomPanel.Size = new System.Drawing.Size(319, 50);
+            this.paramBottomPanel.Size = new System.Drawing.Size(303, 50);
             this.paramBottomPanel.TabIndex = 0;
             // 
             // paramLine01
@@ -295,13 +295,13 @@
             this.paramLine01.Dock = System.Windows.Forms.DockStyle.Top;
             this.paramLine01.Location = new System.Drawing.Point(0, 0);
             this.paramLine01.Name = "paramLine01";
-            this.paramLine01.Size = new System.Drawing.Size(319, 1);
+            this.paramLine01.Size = new System.Drawing.Size(303, 1);
             this.paramLine01.TabIndex = 1;
             // 
             // paramSaveButton
             // 
             this.paramSaveButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.paramSaveButton.Location = new System.Drawing.Point(129, 10);
+            this.paramSaveButton.Location = new System.Drawing.Point(113, 10);
             this.paramSaveButton.Margin = new System.Windows.Forms.Padding(0);
             this.paramSaveButton.Name = "paramSaveButton";
             this.paramSaveButton.Size = new System.Drawing.Size(90, 30);
@@ -313,7 +313,7 @@
             // paramCloseButton
             // 
             this.paramCloseButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.paramCloseButton.Location = new System.Drawing.Point(229, 10);
+            this.paramCloseButton.Location = new System.Drawing.Point(213, 10);
             this.paramCloseButton.Margin = new System.Windows.Forms.Padding(0);
             this.paramCloseButton.Name = "paramCloseButton";
             this.paramCloseButton.Size = new System.Drawing.Size(90, 30);
@@ -350,7 +350,7 @@
             0,
             0});
             this.almIntervalField.Name = "almIntervalField";
-            this.almIntervalField.Size = new System.Drawing.Size(99, 23);
+            this.almIntervalField.Size = new System.Drawing.Size(91, 23);
             this.almIntervalField.TabIndex = 2;
             this.almIntervalField.Value = new decimal(new int[] {
             1,
@@ -362,10 +362,10 @@
             // 
             this.paramLayoutPanel.SetColumnSpan(this.almIntervalUnit, 2);
             this.almIntervalUnit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.almIntervalUnit.Location = new System.Drawing.Point(199, 0);
+            this.almIntervalUnit.Location = new System.Drawing.Point(191, 0);
             this.almIntervalUnit.Margin = new System.Windows.Forms.Padding(0);
             this.almIntervalUnit.Name = "almIntervalUnit";
-            this.almIntervalUnit.Size = new System.Drawing.Size(120, 25);
+            this.almIntervalUnit.Size = new System.Drawing.Size(112, 25);
             this.almIntervalUnit.TabIndex = 0;
             this.almIntervalUnit.Text = "秒/次(建议值:1)";
             this.almIntervalUnit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -398,7 +398,7 @@
             0,
             0});
             this.cfgIntervalField.Name = "cfgIntervalField";
-            this.cfgIntervalField.Size = new System.Drawing.Size(99, 23);
+            this.cfgIntervalField.Size = new System.Drawing.Size(91, 23);
             this.cfgIntervalField.TabIndex = 4;
             this.cfgIntervalField.Value = new decimal(new int[] {
             1,
@@ -410,10 +410,10 @@
             // 
             this.paramLayoutPanel.SetColumnSpan(this.cfgIntervalUnit, 2);
             this.cfgIntervalUnit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cfgIntervalUnit.Location = new System.Drawing.Point(199, 35);
+            this.cfgIntervalUnit.Location = new System.Drawing.Point(191, 35);
             this.cfgIntervalUnit.Margin = new System.Windows.Forms.Padding(0);
             this.cfgIntervalUnit.Name = "cfgIntervalUnit";
-            this.cfgIntervalUnit.Size = new System.Drawing.Size(120, 25);
+            this.cfgIntervalUnit.Size = new System.Drawing.Size(112, 25);
             this.cfgIntervalUnit.TabIndex = 0;
             this.cfgIntervalUnit.Text = "秒/次(建议值:30)";
             this.cfgIntervalUnit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -446,7 +446,7 @@
             0,
             0});
             this.initMaxCountField.Name = "initMaxCountField";
-            this.initMaxCountField.Size = new System.Drawing.Size(99, 23);
+            this.initMaxCountField.Size = new System.Drawing.Size(91, 23);
             this.initMaxCountField.TabIndex = 8;
             this.initMaxCountField.Value = new decimal(new int[] {
             1,
@@ -458,10 +458,10 @@
             // 
             this.paramLayoutPanel.SetColumnSpan(this.initMaxCountUnit, 2);
             this.initMaxCountUnit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.initMaxCountUnit.Location = new System.Drawing.Point(199, 105);
+            this.initMaxCountUnit.Location = new System.Drawing.Point(191, 105);
             this.initMaxCountUnit.Margin = new System.Windows.Forms.Padding(0);
             this.initMaxCountUnit.Name = "initMaxCountUnit";
-            this.initMaxCountUnit.Size = new System.Drawing.Size(120, 25);
+            this.initMaxCountUnit.Size = new System.Drawing.Size(112, 25);
             this.initMaxCountUnit.TabIndex = 0;
             this.initMaxCountUnit.Text = "次(建议值:3)";
             this.initMaxCountUnit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -470,10 +470,10 @@
             // 
             this.paramLayoutPanel.SetColumnSpan(this.almSyncUnit, 2);
             this.almSyncUnit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.almSyncUnit.Location = new System.Drawing.Point(199, 70);
+            this.almSyncUnit.Location = new System.Drawing.Point(191, 70);
             this.almSyncUnit.Margin = new System.Windows.Forms.Padding(0);
             this.almSyncUnit.Name = "almSyncUnit";
-            this.almSyncUnit.Size = new System.Drawing.Size(120, 25);
+            this.almSyncUnit.Size = new System.Drawing.Size(112, 25);
             this.almSyncUnit.TabIndex = 0;
             this.almSyncUnit.Text = "小时/次(建议值:24)";
             this.almSyncUnit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -506,7 +506,7 @@
             0,
             0});
             this.almSyncField.Name = "almSyncField";
-            this.almSyncField.Size = new System.Drawing.Size(99, 23);
+            this.almSyncField.Size = new System.Drawing.Size(91, 23);
             this.almSyncField.TabIndex = 6;
             this.almSyncField.Value = new decimal(new int[] {
             1,
@@ -522,6 +522,7 @@
             this.planPanel.Name = "planPanel";
             this.planPanel.Size = new System.Drawing.Size(303, 82);
             this.planPanel.TabIndex = 2;
+            this.planPanel.Visible = false;
             // 
             // planLayoutPanel
             // 
@@ -822,6 +823,7 @@
             this.databasePanel.Name = "databasePanel";
             this.databasePanel.Size = new System.Drawing.Size(299, 69);
             this.databasePanel.TabIndex = 1;
+            this.databasePanel.Visible = false;
             // 
             // databaseLayoutPanel
             // 

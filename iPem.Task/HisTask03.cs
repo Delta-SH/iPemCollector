@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace iPem.Task {
-    public partial class HisTask03 : IHisTask {
+    public partial class HisTask03 : ITask {
         public string Id {
             get { return "hisTask03"; }
         }

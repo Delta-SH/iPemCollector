@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace iPem.Task {
-    public interface IHisTask {
+    public interface ITask {
         string Id { get; }
 
         string Name { get; }
@@ -17,8 +17,6 @@ namespace iPem.Task {
         DateTime Next { get; set; }
 
         List<Event> Events { get; set; }
-
-        int Order { get; }
 
         void Execute();
     }

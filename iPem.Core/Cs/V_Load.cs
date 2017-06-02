@@ -40,10 +40,5 @@ namespace iPem.Core {
         /// 汇聚值
         /// </summary>
         public double Value { get; set; }
-
-        /// <summary>
-        /// 入库时间
-        /// </summary>
-        public DateTime CreatedTime { get; set; }
     }
 }

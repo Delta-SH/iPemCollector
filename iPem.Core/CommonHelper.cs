@@ -122,6 +122,15 @@ namespace iPem.Core {
             return dates;
         }
 
+        public static List<DateTime> GetHourSpan(DateTime start, DateTime end) {
+            var dates = new List<DateTime>();
+            while (start <= end) {
+                dates.Add(start);
+                start = start.AddHours(1);
+            }
+            return dates;
+        }
+
         public static int GetPointFlag(Point point, string name, int defaultValue = 2) {
             var units = point.UnitState.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             foreach(var unit in units) {

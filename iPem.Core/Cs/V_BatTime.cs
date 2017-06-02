@@ -27,6 +27,16 @@ namespace iPem.Core {
         public string DeviceId { get; set; }
 
         /// <summary>
+        /// 信号编码
+        /// </summary>
+        public string PointId { get; set; }
+
+        /// <summary>
+        /// 电池组号
+        /// </summary>
+        public int PackId { get; set; }
+
+        /// <summary>
         /// 开始时间
         /// </summary>
         public DateTime StartTime { get; set; }
@@ -45,10 +55,5 @@ namespace iPem.Core {
         /// 结束测值
         /// </summary>
         public double EndValue { get; set; }
-
-        /// <summary>
-        /// 入库时间
-        /// </summary>
-        public DateTime CreatedTime { get; set; }
     }
 }

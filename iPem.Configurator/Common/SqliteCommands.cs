@@ -29,7 +29,8 @@ namespace iPem.Configurator {
             [id] varchar(50) PRIMARY KEY NOT NULL,
             [name] varchar(200),
             [json] text,
-            [last] datetime,
+            [start] datetime,
+            [end] datetime,
             [next] datetime,
             [index] int
         );
@@ -43,12 +44,11 @@ namespace iPem.Configurator {
         INSERT OR IGNORE INTO [databases]([id],[name],[type],[ip],[port],[uid],[password],[db]) VALUES('D003','历史数据库',1,NULL,1433,NULL,NULL,NULL);
         
         --创建默认计划任务信息
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[last],[next],[index]) VALUES('T001','能耗处理任务',NULL,NULL,NULL,1);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[last],[next],[index]) VALUES('T002','后备时长处理任务',NULL,NULL,NULL,2);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[last],[next],[index]) VALUES('T003','带载合格率处理任务',NULL,NULL,NULL,3);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[last],[next],[index]) VALUES('T004','接口数据处理任务',NULL,NULL,NULL,4);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[last],[next],[index]) VALUES('T005','电池放电处理任务',NULL,NULL,NULL,5);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[last],[next],[index]) VALUES('T006','测值统计处理任务',NULL,NULL,NULL,6);";
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T001','能耗数据处理任务',NULL,NULL,NULL,NULL,1);
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T002','电池充放电处理任务',NULL,NULL,NULL,NULL,2);
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T003','信号测值统计任务',NULL,NULL,NULL,NULL,3);
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T004','开关电源带载率统计任务',NULL,NULL,NULL,NULL,4);
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T005','资管接口同步任务',NULL,NULL,NULL,NULL,5);";
 
         public const string Registry_Get_Database = @"
         SELECT [id],[name],[type],[ip],[port],[uid],[password],[db] FROM [databases];";
@@ -61,11 +61,11 @@ namespace iPem.Configurator {
         DELETE FROM [databases];";
         
         public const string Registry_Get_Tasks = @"
-        SELECT [id],[name],[json],[last],[next],[index] FROM [tasks];";
+        SELECT [id],[name],[json],[start],[end],[next],[index] FROM [tasks];";
 
         public const string Registry_Save_Task = @"
         DELETE FROM [tasks] WHERE [id]=@id;
-        INSERT INTO [tasks]([id],[name],[json],[last],[next],[index]) VALUES(@id,@name,@json,@last,@next,@index);";
+        INSERT INTO [tasks]([id],[name],[json],[index]) VALUES(@id,@name,@json,@index);";
 
         public const string Registry_Clean_Tasks = @"
         DELETE FROM [tasks];";
