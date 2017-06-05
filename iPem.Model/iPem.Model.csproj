@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BatDetail.cs" />
+    <Compile Include="BatModel.cs" />
     <Compile Include="LoadModel.cs" />
     <Compile Include="ReservationModel.cs" />
     <Compile Include="DbEntity.cs" />

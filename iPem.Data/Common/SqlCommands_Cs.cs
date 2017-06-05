@@ -167,7 +167,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [ValueTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''' AND [PackId]='+ CAST(@PackId AS NVARCHAR) + N' AND [ValueTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
@@ -206,7 +206,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''' AND [PackId]='+ CAST(@PackId AS NVARCHAR) + N' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';                
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END

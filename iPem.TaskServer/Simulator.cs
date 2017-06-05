@@ -52,6 +52,8 @@ namespace iPem.TaskServer {
         private H_IDeviceRepository _iDeviceRepository;
         private H_IStationRepository _iStationRepository;
         private V_HMeasureRepository _measureRepository;
+        private V_BatRepository _batRepository;
+        private V_BatTimeRepository _batTimeRepository;
         private V_ElecRepository _elecRepository;
         private V_StaticRepository _staticRepository;
         private V_LoadRepository _loadRepository;
@@ -104,8 +106,9 @@ namespace iPem.TaskServer {
                 //初始化告警翻转哈希表
                 GlobalConfig.ReversalKeys = new Dictionary<string, ReversalModel>();
 
-                //初始化信号测值统计策略表
+                //初始化统计策略表
                 GlobalConfig.StaticModels = new List<StaticModel>();
+                GlobalConfig.BatModels = new List<BatModel>();
 
                 //初始化资源数据类
                 _logicTypeRepository = new LogicTypeRepository();
@@ -130,6 +133,8 @@ namespace iPem.TaskServer {
                 _iDeviceRepository = new H_IDeviceRepository();
                 _iStationRepository = new H_IStationRepository();
                 _measureRepository = new V_HMeasureRepository();
+                _batRepository = new V_BatRepository();
+                _batTimeRepository = new V_BatTimeRepository();
                 _elecRepository = new V_ElecRepository();
                 _staticRepository = new V_StaticRepository();
                 _loadRepository = new V_LoadRepository();
@@ -185,6 +190,8 @@ namespace iPem.TaskServer {
                 _workerThread.IsBackground = true;
                 _workerThread.Start();
                 _workerThreads.Add(_workerThread);
+
+                _runStatus = RunStatus.Init;
             } catch (Exception exc) {
                 Logger.Error(exc.Message, exc);
             }
@@ -195,7 +202,18 @@ namespace iPem.TaskServer {
         /// </summary>
         private void stopButton_Click(object sender, EventArgs e) {
             try {
+                Logger.Information("停止服务...");
+                _runStatus = RunStatus.Stop;
+                _allDone.Set();
 
+                foreach (var workerThread in _workerThreads) {
+                    if (workerThread != null && workerThread.IsAlive) {
+                        workerThread.Join(5000);
+                    }
+                }
+
+                _registry.UpdateTasks(GlobalConfig.CurTasks);
+                Logger.Information("服务已停止");
             } catch (Exception exc) {
                 Logger.Error(exc.Message, exc);
             }
@@ -383,14 +401,51 @@ namespace iPem.TaskServer {
                         #endregion
 
                         #region 加载信号测值统计策略表
-                        var pattern = @"\{统计曲线:\d+\}";
+                        var pattern1 = @"\{统计曲线:\d+\}";
                         foreach (var _device in iPemWorkContext.Devices) {
                             foreach (var _point in _device.Protocol.Points) {
-                                foreach (Match match in Regex.Matches(_point.ExtSet1, pattern)) {
+                                foreach (Match match in Regex.Matches(_point.ExtSet1, pattern1)) {
                                     int interval;
                                     if (int.TryParse(match.Value.Replace("{统计曲线:", "").Replace("}", ""), out interval)) {
                                         GlobalConfig.StaticModels.Add(new StaticModel { Device = _device.Current, Point = _point, Interval = interval });
                                     }
+                                }
+                            }
+                        }
+                        #endregion
+
+                        #region 加载电池放电统计策略表
+                        var pattern2 = @"\{电池放电:\d+&\d+(\.\d+)?\}";
+                        foreach (var _device in iPemWorkContext.Devices) {
+                            var models = new List<BatModel>();
+                            foreach (var _point in _device.Protocol.Points) {
+                                foreach (Match match in Regex.Matches(_point.ExtSet1, pattern2)) {
+                                    var _tactics = match.Value.Replace("{电池放电:", "").Replace("}", "").Split('&');
+                                    if(_tactics.Length != 2) continue;
+
+                                    int _pack; 
+                                    if(!int.TryParse(_tactics[0], out _pack)) continue;
+
+                                    double _voltage;
+                                    if(!double.TryParse(_tactics[1], out _voltage)) continue;
+
+                                    models.Add(new BatModel { Point = _point, PackId = _pack, Voltage = _voltage });
+                                }
+                            }
+
+                            if (models.Count > 0) {
+                                var packGroup = models.GroupBy(m => m.PackId);
+                                foreach (var group in packGroup) {
+                                    var master = group.FirstOrDefault(g => g.Voltage > 0);
+                                    if (master == null) continue;
+
+                                    GlobalConfig.BatModels.Add(new BatModel {
+                                        Device = _device.Current,
+                                        Point = master.Point,
+                                        PackId = group.Key,
+                                        Voltage = master.Voltage,
+                                        SubPoints = group.Where(g => g.Point != master.Point).Select(g => g.Point).ToList()
+                                    });
                                 }
                             }
                         }
@@ -841,43 +896,160 @@ namespace iPem.TaskServer {
         private void DoTask002() {
             _allDone.WaitOne();
 
-            var curTask = GlobalConfig.CurTasks.Find(t => t.Id == "T002");
-            if (curTask == null) return;
+            var _curTask = GlobalConfig.CurTasks.Find(t => t.Id == "T002");
+            if (_curTask == null) return;
 
-            Logger.Information(string.Format("{0}线程已启动。", curTask.Name));
-
-            if (curTask.Json == null) {
-                Logger.Warning(string.Format("{0}配置无效，线程退出。", curTask.Name));
+            Logger.Information(string.Format("{0}线程已启动。", _curTask.Name));
+            if (_curTask.Json == null) {
+                Logger.Warning(string.Format("{0}配置无效，线程退出。", _curTask.Name));
                 return;
             }
 
-            if (curTask.Json.EndDate < DateTime.Now) {
-                Logger.Warning(string.Format("{0}已过期，线程退出。", curTask.Name));
+            if (_curTask.Json.EndDate < DateTime.Now) {
+                Logger.Warning(string.Format("{0}已过期，线程退出。", _curTask.Name));
                 return;
             }
 
-            if (curTask.Json.StartDate > DateTime.Now) {
-                Logger.Warning(string.Format("{0}未到执行日期，将从{1}开始执行。", curTask.Name, CommonHelper.ToDateString(curTask.Json.StartDate)));
+            if (_curTask.Json.StartDate > DateTime.Now) {
+                Logger.Warning(string.Format("{0}未到执行日期，将从{1}开始执行。", _curTask.Name, CommonHelper.ToDateString(_curTask.Json.StartDate)));
             }
 
             while (_runStatus != RunStatus.Stop) {
-                if (_runStatus == RunStatus.Running) {
-                    try {
-                        var now = DateTime.Now;
-                        if (curTask.Json.StartDate > now) continue;//执行日期未到 
-                        if (curTask.Next > now) continue;//执行时间未到
+                Thread.Sleep(500);
 
-                        foreach (var _device in iPemWorkContext.Devices) {
+                if (_runStatus == RunStatus.Running) {
+                    if (_curTask.Json.StartDate > DateTime.Now) continue;//执行日期未到 
+                    if (_curTask.Next > DateTime.Now) continue;//执行时间未到
+
+                    try {
+                        foreach (var model in GlobalConfig.BatModels) {
+                            try {
+                                var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Id, _curTask.Start, _curTask.End);
+                                if (_values.Count == 0) continue;
+
+                                var _details = new List<BatDetail>();
+                                BatDetail _current = null;
+                                foreach (var _value in _values) {
+                                    if (_value.Value < model.Voltage) {
+                                        if (_current == null) _current = new BatDetail { Device = model.Device, Point = model.Point, PackId = model.PackId, StartTime = _value.UpdateTime, StartValue = _value.Value, Values = new List<IdValuePair<DateTime, double>>() };
+                                        _current.Values.Add(new IdValuePair<DateTime, double> { Id = _value.UpdateTime, Value = _value.Value });
+                                    } else if (_value.Value >= model.Voltage && _current != null) {
+                                        _current.EndTime = _value.UpdateTime;
+                                        _current.EndValue = _value.Value;
+                                        _current.Values.Add(new IdValuePair<DateTime, double> { Id = _value.UpdateTime, Value = _value.Value });
+                                        _details.Add(_current);
+                                        _current = null;
+                                    }
+                                }
+
+                                if (_current != null) {
+                                    var _last = _current.Values.LastOrDefault();
+                                    if (_last != null) {
+                                        _current.EndTime = _last.Id;
+                                        _current.EndValue = _last.Value;
+                                        _details.Add(_current);
+                                    }
+
+                                    _current = null;
+                                }
+
+                                var __details = new List<BatDetail>();
+                                foreach (var _point in model.SubPoints) {
+                                    foreach (var _detail in _details) {
+                                        var __values = _measureRepository.GetEntities(model.Device.Id, _point.Id, _detail.StartTime, _detail.EndTime);
+                                        if (__values.Count > 0) {
+                                            var _first = __values.First();
+                                            var _last = __values.Last();
+                                            __details.Add(new BatDetail {
+                                                Device = model.Device,
+                                                Point = _point,
+                                                PackId = model.PackId,
+                                                StartTime = _first.UpdateTime,
+                                                StartValue = _first.Value,
+                                                EndTime = _last.UpdateTime,
+                                                EndValue = _last.Value,
+                                                Values = __values.Select(v => new IdValuePair<DateTime, double> { Id = v.UpdateTime, Value = v.Value }).ToList()
+                                            });
+                                        }
+                                    }
+                                }
+
+                                var batValues = new List<V_Bat>();
+                                var batTimes = new List<V_BatTime>();
+                                foreach (var _detail in _details) {
+                                    batTimes.Add(new V_BatTime {
+                                        AreaId = _detail.Device.AreaId,
+                                        StationId = _detail.Device.StationId,
+                                        RoomId = _detail.Device.RoomId,
+                                        DeviceId = _detail.Device.Id,
+                                        PointId = _detail.Point.Id,
+                                        PackId = _detail.PackId,
+                                        StartTime = _detail.StartTime,
+                                        StartValue = _detail.StartValue,
+                                        EndTime = _detail.EndTime,
+                                        EndValue = _detail.EndValue
+                                    });
+
+                                    foreach (var _value in _detail.Values) {
+                                        batValues.Add(new V_Bat {
+                                            AreaId = _detail.Device.AreaId,
+                                            StationId = _detail.Device.StationId,
+                                            RoomId = _detail.Device.RoomId,
+                                            DeviceId = _detail.Device.Id,
+                                            PointId = _detail.Point.Id,
+                                            PackId = _detail.PackId,
+                                            StartTime = _detail.StartTime,
+                                            Value = _value.Value,
+                                            ValueTime = _value.Id
+                                        });
+                                    }
+                                }
+
+                                foreach (var __detail in __details) {
+                                    batTimes.Add(new V_BatTime {
+                                        AreaId = __detail.Device.AreaId,
+                                        StationId = __detail.Device.StationId,
+                                        RoomId = __detail.Device.RoomId,
+                                        DeviceId = __detail.Device.Id,
+                                        PointId = __detail.Point.Id,
+                                        PackId = __detail.PackId,
+                                        StartTime = __detail.StartTime,
+                                        StartValue = __detail.StartValue,
+                                        EndTime = __detail.EndTime,
+                                        EndValue = __detail.EndValue
+                                    });
+
+                                    foreach (var __value in __detail.Values) {
+                                        batValues.Add(new V_Bat {
+                                            AreaId = __detail.Device.AreaId,
+                                            StationId = __detail.Device.StationId,
+                                            RoomId = __detail.Device.RoomId,
+                                            DeviceId = __detail.Device.Id,
+                                            PointId = __detail.Point.Id,
+                                            PackId = __detail.PackId,
+                                            StartTime = __detail.StartTime,
+                                            Value = __value.Value,
+                                            ValueTime = __value.Id
+                                        });
+                                    }
+                                }
+
+                                _batRepository.DeleteEntities(model.Device.Id, model.Point.Id, model.PackId, _curTask.Start, _curTask.End);
+                                _batRepository.SaveEntities(batValues);
+
+                                _batTimeRepository.DeleteEntities(model.Device.Id, model.Point.Id, model.PackId, _curTask.Start, _curTask.End);
+                                _batTimeRepository.SaveEntities(batTimes);
+                            } catch (Exception err) {
+                                Logger.Error("电池放电统计发生错误,详见错误日志。", err);
+                            }
                         }
                     } catch (Exception err) {
                         Logger.Error(err.Message, err);
                     } finally {
-                        curTask.Last = curTask.Next;
-                        curTask.Next = GlobalConfig.TaskNext(curTask.Json, curTask.Next);
+                        GlobalConfig.SetTaskPloy(_curTask);
+                        Logger.Information(string.Format("{0}执行完成，下次执行时间：{1}。", _curTask.Name, CommonHelper.ToDateTimeString(_curTask.Next)));
                     }
                 }
-
-                Thread.Sleep(500);
             }
         }
 

@@ -56,6 +56,8 @@ namespace iPem.Model {
 
         public static List<StaticModel> StaticModels { get; set; }
 
+        public static List<BatModel> BatModels { get; set; }
+
         #region 告警相关
 
         /// <summary>

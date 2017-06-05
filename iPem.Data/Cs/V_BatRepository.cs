@@ -62,12 +62,18 @@ namespace iPem.Data {
             }
         }
 
-        public void DeleteEntities(DateTime start, DateTime end) {
-            SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
+        public void DeleteEntities(string device, string point, int pack, DateTime start, DateTime end) {
+            SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar, 100),
+                                     new SqlParameter("@PointId", SqlDbType.VarChar, 100),
+                                     new SqlParameter("@PackId", SqlDbType.Int),
+                                     new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
-            parms[0].Value = SqlTypeConverter.DBNullDateTimeChecker(start);
-            parms[1].Value = SqlTypeConverter.DBNullDateTimeChecker(end);
+            parms[0].Value = SqlTypeConverter.DBNullStringChecker(device);
+            parms[1].Value = SqlTypeConverter.DBNullStringChecker(point);
+            parms[2].Value = SqlTypeConverter.DBNullInt32Checker(pack);
+            parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(start);
+            parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(end);
 
             using (var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();
