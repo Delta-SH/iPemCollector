@@ -37,8 +37,7 @@ namespace iPem.Data {
                                      new SqlParameter("@StartTime", SqlDbType.DateTime),
                                      new SqlParameter("@EndTime", SqlDbType.DateTime),
                                      new SqlParameter("@StartValue", SqlDbType.Float),
-                                     new SqlParameter("@EndValue", SqlDbType.Float),
-                                     new SqlParameter("@CreatedTime", SqlDbType.DateTime)};
+                                     new SqlParameter("@EndValue", SqlDbType.Float)};
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();
@@ -55,7 +54,6 @@ namespace iPem.Data {
                         parms[7].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
                         parms[8].Value = SqlTypeConverter.DBNullDoubleChecker(entity.StartValue);
                         parms[9].Value = SqlTypeConverter.DBNullDoubleChecker(entity.EndValue);
-                        parms[10].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.CreatedTime);
                         SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_BatTime_Repository_SaveEntities, entity.StartTime.ToString("yyyyMM")), parms);
                     }
                     trans.Commit();

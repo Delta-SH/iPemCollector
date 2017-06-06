@@ -486,7 +486,7 @@ namespace iPem.TaskServer {
                         var syncRedefinePoints = _redefinePointRepository.GetEntities(GlobalConfig.RedefineLoadTime);
                         if (syncRedefinePoints.Count > 0) {
                             try {
-                                //获取写数据锁
+                                //获取写资源锁
                                 _configWriterLock.EnterWriteLock();
                                 foreach (var point in syncRedefinePoints) {
                                     (GlobalConfig.RedefinePoints)[CommonHelper.JoinKeys(point.DeviceId, point.PointId)] = point;
@@ -499,12 +499,12 @@ namespace iPem.TaskServer {
                         }
                         #endregion
 
-                        #region 同步工程预约相关表
+                        #region 同步工程预约表
                         GlobalConfig.ReservationLoadTime = DateTime.Now;
                         var syncReservations = _reservationRepository.GetEntities(GlobalConfig.ReservationLoadTime);
                         if (syncReservations.Count > 0) {
                             try {
-                                //获取写数据锁
+                                //获取写资源锁
                                 _configWriterLock.EnterWriteLock();
 
                                 foreach (var reservation in syncReservations) {
@@ -557,7 +557,7 @@ namespace iPem.TaskServer {
                         #region 同步活动告警表
                         if (GlobalConfig.AlarmsLoadTime.AddHours(GlobalConfig.CurParam.Json.AlarmSync) <= DateTime.Now) {
                             try {
-                                //获取写数据锁
+                                //获取写资源锁
                                 _configWriterLock.EnterWriteLock();
 
                                 GlobalConfig.InitAlarm();
@@ -591,7 +591,9 @@ namespace iPem.TaskServer {
             while (_runStatus != RunStatus.Stop) {
                 if (_runStatus == RunStatus.Running) {
                     try {
+                        //获取读资源锁
                         _configWriterLock.EnterReadLock();
+
                         var allTAlarms = _talmRepository.GetEntities();
                         if (allTAlarms.Count > 0) {
                             var allTAlarmModels = from alarm in allTAlarms

@@ -189,11 +189,10 @@ namespace iPem.Data.Common {
 	            [StartTime] [datetime] NOT NULL,
 	            [EndTime] [datetime] NOT NULL,
 	            [StartValue] [float] NOT NULL,
-	            [EndValue] [float] NOT NULL,
-	            [CreatedTime] [datetime] NOT NULL
+	            [EndValue] [float] NOT NULL
             ) ON [PRIMARY]
         END
-        INSERT INTO [dbo].[V_BatTime{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[StartTime],[EndTime],[StartValue],[EndValue],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@StartTime,@EndTime,@StartValue,@EndValue,@CreatedTime);";
+        INSERT INTO [dbo].[V_BatTime{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[StartTime],[EndTime],[StartValue],[EndValue]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@StartTime,@EndTime,@StartValue,@EndValue);";
         public const string Sql_V_BatTime_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
