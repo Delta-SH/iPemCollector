@@ -44,9 +44,7 @@ namespace iPem.Data {
                     entity.AlarmId = SqlTypeConverter.DBNullStringHandler(rdr["AlarmId"]);
                     entity.NMAlarmId = SqlTypeConverter.DBNullStringHandler(rdr["NMAlarmId"]);
                     entity.StationType = new StationType { Id = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeName"]) };
-                    entity.SubDeviceType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
                     entity.DeviceType = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
-                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };
                     entity.LogicType = new LogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeName"]) };
                     entity.AlarmComment = SqlTypeConverter.DBNullStringHandler(rdr["AlarmComment"]);
                     entity.NormalComment = SqlTypeConverter.DBNullStringHandler(rdr["NormalComment"]);
@@ -91,9 +89,7 @@ namespace iPem.Data {
                     entity.AlarmId = SqlTypeConverter.DBNullStringHandler(rdr["AlarmId"]);
                     entity.NMAlarmId = SqlTypeConverter.DBNullStringHandler(rdr["NMAlarmId"]);
                     entity.StationType = new StationType { Id = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeName"]) };
-                    entity.SubDeviceType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
                     entity.DeviceType = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
-                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };
                     entity.LogicType = new LogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeName"]) };
                     entity.AlarmComment = SqlTypeConverter.DBNullStringHandler(rdr["AlarmComment"]);
                     entity.NormalComment = SqlTypeConverter.DBNullStringHandler(rdr["NormalComment"]);
@@ -135,9 +131,7 @@ namespace iPem.Data {
                     entity.AlarmId = SqlTypeConverter.DBNullStringHandler(rdr["AlarmId"]);
                     entity.NMAlarmId = SqlTypeConverter.DBNullStringHandler(rdr["NMAlarmId"]);
                     entity.StationType = new StationType { Id = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeName"]) };
-                    entity.SubDeviceType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
                     entity.DeviceType = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
-                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };
                     entity.LogicType = new LogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeName"]) };
                     entity.AlarmComment = SqlTypeConverter.DBNullStringHandler(rdr["AlarmComment"]);
                     entity.NormalComment = SqlTypeConverter.DBNullStringHandler(rdr["NormalComment"]);

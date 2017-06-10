@@ -5,6 +5,18 @@ namespace iPem.Data.Common {
     /// The SqliteCommands class is intended to store sqlite statements.
     /// </summary>
     public static class SqliteCommands {
+        public const string Registry_Get_Order = @"
+        SELECT [id],[param],[time] FROM [orders];";
+
+        public const string Registry_Delete_Order = @"
+        DELETE FROM [orders] WHERE [id]=@id;";
+
+        public const string Registry_Clean_Order = @"
+        DELETE FROM [orders];";
+
+        public const string Registry_Get_Param = @"
+        SELECT [id],[value],[time] FROM [params];";
+
         public const string Registry_Get_Databases = @"
         SELECT [id],[name],[type],[ip],[port],[uid],[password],[db] FROM [databases];";
 
@@ -19,11 +31,5 @@ namespace iPem.Data.Common {
         
         public const string Registry_Update_Task = @"
         UPDATE [tasks] SET [start] = @start,[end] = @end,[next] = @next WHERE [id] = @id;";
-
-        public const string Registry_Get_Params = @"
-        SELECT [id],[name],[json],[time] FROM [params];";
-
-        public const string Registry_Get_Param = @"
-        SELECT [id],[name],[json],[time] FROM [params] where [id] = @id;";
     }
 }

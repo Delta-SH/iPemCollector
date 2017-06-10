@@ -67,7 +67,6 @@
             // 
             this.stopButton.BackColor = System.Drawing.Color.Tomato;
             this.stopButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stopButton.Enabled = false;
             this.stopButton.Location = new System.Drawing.Point(217, 30);
             this.stopButton.Margin = new System.Windows.Forms.Padding(0);
             this.stopButton.Name = "stopButton";

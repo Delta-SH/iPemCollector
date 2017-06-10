@@ -24,13 +24,20 @@ namespace iPem.Core {
         }
     }
 
-    public partial class ParamIds {
-        /// <summary>
-        /// 常规参数
-        /// </summary>
-        public static string Default {
-            get { return "P001"; }
-        }
+    public enum OrderId {
+        Null,
+        Restart,
+        Reload,
+        SyncConfig,
+        SyncAlarm
+    }
+
+    public enum ParamId {
+        Null,
+        Param1,
+        Param2,
+        Param3,
+        Param4
     }
 
     public enum DatabaseType {
@@ -63,8 +70,6 @@ namespace iPem.Core {
         Undefined,
         FTP
     }
-
-    
 
     public enum EnmOrganization {
         Area,
@@ -151,19 +156,10 @@ namespace iPem.Core {
     /// </remarks>
     public enum EnmMethodType {
         Area = 1,
-        Station,
-        Room,
-        Fsu,
-        Ups,
-        BianYaQi,
-        FaDianJiZu,
-        FengNengSheBei,
-        KaiGuanRongSi,
-        YiDongFaDianJi,
-        ZhongYangKongTiaoZhuJiXiTong,
-        ZiDongDianYuanQieHuanGui,
-        Device,
-        Point,
-        Employee
+        Station = 2,
+        Room = 3,
+        Fsu = 4,
+        Device = 13,
+        Point = 14
     }
 }

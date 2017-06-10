@@ -57,19 +57,9 @@ namespace iPem.Core {
         public DeviceType DeviceType { get; set; }
 
         /// <summary>
-        /// 设备子类型
-        /// </summary>
-        public SubDeviceType SubDeviceType { get; set; }
-
-        /// <summary>
         /// 逻辑分类
         /// </summary>
         public LogicType LogicType { get; set; }
-
-        /// <summary>
-        /// 逻辑子类
-        /// </summary>
-        public SubLogicType SubLogicType { get; set; }
 
         /// <summary>
         /// 告警时描述

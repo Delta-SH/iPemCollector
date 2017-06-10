@@ -8,7 +8,7 @@ namespace iPem.Model {
     /// 全局参数信息
     /// </summary>
     public static class GlobalConfig {
-        public static ParamEntity CurParam { get; set; }
+        public static List<ParamEntity> CurParams { get; set; }
 
         public static List<TaskEntity> CurTasks { get; set; }
 
@@ -46,11 +46,7 @@ namespace iPem.Model {
 
         public static Dictionary<string, RedefinePoint> RedefinePoints { get; set; }
 
-        public static DateTime RedefineLoadTime { get; set; }
-
         public static List<ReservationModel> Reservations { get; set; }
-
-        public static DateTime ReservationLoadTime { get; set; }
 
         public static Dictionary<string, ReversalModel> ReversalKeys { get; set; }
 
@@ -74,11 +70,6 @@ namespace iPem.Model {
         /// Key: 设备编码+信号编码
         /// </summary>
         public static Dictionary<string, StartAlarm> AlarmKeys2 { get; private set; }
-
-        /// <summary>
-        /// 告警加载时间
-        /// </summary>
-        public static DateTime AlarmsLoadTime { get; set; }
 
         /// <summary>
         /// 清空告警

@@ -172,6 +172,20 @@ namespace iPem.Configurator {
             return Enum.IsDefined(typeof(DatabaseType), v) ? (DatabaseType)v : DatabaseType.SQLServer;
         }
 
+        public static OrderId DBNullOrderIdHandler(object val) {
+            if (val == DBNull.Value) { return OrderId.Null; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(OrderId), v) ? (OrderId)v : OrderId.Null;
+        }
+
+        public static ParamId DBNullParamIdHandler(object val) {
+            if (val == DBNull.Value) { return ParamId.Null; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(ParamId), v) ? (ParamId)v : ParamId.Null;
+        }
+
         public static string CreateConnectionString(bool trustedConnection, string serverName, int portNumber, string databaseName, string userName, string password, int timeout) {
             var builder = new SqlConnectionStringBuilder();
             builder.IntegratedSecurity = trustedConnection;

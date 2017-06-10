@@ -35,6 +35,87 @@ namespace iPem.Core {
         }
 
         /// <summary>
+        /// 获得服务命令
+        /// </summary>
+        public List<OrderEntity> GetOrders() {
+            var orders = new List<OrderEntity>();
+            using (var conn = new SQLiteConnection(registryConnectionString)) {
+                conn.SetPassword(dbPassword);
+                conn.Open();
+                using (var command = new SQLiteCommand(SqliteCommands.Registry_Get_Order, conn)) {
+                    using (var rdr = command.ExecuteReader(CommandBehavior.CloseConnection)) {
+                        while (rdr.Read()) {
+                            var order = new OrderEntity();
+                            order.Id = SqlTypeConverter.DBNullOrderIdHandler(rdr["id"]);
+                            order.Param = SqlTypeConverter.DBNullStringHandler(rdr["param"]);
+                            order.Time = SqlTypeConverter.DBNullDateTimeHandler(rdr["time"]);
+                            orders.Add(order);
+                        }
+                    }
+                }
+            }
+            return orders;
+        }
+
+        /// <summary>
+        /// 删除已处理的命令
+        /// </summary>
+        public void DelOrders(List<OrderEntity> orders) {
+            SQLiteParameter[] parms = { new SQLiteParameter("@id", DbType.Int32) };
+
+            using (var conn = new SQLiteConnection(registryConnectionString)) {
+                conn.SetPassword(dbPassword);
+                conn.Open();
+                using (var command = new SQLiteCommand(SqliteCommands.Registry_Delete_Order, conn)) {
+                    foreach (var order in orders) {
+                        parms[0].Value = (int)order.Id;
+                        command.Parameters.Clear();
+                        command.Parameters.AddRange(parms);
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 清空命令表.
+        /// </summary>
+        public void CleanOrders() {
+            using (var conn = new SQLiteConnection(registryConnectionString)) {
+                conn.SetPassword(dbPassword);
+                conn.Open();
+                using (var command = new SQLiteCommand()) {
+                    command.Connection = conn;
+                    command.CommandText = SqliteCommands.Registry_Clean_Order;
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取服务基本参数
+        /// </summary>
+        public List<ParamEntity> GetParams() {
+            var _params = new List<ParamEntity>();
+            using (var conn = new SQLiteConnection(registryConnectionString)) {
+                conn.SetPassword(dbPassword);
+                conn.Open();
+                using (var command = new SQLiteCommand(SqliteCommands.Registry_Get_Param, conn)) {
+                    using (var rdr = command.ExecuteReader(CommandBehavior.CloseConnection)) {
+                        while (rdr.Read()) {
+                            var _param = new ParamEntity();
+                            _param.Id = SqlTypeConverter.DBNullParamIdHandler(rdr["id"]);
+                            _param.Value = SqlTypeConverter.DBNullStringHandler(rdr["value"]);
+                            _param.Time = SqlTypeConverter.DBNullDateTimeHandler(rdr["time"]);
+                            _params.Add(_param);
+                        }
+                    }
+                }
+            }
+            return _params;
+        }
+
+        /// <summary>
         /// 获取数据库配置信息
         /// </summary>
         public List<DbEntity> GetDatabases() {
@@ -178,60 +259,6 @@ namespace iPem.Core {
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// 获取基本参数信息
-        /// </summary>
-        public List<ParamEntity> GetParams() {
-            var parameters = new List<ParamEntity>();
-            using (var conn = new SQLiteConnection(registryConnectionString)) {
-                conn.SetPassword(dbPassword);
-                conn.Open();
-                using (var command = new SQLiteCommand(SqliteCommands.Registry_Get_Params, conn)) {
-                    using (var rdr = command.ExecuteReader(CommandBehavior.CloseConnection)) {
-                        while (rdr.Read()) {
-                            var json = SqlTypeConverter.DBNullStringHandler(rdr["json"]);
-                            parameters.Add(new ParamEntity {
-                                Id = SqlTypeConverter.DBNullStringHandler(rdr["id"]),
-                                Name = SqlTypeConverter.DBNullStringHandler(rdr["name"]),
-                                Json = string.IsNullOrWhiteSpace(json) ? null : JsonConvert.DeserializeObject<ParamModel>(json),
-                                Time = SqlTypeConverter.DBNullDateTimeHandler(rdr["time"])
-                            });
-                        }
-                    }
-                }
-            }
-            return parameters;
-        }
-
-        /// <summary>
-        /// 获取基本参数信息
-        /// </summary>
-        public ParamEntity GetParam(string id) {
-            SQLiteParameter[] parms = { new SQLiteParameter("@id", DbType.String) };
-            parms[0].Value = id;
-
-            ParamEntity param = null;
-            using (var conn = new SQLiteConnection(registryConnectionString)) {
-                conn.SetPassword(dbPassword);
-                conn.Open();
-                using (var command = new SQLiteCommand(SqliteCommands.Registry_Get_Param, conn)) {
-                    command.Parameters.AddRange(parms);
-                    using (var rdr = command.ExecuteReader(CommandBehavior.CloseConnection)) {
-                        if (rdr.Read()) {
-                            var json = SqlTypeConverter.DBNullStringHandler(rdr["json"]);
-                            param = new ParamEntity {
-                                Id = SqlTypeConverter.DBNullStringHandler(rdr["id"]),
-                                Name = SqlTypeConverter.DBNullStringHandler(rdr["name"]),
-                                Json = string.IsNullOrWhiteSpace(json) ? null : JsonConvert.DeserializeObject<ParamModel>(json),
-                                Time = SqlTypeConverter.DBNullDateTimeHandler(rdr["time"])
-                            };
-                        }
-                    }
-                }
-            }
-            return param;
         }
     }
 }

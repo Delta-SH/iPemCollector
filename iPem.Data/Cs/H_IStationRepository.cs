@@ -20,7 +20,7 @@ namespace iPem.Data {
         /// Ctor
         /// </summary>
         public H_IStationRepository() {
-            this._databaseConnectionString = SqlHelper.ConnectionStringScTransaction;
+            this._databaseConnectionString = SqlHelper.ConnectionStringCsTransaction;
         }
 
         #endregion

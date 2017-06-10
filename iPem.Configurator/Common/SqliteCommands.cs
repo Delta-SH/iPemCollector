@@ -7,11 +7,16 @@ namespace iPem.Configurator {
     public static class SqliteCommands {
         public const string Registry_Create_Tables = @"
         --创建数据表
+        CREATE TABLE IF NOT EXISTS [orders] (
+            [id] int PRIMARY KEY NOT NULL,
+            [param] varchar(1024),
+            [time] timestamp NOT NULL DEFAULT (datetime('now','localtime'))
+        );
+
         CREATE TABLE IF NOT EXISTS [params] (
-            [id] varchar(50) PRIMARY KEY NOT NULL,
-            [name] varchar(200),
-            [json] text,
-            [time] datetime
+            [id] int PRIMARY KEY NOT NULL,
+            [value] varchar(1024),
+            [time] timestamp NOT NULL DEFAULT (datetime('now','localtime'))
         );
 
         CREATE TABLE IF NOT EXISTS [databases] (
@@ -35,8 +40,10 @@ namespace iPem.Configurator {
             [index] int
         );
 
-        --创建默认常规参数
-        INSERT OR IGNORE INTO [params]([id],[name],[json],[time]) VALUES('P001','常规参数',NULL,NULL);
+        --创建默认参数信息
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(1,'1');
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(2,'1');
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(3,'1');
         
         --创建默认数据库信息
         INSERT OR IGNORE INTO [databases]([id],[name],[type],[ip],[port],[uid],[password],[db]) VALUES('D001','资源数据库',1,NULL,1433,NULL,NULL,NULL);
@@ -50,6 +57,28 @@ namespace iPem.Configurator {
         INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T004','开关电源带载率统计任务',NULL,NULL,NULL,NULL,4);
         INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T005','资管接口同步任务',NULL,NULL,NULL,NULL,5);";
 
+        public const string Registry_Get_Order = @"
+        SELECT [id],[param],[time] FROM [orders];";
+
+        public const string Registry_Save_Order = @"
+        INSERT OR IGNORE INTO [orders]([id],[param]) VALUES(@id,@param);";
+
+        public const string Registry_Delete_Order = @"
+        DELETE FROM [orders] WHERE [id]=@id;";
+
+        public const string Registry_Clean_Order = @"
+        DELETE FROM [orders];";
+
+        public const string Registry_Get_Param = @"
+        SELECT [id],[value],[time] FROM [params];";
+
+        public const string Registry_Save_Param = @"
+        DELETE FROM [params] WHERE [id]=@id;
+        INSERT INTO [params]([id],[value]) VALUES(@id,@value);";
+
+        public const string Registry_Delete_Param = @"
+        DELETE FROM [params] WHERE [id]=@id;";
+        
         public const string Registry_Get_Database = @"
         SELECT [id],[name],[type],[ip],[port],[uid],[password],[db] FROM [databases];";
 
@@ -69,15 +98,5 @@ namespace iPem.Configurator {
 
         public const string Registry_Clean_Tasks = @"
         DELETE FROM [tasks];";
-
-        public const string Registry_Get_Params = @"
-        SELECT [id],[name],[json],[time] FROM [params];";
-
-        public const string Registry_Save_Params = @"
-        DELETE FROM [params] WHERE [id]=@id;
-        INSERT INTO [params]([id],[name],[json],[time]) VALUES(@id,@name,@json,@time);";
-
-        public const string Registry_Clean_Params = @"
-        DELETE FROM [params];";
     }
 }

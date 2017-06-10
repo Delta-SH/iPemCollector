@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPem.Configurator", "iPem.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPem.TaskServer", "iPem.TaskServer\iPem.TaskServer.csproj", "{672BFA19-B196-4E30-9851-651B2E3F2335}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPem.TaskService", "iPem.TaskService\iPem.TaskService.csproj", "{0BE5EA53-B578-4718-AAB6-63CDEB5553F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{672BFA19-B196-4E30-9851-651B2E3F2335}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{672BFA19-B196-4E30-9851-651B2E3F2335}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{672BFA19-B196-4E30-9851-651B2E3F2335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BE5EA53-B578-4718-AAB6-63CDEB5553F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BE5EA53-B578-4718-AAB6-63CDEB5553F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BE5EA53-B578-4718-AAB6-63CDEB5553F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BE5EA53-B578-4718-AAB6-63CDEB5553F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

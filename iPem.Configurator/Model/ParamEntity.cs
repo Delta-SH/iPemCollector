@@ -2,11 +2,9 @@
 
 namespace iPem.Configurator {
     public partial class ParamEntity {
-        public string Id { get; set; }
+        public ParamId Id { get; set; }
 
-        public string Name { get; set; }
-
-        public string Json { get; set; }
+        public string Value { get; set; }
 
         public DateTime Time { get; set; }
     }

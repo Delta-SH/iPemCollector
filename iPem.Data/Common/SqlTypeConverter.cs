@@ -257,6 +257,20 @@ namespace iPem.Data.Common {
             return Enum.IsDefined(typeof(EnmFtpEvent), v) ? (EnmFtpEvent)v : EnmFtpEvent.Undefined;
         }
 
+        public static OrderId DBNullOrderIdHandler(object val) {
+            if (val == DBNull.Value) { return OrderId.Null; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(OrderId), v) ? (OrderId)v : OrderId.Null;
+        }
+
+        public static ParamId DBNullParamIdHandler(object val) {
+            if (val == DBNull.Value) { return ParamId.Null; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(ParamId), v) ? (ParamId)v : ParamId.Null;
+        }
+
         public static String CreateConnectionString(DbEntity database) {
             return SqlHelper.CreateConnectionString(false, database.IP, database.Port, database.Db, database.Uid, database.Password, 120);
         }

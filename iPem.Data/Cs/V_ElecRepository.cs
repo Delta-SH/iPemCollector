@@ -63,8 +63,11 @@ namespace iPem.Data {
                                      new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
-            parms[0].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
-            parms[1].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
+            parms[0].Value = SqlTypeConverter.DBNullStringChecker(id);
+            parms[1].Value = (int)type;
+            parms[2].Value = (int)formulaType;
+            parms[3].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
+            parms[4].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();

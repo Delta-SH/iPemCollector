@@ -32,6 +32,11 @@ namespace iPem.Core {
         public SubDeviceType SubType { get; set; }
 
         /// <summary>
+        /// 逻辑子类
+        /// </summary>
+        public SubLogicType SubLogicType { get; set; }
+
+        /// <summary>
         /// 系统名称
         /// </summary>
         public string SysName { get; set; }

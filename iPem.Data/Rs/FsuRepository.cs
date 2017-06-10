@@ -42,6 +42,7 @@ namespace iPem.Data {
                     entity.SysCode = SqlTypeConverter.DBNullStringHandler(rdr["SysCode"]);
                     entity.Type = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
                     entity.SubType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
+                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };                    
                     entity.Model = SqlTypeConverter.DBNullStringHandler(rdr["Model"]);
                     entity.ProdId = SqlTypeConverter.DBNullStringHandler(rdr["ProdId"]);
                     entity.BrandId = SqlTypeConverter.DBNullStringHandler(rdr["BrandId"]);
@@ -62,6 +63,7 @@ namespace iPem.Data {
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
 
+                    entity.VendorId = SqlTypeConverter.DBNullStringHandler(rdr["VendorId"]);
                     entity.IP = SqlTypeConverter.DBNullStringHandler(rdr["IP"]);
                     entity.Port = SqlTypeConverter.DBNullInt32Handler(rdr["Port"]);
                     entity.Uid = SqlTypeConverter.DBNullStringHandler(rdr["Uid"]);
@@ -94,6 +96,7 @@ namespace iPem.Data {
                     entity.SysCode = SqlTypeConverter.DBNullStringHandler(rdr["SysCode"]);
                     entity.Type = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
                     entity.SubType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
+                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };                    
                     entity.Model = SqlTypeConverter.DBNullStringHandler(rdr["Model"]);
                     entity.ProdId = SqlTypeConverter.DBNullStringHandler(rdr["ProdId"]);
                     entity.BrandId = SqlTypeConverter.DBNullStringHandler(rdr["BrandId"]);
@@ -114,6 +117,7 @@ namespace iPem.Data {
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
 
+                    entity.VendorId = SqlTypeConverter.DBNullStringHandler(rdr["VendorId"]);
                     entity.IP = SqlTypeConverter.DBNullStringHandler(rdr["IP"]);
                     entity.Port = SqlTypeConverter.DBNullInt32Handler(rdr["Port"]);
                     entity.Uid = SqlTypeConverter.DBNullStringHandler(rdr["Uid"]);
@@ -144,6 +148,7 @@ namespace iPem.Data {
                     entity.SysCode = SqlTypeConverter.DBNullStringHandler(rdr["SysCode"]);
                     entity.Type = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
                     entity.SubType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
+                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };                    
                     entity.Model = SqlTypeConverter.DBNullStringHandler(rdr["Model"]);
                     entity.ProdId = SqlTypeConverter.DBNullStringHandler(rdr["ProdId"]);
                     entity.BrandId = SqlTypeConverter.DBNullStringHandler(rdr["BrandId"]);
@@ -164,6 +169,7 @@ namespace iPem.Data {
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
 
+                    entity.VendorId = SqlTypeConverter.DBNullStringHandler(rdr["VendorId"]);
                     entity.IP = SqlTypeConverter.DBNullStringHandler(rdr["IP"]);
                     entity.Port = SqlTypeConverter.DBNullInt32Handler(rdr["Port"]);
                     entity.Uid = SqlTypeConverter.DBNullStringHandler(rdr["Uid"]);

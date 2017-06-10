@@ -18,7 +18,7 @@ namespace iPem.Data {
                 //因进入与退出写入模式应在同一个try finally语句块内，所以在请求进入写入模式之前不能触发异常，否则释放次数大于请求次数将会触发异常
                 LogWriteLock.EnterWriteLock();
 
-                var fullPath = String.Format(@"{0}\log", Environment.CurrentDirectory);
+                var fullPath = String.Format(@"{0}\log", AppDomain.CurrentDomain.BaseDirectory);
                 var runName = String.Format(@"{0}\Run{1}.log", fullPath, DateTime.Today.ToString("yyyyMMdd"));
                 var sysName = String.Format(@"{0}\Err{1}.log", fullPath, DateTime.Today.ToString("yyyyMMdd"));
                 if (!Directory.Exists(fullPath))
@@ -82,7 +82,7 @@ namespace iPem.Data {
         }
 
         public static void Clear(DateTime fromTime, DateTime toTime) {
-            var fullPath = String.Format(@"{0}\log", Environment.CurrentDirectory);
+            var fullPath = String.Format(@"{0}\log", AppDomain.CurrentDomain.BaseDirectory);
             if(!Directory.Exists(fullPath))
                 return;
 

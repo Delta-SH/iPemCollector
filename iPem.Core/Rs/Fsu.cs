@@ -7,6 +7,11 @@ namespace iPem.Core {
     [Serializable]
     public partial class Fsu : Device {
         /// <summary>
+        /// 所属厂家编号
+        /// </summary>
+        public string VendorId { get; set; }
+
+        /// <summary>
         /// IP
         /// </summary>
         public string IP { get; set; }

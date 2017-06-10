@@ -239,7 +239,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [Id]='''+ @Id + N''' AND [Type] = '+ CAST(@Type AS NVARCHAR) + N' AND [FormulaType] = '+ CAST(@FormulaType AS NVARCHAR) +N' [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [Id]='''+ @Id + N''' AND [Type] = '+ CAST(@Type AS NVARCHAR) + N' AND [FormulaType] = '+ CAST(@FormulaType AS NVARCHAR) +N' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
@@ -378,7 +378,7 @@ namespace iPem.Data.Common {
                 ';
                 END
         			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ' + @DeviceId + N' AND [PointId] = ' + @PointId + N' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -413,7 +413,7 @@ namespace iPem.Data.Common {
                 ';
                 END
         			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ' + @DeviceId + N' AND [PointId] = ' + @PointId + N' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);

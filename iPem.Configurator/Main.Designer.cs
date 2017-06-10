@@ -36,24 +36,20 @@
             this.cfgNodeTree = new System.Windows.Forms.TreeView();
             this.TreeImages = new System.Windows.Forms.ImageList(this.components);
             this.ConditonContainer = new System.Windows.Forms.Panel();
-            this.paramPanel = new System.Windows.Forms.Panel();
-            this.paramLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.paramBottomPanel = new System.Windows.Forms.Panel();
-            this.paramLine01 = new System.Windows.Forms.Label();
-            this.paramSaveButton = new System.Windows.Forms.Button();
-            this.paramCloseButton = new System.Windows.Forms.Button();
-            this.almIntervalName = new System.Windows.Forms.Label();
-            this.almIntervalField = new System.Windows.Forms.NumericUpDown();
-            this.almIntervalUnit = new System.Windows.Forms.Label();
-            this.cfgIntervalName = new System.Windows.Forms.Label();
-            this.cfgIntervalField = new System.Windows.Forms.NumericUpDown();
-            this.cfgIntervalUnit = new System.Windows.Forms.Label();
-            this.initMaxCountName = new System.Windows.Forms.Label();
-            this.initMaxCountField = new System.Windows.Forms.NumericUpDown();
-            this.initMaxCountUnit = new System.Windows.Forms.Label();
-            this.almSyncUnit = new System.Windows.Forms.Label();
-            this.almSyncName = new System.Windows.Forms.Label();
-            this.almSyncField = new System.Windows.Forms.NumericUpDown();
+            this.rootPanel = new System.Windows.Forms.Panel();
+            this.rootContainer = new System.Windows.Forms.TableLayoutPanel();
+            this.opServicePanel = new System.Windows.Forms.GroupBox();
+            this.opServiceContainer = new System.Windows.Forms.TableLayoutPanel();
+            this.restartButton = new System.Windows.Forms.Button();
+            this.reloadButton = new System.Windows.Forms.Button();
+            this.syncCfgButton = new System.Windows.Forms.Button();
+            this.syncAlmButton = new System.Windows.Forms.Button();
+            this.reServicePanel = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.installButton = new System.Windows.Forms.Button();
+            this.uninstallButton = new System.Windows.Forms.Button();
+            this.startButton = new System.Windows.Forms.Button();
+            this.stopButton = new System.Windows.Forms.Button();
             this.planPanel = new System.Windows.Forms.Panel();
             this.planLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.planRateField = new System.Windows.Forms.NumericUpDown();
@@ -97,13 +93,12 @@
             this.topMenuStrip.SuspendLayout();
             this.viewLayoutPanel.SuspendLayout();
             this.ConditonContainer.SuspendLayout();
-            this.paramPanel.SuspendLayout();
-            this.paramLayoutPanel.SuspendLayout();
-            this.paramBottomPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.almIntervalField)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cfgIntervalField)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.initMaxCountField)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.almSyncField)).BeginInit();
+            this.rootPanel.SuspendLayout();
+            this.rootContainer.SuspendLayout();
+            this.opServicePanel.SuspendLayout();
+            this.opServiceContainer.SuspendLayout();
+            this.reServicePanel.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.planPanel.SuspendLayout();
             this.planLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.planRateField)).BeginInit();
@@ -211,13 +206,12 @@
             this.TreeImages.TransparentColor = System.Drawing.Color.Transparent;
             this.TreeImages.Images.SetKeyName(0, "cfgDefault");
             this.TreeImages.Images.SetKeyName(1, "cfgRoot");
-            this.TreeImages.Images.SetKeyName(2, "cfgParam");
-            this.TreeImages.Images.SetKeyName(3, "cfgDb");
-            this.TreeImages.Images.SetKeyName(4, "cfgPlan");
+            this.TreeImages.Images.SetKeyName(2, "cfgDb");
+            this.TreeImages.Images.SetKeyName(3, "cfgPlan");
             // 
             // ConditonContainer
             // 
-            this.ConditonContainer.Controls.Add(this.paramPanel);
+            this.ConditonContainer.Controls.Add(this.rootPanel);
             this.ConditonContainer.Controls.Add(this.planPanel);
             this.ConditonContainer.Controls.Add(this.databasePanel);
             this.ConditonContainer.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -227,292 +221,224 @@
             this.ConditonContainer.Size = new System.Drawing.Size(319, 326);
             this.ConditonContainer.TabIndex = 1;
             // 
-            // paramPanel
+            // rootPanel
             // 
-            this.paramPanel.Controls.Add(this.paramLayoutPanel);
-            this.paramPanel.Location = new System.Drawing.Point(6, 0);
-            this.paramPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.paramPanel.Name = "paramPanel";
-            this.paramPanel.Size = new System.Drawing.Size(303, 68);
-            this.paramPanel.TabIndex = 0;
-            this.paramPanel.Visible = false;
+            this.rootPanel.Controls.Add(this.rootContainer);
+            this.rootPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rootPanel.Location = new System.Drawing.Point(0, 0);
+            this.rootPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.rootPanel.Name = "rootPanel";
+            this.rootPanel.Size = new System.Drawing.Size(319, 326);
+            this.rootPanel.TabIndex = 0;
+            this.rootPanel.Visible = false;
             // 
-            // paramLayoutPanel
+            // rootContainer
             // 
-            this.paramLayoutPanel.ColumnCount = 4;
-            this.paramLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.paramLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.paramLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.paramLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.paramLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.paramLayoutPanel.Controls.Add(this.paramBottomPanel, 0, 8);
-            this.paramLayoutPanel.Controls.Add(this.almIntervalName, 0, 0);
-            this.paramLayoutPanel.Controls.Add(this.almIntervalField, 1, 0);
-            this.paramLayoutPanel.Controls.Add(this.almIntervalUnit, 2, 0);
-            this.paramLayoutPanel.Controls.Add(this.cfgIntervalName, 0, 2);
-            this.paramLayoutPanel.Controls.Add(this.cfgIntervalField, 1, 2);
-            this.paramLayoutPanel.Controls.Add(this.cfgIntervalUnit, 2, 2);
-            this.paramLayoutPanel.Controls.Add(this.initMaxCountName, 0, 6);
-            this.paramLayoutPanel.Controls.Add(this.initMaxCountField, 1, 6);
-            this.paramLayoutPanel.Controls.Add(this.initMaxCountUnit, 2, 6);
-            this.paramLayoutPanel.Controls.Add(this.almSyncUnit, 2, 4);
-            this.paramLayoutPanel.Controls.Add(this.almSyncName, 0, 4);
-            this.paramLayoutPanel.Controls.Add(this.almSyncField, 1, 4);
-            this.paramLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.paramLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.paramLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.paramLayoutPanel.Name = "paramLayoutPanel";
-            this.paramLayoutPanel.RowCount = 9;
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.paramLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.paramLayoutPanel.Size = new System.Drawing.Size(303, 68);
-            this.paramLayoutPanel.TabIndex = 0;
+            this.rootContainer.ColumnCount = 1;
+            this.rootContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.rootContainer.Controls.Add(this.opServicePanel, 0, 2);
+            this.rootContainer.Controls.Add(this.reServicePanel, 0, 0);
+            this.rootContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rootContainer.Location = new System.Drawing.Point(0, 0);
+            this.rootContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.rootContainer.Name = "rootContainer";
+            this.rootContainer.RowCount = 4;
+            this.rootContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.rootContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+            this.rootContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.rootContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.rootContainer.Size = new System.Drawing.Size(319, 326);
+            this.rootContainer.TabIndex = 0;
             // 
-            // paramBottomPanel
+            // opServicePanel
             // 
-            this.paramLayoutPanel.SetColumnSpan(this.paramBottomPanel, 4);
-            this.paramBottomPanel.Controls.Add(this.paramLine01);
-            this.paramBottomPanel.Controls.Add(this.paramSaveButton);
-            this.paramBottomPanel.Controls.Add(this.paramCloseButton);
-            this.paramBottomPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.paramBottomPanel.Location = new System.Drawing.Point(0, 18);
-            this.paramBottomPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.paramBottomPanel.Name = "paramBottomPanel";
-            this.paramBottomPanel.Size = new System.Drawing.Size(303, 50);
-            this.paramBottomPanel.TabIndex = 0;
+            this.opServicePanel.Controls.Add(this.opServiceContainer);
+            this.opServicePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.opServicePanel.Location = new System.Drawing.Point(0, 110);
+            this.opServicePanel.Margin = new System.Windows.Forms.Padding(0);
+            this.opServicePanel.Name = "opServicePanel";
+            this.opServicePanel.Size = new System.Drawing.Size(319, 100);
+            this.opServicePanel.TabIndex = 0;
+            this.opServicePanel.TabStop = false;
+            this.opServicePanel.Text = "服务操作";
             // 
-            // paramLine01
+            // opServiceContainer
             // 
-            this.paramLine01.BackColor = System.Drawing.Color.Gray;
-            this.paramLine01.Dock = System.Windows.Forms.DockStyle.Top;
-            this.paramLine01.Location = new System.Drawing.Point(0, 0);
-            this.paramLine01.Name = "paramLine01";
-            this.paramLine01.Size = new System.Drawing.Size(303, 1);
-            this.paramLine01.TabIndex = 1;
+            this.opServiceContainer.ColumnCount = 5;
+            this.opServiceContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 8F));
+            this.opServiceContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.opServiceContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+            this.opServiceContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.opServiceContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 9F));
+            this.opServiceContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.opServiceContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.opServiceContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.opServiceContainer.Controls.Add(this.restartButton, 1, 0);
+            this.opServiceContainer.Controls.Add(this.reloadButton, 3, 0);
+            this.opServiceContainer.Controls.Add(this.syncCfgButton, 1, 2);
+            this.opServiceContainer.Controls.Add(this.syncAlmButton, 3, 2);
+            this.opServiceContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.opServiceContainer.Location = new System.Drawing.Point(3, 19);
+            this.opServiceContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.opServiceContainer.Name = "opServiceContainer";
+            this.opServiceContainer.RowCount = 4;
+            this.opServiceContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.opServiceContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+            this.opServiceContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.opServiceContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.opServiceContainer.Size = new System.Drawing.Size(313, 78);
+            this.opServiceContainer.TabIndex = 0;
             // 
-            // paramSaveButton
+            // restartButton
             // 
-            this.paramSaveButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.paramSaveButton.Location = new System.Drawing.Point(113, 10);
-            this.paramSaveButton.Margin = new System.Windows.Forms.Padding(0);
-            this.paramSaveButton.Name = "paramSaveButton";
-            this.paramSaveButton.Size = new System.Drawing.Size(90, 30);
-            this.paramSaveButton.TabIndex = 0;
-            this.paramSaveButton.Text = "保存(&S)";
-            this.paramSaveButton.UseVisualStyleBackColor = true;
-            this.paramSaveButton.Click += new System.EventHandler(this.paramSaveButton_Click);
+            this.restartButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.restartButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.restartButton.ForeColor = System.Drawing.Color.White;
+            this.restartButton.Location = new System.Drawing.Point(8, 0);
+            this.restartButton.Margin = new System.Windows.Forms.Padding(0);
+            this.restartButton.Name = "restartButton";
+            this.restartButton.Size = new System.Drawing.Size(143, 30);
+            this.restartButton.TabIndex = 1;
+            this.restartButton.Text = "重启服务";
+            this.restartButton.UseVisualStyleBackColor = false;
+            this.restartButton.Click += new System.EventHandler(this.restartButton_Click);
             // 
-            // paramCloseButton
+            // reloadButton
             // 
-            this.paramCloseButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.paramCloseButton.Location = new System.Drawing.Point(213, 10);
-            this.paramCloseButton.Margin = new System.Windows.Forms.Padding(0);
-            this.paramCloseButton.Name = "paramCloseButton";
-            this.paramCloseButton.Size = new System.Drawing.Size(90, 30);
-            this.paramCloseButton.TabIndex = 0;
-            this.paramCloseButton.Text = "关闭(&C)";
-            this.paramCloseButton.UseVisualStyleBackColor = true;
-            this.paramCloseButton.Click += new System.EventHandler(this.Quit_Click);
+            this.reloadButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.reloadButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.reloadButton.ForeColor = System.Drawing.Color.White;
+            this.reloadButton.Location = new System.Drawing.Point(161, 0);
+            this.reloadButton.Margin = new System.Windows.Forms.Padding(0);
+            this.reloadButton.Name = "reloadButton";
+            this.reloadButton.Size = new System.Drawing.Size(143, 30);
+            this.reloadButton.TabIndex = 2;
+            this.reloadButton.Text = "重载数据";
+            this.reloadButton.UseVisualStyleBackColor = false;
+            this.reloadButton.Click += new System.EventHandler(this.reloadButton_Click);
             // 
-            // almIntervalName
+            // syncCfgButton
             // 
-            this.almIntervalName.AutoSize = true;
-            this.almIntervalName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.almIntervalName.Location = new System.Drawing.Point(0, 0);
-            this.almIntervalName.Margin = new System.Windows.Forms.Padding(0);
-            this.almIntervalName.Name = "almIntervalName";
-            this.almIntervalName.Size = new System.Drawing.Size(100, 25);
-            this.almIntervalName.TabIndex = 1;
-            this.almIntervalName.Text = "告警处理频率:";
-            this.almIntervalName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.syncCfgButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.syncCfgButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.syncCfgButton.ForeColor = System.Drawing.Color.White;
+            this.syncCfgButton.Location = new System.Drawing.Point(8, 40);
+            this.syncCfgButton.Margin = new System.Windows.Forms.Padding(0);
+            this.syncCfgButton.Name = "syncCfgButton";
+            this.syncCfgButton.Size = new System.Drawing.Size(143, 30);
+            this.syncCfgButton.TabIndex = 3;
+            this.syncCfgButton.Text = "同步配置";
+            this.syncCfgButton.UseVisualStyleBackColor = false;
+            this.syncCfgButton.Click += new System.EventHandler(this.syncCfgButton_Click);
             // 
-            // almIntervalField
+            // syncAlmButton
             // 
-            this.almIntervalField.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.almIntervalField.Location = new System.Drawing.Point(100, 0);
-            this.almIntervalField.Margin = new System.Windows.Forms.Padding(0);
-            this.almIntervalField.Maximum = new decimal(new int[] {
-            3600,
-            0,
-            0,
-            0});
-            this.almIntervalField.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.almIntervalField.Name = "almIntervalField";
-            this.almIntervalField.Size = new System.Drawing.Size(91, 23);
-            this.almIntervalField.TabIndex = 2;
-            this.almIntervalField.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.syncAlmButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.syncAlmButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.syncAlmButton.ForeColor = System.Drawing.Color.White;
+            this.syncAlmButton.Location = new System.Drawing.Point(161, 40);
+            this.syncAlmButton.Margin = new System.Windows.Forms.Padding(0);
+            this.syncAlmButton.Name = "syncAlmButton";
+            this.syncAlmButton.Size = new System.Drawing.Size(143, 30);
+            this.syncAlmButton.TabIndex = 4;
+            this.syncAlmButton.Text = "同步告警";
+            this.syncAlmButton.UseVisualStyleBackColor = false;
+            this.syncAlmButton.Click += new System.EventHandler(this.syncAlmButton_Click);
             // 
-            // almIntervalUnit
+            // reServicePanel
             // 
-            this.paramLayoutPanel.SetColumnSpan(this.almIntervalUnit, 2);
-            this.almIntervalUnit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.almIntervalUnit.Location = new System.Drawing.Point(191, 0);
-            this.almIntervalUnit.Margin = new System.Windows.Forms.Padding(0);
-            this.almIntervalUnit.Name = "almIntervalUnit";
-            this.almIntervalUnit.Size = new System.Drawing.Size(112, 25);
-            this.almIntervalUnit.TabIndex = 0;
-            this.almIntervalUnit.Text = "秒/次(建议值:1)";
-            this.almIntervalUnit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.reServicePanel.Controls.Add(this.tableLayoutPanel1);
+            this.reServicePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.reServicePanel.Location = new System.Drawing.Point(0, 0);
+            this.reServicePanel.Margin = new System.Windows.Forms.Padding(0);
+            this.reServicePanel.Name = "reServicePanel";
+            this.reServicePanel.Size = new System.Drawing.Size(319, 100);
+            this.reServicePanel.TabIndex = 0;
+            this.reServicePanel.TabStop = false;
+            this.reServicePanel.Text = "服务注册";
             // 
-            // cfgIntervalName
+            // tableLayoutPanel1
             // 
-            this.cfgIntervalName.AutoSize = true;
-            this.cfgIntervalName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cfgIntervalName.Location = new System.Drawing.Point(0, 35);
-            this.cfgIntervalName.Margin = new System.Windows.Forms.Padding(0);
-            this.cfgIntervalName.Name = "cfgIntervalName";
-            this.cfgIntervalName.Size = new System.Drawing.Size(100, 25);
-            this.cfgIntervalName.TabIndex = 3;
-            this.cfgIntervalName.Text = "配置同步频率:";
-            this.cfgIntervalName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.tableLayoutPanel1.ColumnCount = 5;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 8F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 9F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Controls.Add(this.installButton, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.uninstallButton, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.startButton, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.stopButton, 3, 2);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 19);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(313, 78);
+            this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // cfgIntervalField
+            // installButton
             // 
-            this.cfgIntervalField.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cfgIntervalField.Location = new System.Drawing.Point(100, 35);
-            this.cfgIntervalField.Margin = new System.Windows.Forms.Padding(0);
-            this.cfgIntervalField.Maximum = new decimal(new int[] {
-            86400,
-            0,
-            0,
-            0});
-            this.cfgIntervalField.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.cfgIntervalField.Name = "cfgIntervalField";
-            this.cfgIntervalField.Size = new System.Drawing.Size(91, 23);
-            this.cfgIntervalField.TabIndex = 4;
-            this.cfgIntervalField.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.installButton.BackColor = System.Drawing.Color.Green;
+            this.installButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.installButton.ForeColor = System.Drawing.Color.White;
+            this.installButton.Location = new System.Drawing.Point(8, 0);
+            this.installButton.Margin = new System.Windows.Forms.Padding(0);
+            this.installButton.Name = "installButton";
+            this.installButton.Size = new System.Drawing.Size(143, 30);
+            this.installButton.TabIndex = 1;
+            this.installButton.Text = "安装启动服务";
+            this.installButton.UseVisualStyleBackColor = false;
+            this.installButton.Click += new System.EventHandler(this.installButton_Click);
             // 
-            // cfgIntervalUnit
+            // uninstallButton
             // 
-            this.paramLayoutPanel.SetColumnSpan(this.cfgIntervalUnit, 2);
-            this.cfgIntervalUnit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cfgIntervalUnit.Location = new System.Drawing.Point(191, 35);
-            this.cfgIntervalUnit.Margin = new System.Windows.Forms.Padding(0);
-            this.cfgIntervalUnit.Name = "cfgIntervalUnit";
-            this.cfgIntervalUnit.Size = new System.Drawing.Size(112, 25);
-            this.cfgIntervalUnit.TabIndex = 0;
-            this.cfgIntervalUnit.Text = "秒/次(建议值:30)";
-            this.cfgIntervalUnit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.uninstallButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.uninstallButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.uninstallButton.ForeColor = System.Drawing.Color.White;
+            this.uninstallButton.Location = new System.Drawing.Point(161, 0);
+            this.uninstallButton.Margin = new System.Windows.Forms.Padding(0);
+            this.uninstallButton.Name = "uninstallButton";
+            this.uninstallButton.Size = new System.Drawing.Size(143, 30);
+            this.uninstallButton.TabIndex = 2;
+            this.uninstallButton.Text = "停止卸载服务";
+            this.uninstallButton.UseVisualStyleBackColor = false;
+            this.uninstallButton.Click += new System.EventHandler(this.uninstallButton_Click);
             // 
-            // initMaxCountName
+            // startButton
             // 
-            this.initMaxCountName.AutoSize = true;
-            this.initMaxCountName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.initMaxCountName.Location = new System.Drawing.Point(0, 105);
-            this.initMaxCountName.Margin = new System.Windows.Forms.Padding(0);
-            this.initMaxCountName.Name = "initMaxCountName";
-            this.initMaxCountName.Size = new System.Drawing.Size(100, 25);
-            this.initMaxCountName.TabIndex = 7;
-            this.initMaxCountName.Text = "加载重试次数:";
-            this.initMaxCountName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.startButton.BackColor = System.Drawing.Color.Green;
+            this.startButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.startButton.ForeColor = System.Drawing.Color.White;
+            this.startButton.Location = new System.Drawing.Point(8, 40);
+            this.startButton.Margin = new System.Windows.Forms.Padding(0);
+            this.startButton.Name = "startButton";
+            this.startButton.Size = new System.Drawing.Size(143, 30);
+            this.startButton.TabIndex = 3;
+            this.startButton.Text = "启动服务";
+            this.startButton.UseVisualStyleBackColor = false;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
             // 
-            // initMaxCountField
+            // stopButton
             // 
-            this.initMaxCountField.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.initMaxCountField.Location = new System.Drawing.Point(100, 105);
-            this.initMaxCountField.Margin = new System.Windows.Forms.Padding(0);
-            this.initMaxCountField.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.initMaxCountField.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.initMaxCountField.Name = "initMaxCountField";
-            this.initMaxCountField.Size = new System.Drawing.Size(91, 23);
-            this.initMaxCountField.TabIndex = 8;
-            this.initMaxCountField.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // initMaxCountUnit
-            // 
-            this.paramLayoutPanel.SetColumnSpan(this.initMaxCountUnit, 2);
-            this.initMaxCountUnit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.initMaxCountUnit.Location = new System.Drawing.Point(191, 105);
-            this.initMaxCountUnit.Margin = new System.Windows.Forms.Padding(0);
-            this.initMaxCountUnit.Name = "initMaxCountUnit";
-            this.initMaxCountUnit.Size = new System.Drawing.Size(112, 25);
-            this.initMaxCountUnit.TabIndex = 0;
-            this.initMaxCountUnit.Text = "次(建议值:3)";
-            this.initMaxCountUnit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // almSyncUnit
-            // 
-            this.paramLayoutPanel.SetColumnSpan(this.almSyncUnit, 2);
-            this.almSyncUnit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.almSyncUnit.Location = new System.Drawing.Point(191, 70);
-            this.almSyncUnit.Margin = new System.Windows.Forms.Padding(0);
-            this.almSyncUnit.Name = "almSyncUnit";
-            this.almSyncUnit.Size = new System.Drawing.Size(112, 25);
-            this.almSyncUnit.TabIndex = 0;
-            this.almSyncUnit.Text = "小时/次(建议值:24)";
-            this.almSyncUnit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // almSyncName
-            // 
-            this.almSyncName.AutoSize = true;
-            this.almSyncName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.almSyncName.Location = new System.Drawing.Point(0, 70);
-            this.almSyncName.Margin = new System.Windows.Forms.Padding(0);
-            this.almSyncName.Name = "almSyncName";
-            this.almSyncName.Size = new System.Drawing.Size(100, 25);
-            this.almSyncName.TabIndex = 5;
-            this.almSyncName.Text = "告警同步频率:";
-            this.almSyncName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // almSyncField
-            // 
-            this.almSyncField.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.almSyncField.Location = new System.Drawing.Point(100, 70);
-            this.almSyncField.Margin = new System.Windows.Forms.Padding(0);
-            this.almSyncField.Maximum = new decimal(new int[] {
-            720,
-            0,
-            0,
-            0});
-            this.almSyncField.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.almSyncField.Name = "almSyncField";
-            this.almSyncField.Size = new System.Drawing.Size(91, 23);
-            this.almSyncField.TabIndex = 6;
-            this.almSyncField.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.stopButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.stopButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stopButton.ForeColor = System.Drawing.Color.White;
+            this.stopButton.Location = new System.Drawing.Point(161, 40);
+            this.stopButton.Margin = new System.Windows.Forms.Padding(0);
+            this.stopButton.Name = "stopButton";
+            this.stopButton.Size = new System.Drawing.Size(143, 30);
+            this.stopButton.TabIndex = 4;
+            this.stopButton.Text = "停止服务";
+            this.stopButton.UseVisualStyleBackColor = false;
+            this.stopButton.Click += new System.EventHandler(this.stopButton_Click);
             // 
             // planPanel
             // 
@@ -818,7 +744,7 @@
             // databasePanel
             // 
             this.databasePanel.Controls.Add(this.databaseLayoutPanel);
-            this.databasePanel.Location = new System.Drawing.Point(9, 104);
+            this.databasePanel.Location = new System.Drawing.Point(6, 112);
             this.databasePanel.Margin = new System.Windows.Forms.Padding(0);
             this.databasePanel.Name = "databasePanel";
             this.databasePanel.Size = new System.Drawing.Size(299, 69);
@@ -1073,22 +999,22 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.topMenuStrip;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.MinimumSize = new System.Drawing.Size(550, 400);
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "DELTA";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.Load += new System.EventHandler(this.Main_Load);
             this.topMenuStrip.ResumeLayout(false);
             this.topMenuStrip.PerformLayout();
             this.viewLayoutPanel.ResumeLayout(false);
             this.ConditonContainer.ResumeLayout(false);
-            this.paramPanel.ResumeLayout(false);
-            this.paramLayoutPanel.ResumeLayout(false);
-            this.paramLayoutPanel.PerformLayout();
-            this.paramBottomPanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.almIntervalField)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cfgIntervalField)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.initMaxCountField)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.almSyncField)).EndInit();
+            this.rootPanel.ResumeLayout(false);
+            this.rootContainer.ResumeLayout(false);
+            this.opServicePanel.ResumeLayout(false);
+            this.opServiceContainer.ResumeLayout(false);
+            this.reServicePanel.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.planPanel.ResumeLayout(false);
             this.planLayoutPanel.ResumeLayout(false);
             this.planLayoutPanel.PerformLayout();
@@ -1117,15 +1043,6 @@
         private System.Windows.Forms.TreeView cfgNodeTree;
         private System.Windows.Forms.Panel ConditonContainer;
         private System.Windows.Forms.ImageList TreeImages;
-        private System.Windows.Forms.Panel paramPanel;
-        private System.Windows.Forms.TableLayoutPanel paramLayoutPanel;
-        private System.Windows.Forms.Panel paramBottomPanel;
-        private System.Windows.Forms.Button paramCloseButton;
-        private System.Windows.Forms.Button paramSaveButton;
-        private System.Windows.Forms.Label paramLine01;
-        private System.Windows.Forms.Label almIntervalName;
-        private System.Windows.Forms.NumericUpDown almIntervalField;
-        private System.Windows.Forms.Label almIntervalUnit;
         private System.Windows.Forms.Panel databasePanel;
         private System.Windows.Forms.TableLayoutPanel databaseLayoutPanel;
         private System.Windows.Forms.Panel dbBottomPanel;
@@ -1166,14 +1083,19 @@
         private System.Windows.Forms.Label planCommentName;
         private System.Windows.Forms.TextBox planCommentField;
         private System.Windows.Forms.Label planRateComment;
-        private System.Windows.Forms.Label cfgIntervalName;
-        private System.Windows.Forms.NumericUpDown cfgIntervalField;
-        private System.Windows.Forms.Label cfgIntervalUnit;
-        private System.Windows.Forms.Label initMaxCountName;
-        private System.Windows.Forms.NumericUpDown initMaxCountField;
-        private System.Windows.Forms.Label initMaxCountUnit;
-        private System.Windows.Forms.Label almSyncUnit;
-        private System.Windows.Forms.Label almSyncName;
-        private System.Windows.Forms.NumericUpDown almSyncField;
+        private System.Windows.Forms.Panel rootPanel;
+        private System.Windows.Forms.TableLayoutPanel rootContainer;
+        private System.Windows.Forms.GroupBox opServicePanel;
+        private System.Windows.Forms.TableLayoutPanel opServiceContainer;
+        private System.Windows.Forms.Button restartButton;
+        private System.Windows.Forms.Button reloadButton;
+        private System.Windows.Forms.Button syncCfgButton;
+        private System.Windows.Forms.Button syncAlmButton;
+        private System.Windows.Forms.GroupBox reServicePanel;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Button installButton;
+        private System.Windows.Forms.Button uninstallButton;
+        private System.Windows.Forms.Button startButton;
+        private System.Windows.Forms.Button stopButton;
     }
 }

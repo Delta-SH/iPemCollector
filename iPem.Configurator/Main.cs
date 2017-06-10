@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,11 +43,21 @@ namespace iPem.Configurator {
             }
         }
 
+        private void Main_FormClosing(object sender, FormClosingEventArgs e) {
+            try {
+                if (MessageBox.Show("您确定要退出吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.OK) {
+                    e.Cancel = true;
+                    return;
+                }
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void BindCfgNodes(TreeView tv) {
             tv.Nodes.Clear();
 
-            var root = new TreeNode { Name = "cfgRoot", Text = "配置管理项", ImageKey = "cfgRoot", SelectedImageKey = "cfgRoot", Tag = new TagModel { Type = NodeType.Root } };
-            var paramNode = new TreeNode { Name = "cfgParamNode", Text = "常规", ImageKey = "cfgParam", SelectedImageKey = "cfgParam", Tag = new TagModel { Type = NodeType.Param } };
+            var root = new TreeNode { Name = "cfgRoot", Text = "数据处理服务", ImageKey = "cfgRoot", SelectedImageKey = "cfgRoot", Tag = new TagModel { Type = NodeType.Root } };
             var dbNode = new TreeNode { Name = "cfgDbNode", Text = "数据库", ImageKey = "cfgDb", SelectedImageKey = "cfgDb", Tag = new TagModel { Type = NodeType.Parent } };
             var planNode = new TreeNode { Name = "cfgPlanNode", Text = "计划任务", ImageKey = "cfgPlan", SelectedImageKey = "cfgPlan", Tag = new TagModel { Type = NodeType.Parent } };
 
@@ -64,7 +76,7 @@ namespace iPem.Configurator {
             }
 
             tv.Nodes.Add(root);
-            root.Nodes.AddRange(new TreeNode[] { paramNode, dbNode, planNode });
+            root.Nodes.AddRange(new TreeNode[] { dbNode, planNode });
             tv.SelectedNode = root;
             tv.ExpandAll();
         }
@@ -72,38 +84,17 @@ namespace iPem.Configurator {
         private void cfgNodeTree_AfterSelect(object sender, TreeViewEventArgs e) {
             try {
                 _currentNode = e.Node;
-                paramPanel.Dock = DockStyle.None;
+                rootPanel.Dock = DockStyle.None;
                 databasePanel.Dock = DockStyle.None;
                 planPanel.Dock = DockStyle.None;
-                paramPanel.Visible = false;
+                rootPanel.Visible = false;
                 databasePanel.Visible = false;
                 planPanel.Visible = false;
 
                 var tag = _currentNode.Tag as TagModel;
-                if (tag.Type == NodeType.Param) {
-                    paramPanel.Dock = DockStyle.Fill;
-                    paramPanel.Visible = true;
-
-                    //初始化
-                    almIntervalField.Value = 1;
-                    cfgIntervalField.Value = 1;
-                    almSyncField.Value = 1;
-                    initMaxCountField.Value = 1;
-
-                    var curParam = _registry.GetParams().Find(p => p.Id == "P001");
-                    if (curParam == null) throw new Exception("未找到参数配置信息");
-
-                    if (!string.IsNullOrWhiteSpace(curParam.Json)) {
-                        var paramModel = JsonConvert.DeserializeObject<ParamModel>(curParam.Json);
-                        if (paramModel != null) {
-                            almIntervalField.Value = paramModel.AlarmInterval;
-                            cfgIntervalField.Value = paramModel.ConfigInterval;
-                            almSyncField.Value = paramModel.AlarmSync;
-                            initMaxCountField.Value = paramModel.InitRepeatCount;
-                        } 
-                    }
-
-                    tag.Parameter = curParam;
+                if (tag.Type == NodeType.Root) {
+                    rootPanel.Dock = DockStyle.Fill;
+                    rootPanel.Visible = true;
                 } else if (tag.Type == NodeType.Database) {
                     databasePanel.Dock = DockStyle.Fill;
                     databasePanel.Visible = true;
@@ -191,15 +182,167 @@ namespace iPem.Configurator {
             new About().ShowDialog();
         }
 
-        private void paramSaveButton_Click(object sender, EventArgs e) {
+        private void installButton_Click(object sender, EventArgs e) {
             try {
-                var tag = _currentNode.Tag as TagModel;
-                if (tag.Type != NodeType.Param) throw new Exception("节点类型错误。");
-                var paramter = (ParamEntity)tag.Parameter;
-                paramter.Json = JsonConvert.SerializeObject(new ParamModel { AlarmInterval = (int)almIntervalField.Value, ConfigInterval = (int)cfgIntervalField.Value, AlarmSync = (int)almSyncField.Value, InitRepeatCount = (int)initMaxCountField.Value });
-                paramter.Time = DateTime.Now;
-                _registry.SaveParams(new List<ParamEntity> { paramter });
-                MessageBox.Show("保存成功", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (this.GetService() != null) {
+                    MessageBox.Show("服务已经存在，安装失败。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                Process process = new Process();
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.FileName = "Install.bat";
+                process.StartInfo.CreateNoWindow = false;
+                process.Start();
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void uninstallButton_Click(object sender, EventArgs e) {
+            try {
+                if (this.GetService() == null) {
+                    MessageBox.Show("服务尚未安装，卸载失败。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                Process process = new Process();
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.FileName = "Uninstall.bat";
+                process.StartInfo.CreateNoWindow = false;
+                process.Start();
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void startButton_Click(object sender, EventArgs e) {
+            try {
+                var current = this.GetService();
+                if (current == null) {
+                    MessageBox.Show("服务尚未安装，无法启动服务。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (current.Status == ServiceControllerStatus.Running) {
+                    MessageBox.Show("服务正在运行，操作无效。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("您确定要启动服务吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
+                    current.Start();
+                    MessageBox.Show("已成功启动服务。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void stopButton_Click(object sender, EventArgs e) {
+            try {
+                var current = this.GetService();
+                if (current == null) {
+                    MessageBox.Show("服务尚未安装，无法停止服务。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (current.Status == ServiceControllerStatus.Stopped) {
+                    MessageBox.Show("服务尚未运行，操作无效。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("您确定要停止服务吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
+                    current.Stop();
+                    MessageBox.Show("已成功停止服务。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void restartButton_Click(object sender, EventArgs e) {
+            try {
+                var current = this.GetService();
+                if (current == null) {
+                    MessageBox.Show("服务尚未安装，无法重启服务。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (current.Status != ServiceControllerStatus.Running) {
+                    MessageBox.Show("服务尚未运行，操作无效。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("您确定要重启服务吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
+                    _registry.SaveOrders(new List<OrderEntity> { new OrderEntity { Id = OrderId.Restart, Param = null } });
+                    MessageBox.Show("重启服务命令已下发", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void reloadButton_Click(object sender, EventArgs e) {
+            try {
+                var current = this.GetService();
+                if (current == null) {
+                    MessageBox.Show("服务尚未安装，无法重载数据。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (current.Status != ServiceControllerStatus.Running) {
+                    MessageBox.Show("服务尚未运行，操作无效。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("您确定要重载数据吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
+                    _registry.SaveOrders(new List<OrderEntity> { new OrderEntity { Id = OrderId.Reload, Param = null } });
+                    MessageBox.Show("重载数据命令已下发", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void syncCfgButton_Click(object sender, EventArgs e) {
+            try {
+                var current = this.GetService();
+                if (current == null) {
+                    MessageBox.Show("服务尚未安装，无法同步配置。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (current.Status != ServiceControllerStatus.Running) {
+                    MessageBox.Show("服务尚未运行，操作无效。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("您确定要同步配置吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
+                    _registry.SaveOrders(new List<OrderEntity> { new OrderEntity { Id = OrderId.SyncConfig, Param = null } });
+                    MessageBox.Show("同步配置命令已下发", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void syncAlmButton_Click(object sender, EventArgs e) {
+            try {
+                var current = this.GetService();
+                if (current == null) {
+                    MessageBox.Show("服务尚未安装，无法同步告警。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (current.Status != ServiceControllerStatus.Running) {
+                    MessageBox.Show("服务尚未运行，操作无效。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (MessageBox.Show("您确定要同步告警吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
+                    _registry.SaveOrders(new List<OrderEntity> { new OrderEntity { Id = OrderId.SyncAlarm, Param = null } });
+                    MessageBox.Show("同步告警命令已下发", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -394,6 +537,10 @@ namespace iPem.Configurator {
             if (MessageBox.Show("您确定要退出吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
                 Application.Exit();
             }
+        }
+
+        private ServiceController GetService(string service = "TaskService") {
+            return ServiceController.GetServices().FirstOrDefault(s => s.ServiceName.Equals(service, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

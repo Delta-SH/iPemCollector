@@ -8,16 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+using System.Diagnostics;
 using System.Linq;
+using System.ServiceProcess;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace iPem.TaskServer {
-    public partial class Simulator : Form {
+namespace iPem.TaskService {
+    public partial class TaskService : ServiceBase {
         //全局变量
         private RunStatus _runStatus;
         private Registry _registry;
@@ -65,14 +65,14 @@ namespace iPem.TaskServer {
         private FormulaRepository _formulaRepository;
         private DictionaryRepository _dictionaryRepository;
 
-        public Simulator() {
+        public TaskService() {
             InitializeComponent();
         }
 
         /// <summary>
         /// 启动服务
         /// </summary>
-        private void startButton_Click(object sender, EventArgs e) {
+        protected override void OnStart(string[] args) {
             try {
                 Logger.Information("#############################################");
                 Logger.Information(String.Format("启动服务\"{0} {1}\"", iPemStore.Name, iPemStore.Version));
@@ -207,7 +207,7 @@ namespace iPem.TaskServer {
         /// <summary>
         /// 停止服务
         /// </summary>
-        private void stopButton_Click(object sender, EventArgs e) {
+        protected override void OnStop() {
             try {
                 Logger.Information("停止服务...");
                 _runStatus = RunStatus.Stop;
@@ -1290,9 +1290,8 @@ namespace iPem.TaskServer {
         /// </summary>
         private void Restart() {
             Logger.Information("重启服务...");
-            //this.OnStop();
-            //Environment.Exit(-1);
-            Application.Restart();
+            this.OnStop();
+            Environment.Exit(-1);
         }
 
         /// <summary>

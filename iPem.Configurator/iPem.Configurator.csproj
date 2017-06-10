@@ -35,6 +35,9 @@
   <PropertyGroup>
     <ApplicationIcon>Resources\16.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -47,6 +50,7 @@
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.105.1\lib\net45\System.Data.SQLite.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -66,8 +70,8 @@
     <Compile Include="Common\Common.cs" />
     <Compile Include="Model\DbEntity.cs" />
     <Compile Include="Common\iPemEnum.cs" />
+    <Compile Include="Model\OrderEntity.cs" />
     <Compile Include="Model\ParamEntity.cs" />
-    <Compile Include="Model\ParamModel.cs" />
     <Compile Include="Model\TagModel.cs" />
     <Compile Include="Model\TaskModel.cs" />
     <Compile Include="Registry.cs" />
@@ -99,6 +103,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="app.manifest" />
     <None Include="doc\configurator.chm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -121,9 +126,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cfgDefault.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\cfgParam.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cfgPlan.png" />
