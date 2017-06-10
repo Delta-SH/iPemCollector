@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using iPem.Configurator.Properties;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
@@ -38,6 +40,9 @@ namespace iPem.Configurator {
                 dbTypeField.ValueMember = "Id";
                 dbTypeField.DisplayMember = "Name";
                 dbTypeField.DataSource = Common.GetDbStore();
+
+                this.SetServiceStatus();
+                globalTimer.Start();
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -471,7 +476,7 @@ namespace iPem.Configurator {
                     dbCloseButton.Enabled = false;
                     _testStatus = TestStatus.Stop;
                 } else {
-                    this.Quit();
+                    Application.Exit();
                 }
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -517,7 +522,24 @@ namespace iPem.Configurator {
         }
 
         private void Quit_Click(object sender, EventArgs e) {
-            this.Quit();
+            Application.Exit();
+        }
+
+        private void globalTimer_Tick(object sender, EventArgs e) {
+            try {
+                this.SetServiceStatus();
+            } catch { }
+        }
+
+        private void logFolderButton_ButtonClick(object sender, EventArgs e) {
+            try {
+                var path = string.Format(@"{0}\log", Environment.CurrentDirectory);
+                if (!Directory.Exists(path)) path = Environment.CurrentDirectory;
+                
+                Process.Start("explorer.exe", path);
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private string GetPlanComment() {
@@ -533,14 +555,24 @@ namespace iPem.Configurator {
             return string.Empty;
         }
 
-        private void Quit() {
-            if (MessageBox.Show("您确定要退出吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
-                Application.Exit();
-            }
-        }
-
         private ServiceController GetService(string service = "TaskService") {
             return ServiceController.GetServices().FirstOrDefault(s => s.ServiceName.Equals(service, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        private void SetServiceStatus() {
+            var current = this.GetService();
+            if (current == null) {
+                serviceStatus.Image = Resources.uninstall;
+                serviceStatus.Text = "服务尚未安装";
+            } else {
+                if (current.Status == ServiceControllerStatus.Running) {
+                    serviceStatus.Image = Resources.running;
+                    serviceStatus.Text = "服务正在运行";
+                } else {
+                    serviceStatus.Image = Resources.stop;
+                    serviceStatus.Text = "服务已经停止";
+                }
+            }
         }
     }
 }

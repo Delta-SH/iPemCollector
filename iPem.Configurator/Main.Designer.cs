@@ -55,7 +55,7 @@
             this.planRateField = new System.Windows.Forms.NumericUpDown();
             this.planTypeField = new System.Windows.Forms.ComboBox();
             this.planBottomPanel = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.line01 = new System.Windows.Forms.Label();
             this.planSaveButton = new System.Windows.Forms.Button();
             this.planCloseButton = new System.Windows.Forms.Button();
             this.planTypeName = new System.Windows.Forms.Label();
@@ -85,11 +85,15 @@
             this.dbTypeField = new System.Windows.Forms.ComboBox();
             this.dbTypeName = new System.Windows.Forms.Label();
             this.dbBottomPanel = new System.Windows.Forms.Panel();
-            this.label3 = new System.Windows.Forms.Label();
+            this.line02 = new System.Windows.Forms.Label();
             this.dbTestButton = new System.Windows.Forms.Button();
             this.dbSaveButton = new System.Windows.Forms.Button();
             this.dbCloseButton = new System.Windows.Forms.Button();
             this.dbIPName = new System.Windows.Forms.Label();
+            this.bottomStatusStrip = new System.Windows.Forms.StatusStrip();
+            this.serviceStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.logFolderButton = new System.Windows.Forms.ToolStripSplitButton();
+            this.globalTimer = new System.Windows.Forms.Timer(this.components);
             this.topMenuStrip.SuspendLayout();
             this.viewLayoutPanel.SuspendLayout();
             this.ConditonContainer.SuspendLayout();
@@ -107,6 +111,7 @@
             this.databaseLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dbPortField)).BeginInit();
             this.dbBottomPanel.SuspendLayout();
+            this.bottomStatusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // topMenuStrip
@@ -178,9 +183,9 @@
             this.viewLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             this.viewLayoutPanel.Name = "viewLayoutPanel";
             this.viewLayoutPanel.Padding = new System.Windows.Forms.Padding(5);
-            this.viewLayoutPanel.RowCount = 1;
+            this.viewLayoutPanel.RowCount = 2;
             this.viewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.viewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.viewLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.viewLayoutPanel.Size = new System.Drawing.Size(534, 336);
             this.viewLayoutPanel.TabIndex = 2;
             // 
@@ -196,7 +201,7 @@
             this.cfgNodeTree.Margin = new System.Windows.Forms.Padding(0);
             this.cfgNodeTree.Name = "cfgNodeTree";
             this.cfgNodeTree.SelectedImageIndex = 0;
-            this.cfgNodeTree.Size = new System.Drawing.Size(200, 326);
+            this.cfgNodeTree.Size = new System.Drawing.Size(200, 304);
             this.cfgNodeTree.TabIndex = 0;
             this.cfgNodeTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.cfgNodeTree_AfterSelect);
             // 
@@ -218,17 +223,16 @@
             this.ConditonContainer.Location = new System.Drawing.Point(210, 5);
             this.ConditonContainer.Margin = new System.Windows.Forms.Padding(0);
             this.ConditonContainer.Name = "ConditonContainer";
-            this.ConditonContainer.Size = new System.Drawing.Size(319, 326);
+            this.ConditonContainer.Size = new System.Drawing.Size(319, 304);
             this.ConditonContainer.TabIndex = 1;
             // 
             // rootPanel
             // 
             this.rootPanel.Controls.Add(this.rootContainer);
-            this.rootPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rootPanel.Location = new System.Drawing.Point(0, 0);
+            this.rootPanel.Location = new System.Drawing.Point(6, 11);
             this.rootPanel.Margin = new System.Windows.Forms.Padding(0);
             this.rootPanel.Name = "rootPanel";
-            this.rootPanel.Size = new System.Drawing.Size(319, 326);
+            this.rootPanel.Size = new System.Drawing.Size(295, 70);
             this.rootPanel.TabIndex = 0;
             this.rootPanel.Visible = false;
             // 
@@ -247,7 +251,7 @@
             this.rootContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.rootContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.rootContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootContainer.Size = new System.Drawing.Size(319, 326);
+            this.rootContainer.Size = new System.Drawing.Size(295, 70);
             this.rootContainer.TabIndex = 0;
             // 
             // opServicePanel
@@ -257,7 +261,7 @@
             this.opServicePanel.Location = new System.Drawing.Point(0, 110);
             this.opServicePanel.Margin = new System.Windows.Forms.Padding(0);
             this.opServicePanel.Name = "opServicePanel";
-            this.opServicePanel.Size = new System.Drawing.Size(319, 100);
+            this.opServicePanel.Size = new System.Drawing.Size(295, 100);
             this.opServicePanel.TabIndex = 0;
             this.opServicePanel.TabStop = false;
             this.opServicePanel.Text = "服务操作";
@@ -286,7 +290,7 @@
             this.opServiceContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.opServiceContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.opServiceContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.opServiceContainer.Size = new System.Drawing.Size(313, 78);
+            this.opServiceContainer.Size = new System.Drawing.Size(289, 78);
             this.opServiceContainer.TabIndex = 0;
             // 
             // restartButton
@@ -297,7 +301,7 @@
             this.restartButton.Location = new System.Drawing.Point(8, 0);
             this.restartButton.Margin = new System.Windows.Forms.Padding(0);
             this.restartButton.Name = "restartButton";
-            this.restartButton.Size = new System.Drawing.Size(143, 30);
+            this.restartButton.Size = new System.Drawing.Size(131, 30);
             this.restartButton.TabIndex = 1;
             this.restartButton.Text = "重启服务";
             this.restartButton.UseVisualStyleBackColor = false;
@@ -308,10 +312,10 @@
             this.reloadButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.reloadButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.reloadButton.ForeColor = System.Drawing.Color.White;
-            this.reloadButton.Location = new System.Drawing.Point(161, 0);
+            this.reloadButton.Location = new System.Drawing.Point(149, 0);
             this.reloadButton.Margin = new System.Windows.Forms.Padding(0);
             this.reloadButton.Name = "reloadButton";
-            this.reloadButton.Size = new System.Drawing.Size(143, 30);
+            this.reloadButton.Size = new System.Drawing.Size(131, 30);
             this.reloadButton.TabIndex = 2;
             this.reloadButton.Text = "重载数据";
             this.reloadButton.UseVisualStyleBackColor = false;
@@ -325,9 +329,9 @@
             this.syncCfgButton.Location = new System.Drawing.Point(8, 40);
             this.syncCfgButton.Margin = new System.Windows.Forms.Padding(0);
             this.syncCfgButton.Name = "syncCfgButton";
-            this.syncCfgButton.Size = new System.Drawing.Size(143, 30);
+            this.syncCfgButton.Size = new System.Drawing.Size(131, 30);
             this.syncCfgButton.TabIndex = 3;
-            this.syncCfgButton.Text = "同步配置";
+            this.syncCfgButton.Text = "同步基础配置";
             this.syncCfgButton.UseVisualStyleBackColor = false;
             this.syncCfgButton.Click += new System.EventHandler(this.syncCfgButton_Click);
             // 
@@ -336,12 +340,12 @@
             this.syncAlmButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.syncAlmButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.syncAlmButton.ForeColor = System.Drawing.Color.White;
-            this.syncAlmButton.Location = new System.Drawing.Point(161, 40);
+            this.syncAlmButton.Location = new System.Drawing.Point(149, 40);
             this.syncAlmButton.Margin = new System.Windows.Forms.Padding(0);
             this.syncAlmButton.Name = "syncAlmButton";
-            this.syncAlmButton.Size = new System.Drawing.Size(143, 30);
+            this.syncAlmButton.Size = new System.Drawing.Size(131, 30);
             this.syncAlmButton.TabIndex = 4;
-            this.syncAlmButton.Text = "同步告警";
+            this.syncAlmButton.Text = "同步活动告警";
             this.syncAlmButton.UseVisualStyleBackColor = false;
             this.syncAlmButton.Click += new System.EventHandler(this.syncAlmButton_Click);
             // 
@@ -352,7 +356,7 @@
             this.reServicePanel.Location = new System.Drawing.Point(0, 0);
             this.reServicePanel.Margin = new System.Windows.Forms.Padding(0);
             this.reServicePanel.Name = "reServicePanel";
-            this.reServicePanel.Size = new System.Drawing.Size(319, 100);
+            this.reServicePanel.Size = new System.Drawing.Size(295, 100);
             this.reServicePanel.TabIndex = 0;
             this.reServicePanel.TabStop = false;
             this.reServicePanel.Text = "服务注册";
@@ -381,7 +385,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(313, 78);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(289, 78);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // installButton
@@ -392,7 +396,7 @@
             this.installButton.Location = new System.Drawing.Point(8, 0);
             this.installButton.Margin = new System.Windows.Forms.Padding(0);
             this.installButton.Name = "installButton";
-            this.installButton.Size = new System.Drawing.Size(143, 30);
+            this.installButton.Size = new System.Drawing.Size(131, 30);
             this.installButton.TabIndex = 1;
             this.installButton.Text = "安装启动服务";
             this.installButton.UseVisualStyleBackColor = false;
@@ -403,10 +407,10 @@
             this.uninstallButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.uninstallButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.uninstallButton.ForeColor = System.Drawing.Color.White;
-            this.uninstallButton.Location = new System.Drawing.Point(161, 0);
+            this.uninstallButton.Location = new System.Drawing.Point(149, 0);
             this.uninstallButton.Margin = new System.Windows.Forms.Padding(0);
             this.uninstallButton.Name = "uninstallButton";
-            this.uninstallButton.Size = new System.Drawing.Size(143, 30);
+            this.uninstallButton.Size = new System.Drawing.Size(131, 30);
             this.uninstallButton.TabIndex = 2;
             this.uninstallButton.Text = "停止卸载服务";
             this.uninstallButton.UseVisualStyleBackColor = false;
@@ -420,7 +424,7 @@
             this.startButton.Location = new System.Drawing.Point(8, 40);
             this.startButton.Margin = new System.Windows.Forms.Padding(0);
             this.startButton.Name = "startButton";
-            this.startButton.Size = new System.Drawing.Size(143, 30);
+            this.startButton.Size = new System.Drawing.Size(131, 30);
             this.startButton.TabIndex = 3;
             this.startButton.Text = "启动服务";
             this.startButton.UseVisualStyleBackColor = false;
@@ -431,10 +435,10 @@
             this.stopButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.stopButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stopButton.ForeColor = System.Drawing.Color.White;
-            this.stopButton.Location = new System.Drawing.Point(161, 40);
+            this.stopButton.Location = new System.Drawing.Point(149, 40);
             this.stopButton.Margin = new System.Windows.Forms.Padding(0);
             this.stopButton.Name = "stopButton";
-            this.stopButton.Size = new System.Drawing.Size(143, 30);
+            this.stopButton.Size = new System.Drawing.Size(131, 30);
             this.stopButton.TabIndex = 4;
             this.stopButton.Text = "停止服务";
             this.stopButton.UseVisualStyleBackColor = false;
@@ -487,11 +491,9 @@
             this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
             this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.planLayoutPanel.Size = new System.Drawing.Size(303, 82);
             this.planLayoutPanel.TabIndex = 0;
             // 
@@ -536,7 +538,7 @@
             // planBottomPanel
             // 
             this.planLayoutPanel.SetColumnSpan(this.planBottomPanel, 4);
-            this.planBottomPanel.Controls.Add(this.label1);
+            this.planBottomPanel.Controls.Add(this.line01);
             this.planBottomPanel.Controls.Add(this.planSaveButton);
             this.planBottomPanel.Controls.Add(this.planCloseButton);
             this.planBottomPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -546,14 +548,14 @@
             this.planBottomPanel.Size = new System.Drawing.Size(298, 50);
             this.planBottomPanel.TabIndex = 0;
             // 
-            // label1
+            // line01
             // 
-            this.label1.BackColor = System.Drawing.Color.Gray;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(298, 1);
-            this.label1.TabIndex = 1;
+            this.line01.BackColor = System.Drawing.Color.Gray;
+            this.line01.Dock = System.Windows.Forms.DockStyle.Top;
+            this.line01.Location = new System.Drawing.Point(0, 0);
+            this.line01.Name = "line01";
+            this.line01.Size = new System.Drawing.Size(298, 1);
+            this.line01.TabIndex = 1;
             // 
             // planSaveButton
             // 
@@ -702,7 +704,7 @@
             this.planCommentName.Location = new System.Drawing.Point(0, 140);
             this.planCommentName.Margin = new System.Windows.Forms.Padding(0);
             this.planCommentName.Name = "planCommentName";
-            this.planCommentName.Size = new System.Drawing.Size(80, 120);
+            this.planCommentName.Size = new System.Drawing.Size(80, 1);
             this.planCommentName.TabIndex = 14;
             this.planCommentName.Text = "计划描述:";
             // 
@@ -716,7 +718,7 @@
             this.planCommentField.Multiline = true;
             this.planCommentField.Name = "planCommentField";
             this.planCommentField.ReadOnly = true;
-            this.planCommentField.Size = new System.Drawing.Size(218, 120);
+            this.planCommentField.Size = new System.Drawing.Size(218, 1);
             this.planCommentField.TabIndex = 8;
             // 
             // planRateComment
@@ -920,7 +922,7 @@
             // dbBottomPanel
             // 
             this.databaseLayoutPanel.SetColumnSpan(this.dbBottomPanel, 2);
-            this.dbBottomPanel.Controls.Add(this.label3);
+            this.dbBottomPanel.Controls.Add(this.line02);
             this.dbBottomPanel.Controls.Add(this.dbTestButton);
             this.dbBottomPanel.Controls.Add(this.dbSaveButton);
             this.dbBottomPanel.Controls.Add(this.dbCloseButton);
@@ -931,14 +933,14 @@
             this.dbBottomPanel.Size = new System.Drawing.Size(294, 50);
             this.dbBottomPanel.TabIndex = 0;
             // 
-            // label3
+            // line02
             // 
-            this.label3.BackColor = System.Drawing.Color.Gray;
-            this.label3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label3.Location = new System.Drawing.Point(0, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(294, 1);
-            this.label3.TabIndex = 1;
+            this.line02.BackColor = System.Drawing.Color.Gray;
+            this.line02.Dock = System.Windows.Forms.DockStyle.Top;
+            this.line02.Location = new System.Drawing.Point(0, 0);
+            this.line02.Name = "line02";
+            this.line02.Size = new System.Drawing.Size(294, 1);
+            this.line02.TabIndex = 1;
             // 
             // dbTestButton
             // 
@@ -987,12 +989,49 @@
             this.dbIPName.Text = "数据库地址:";
             this.dbIPName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // bottomStatusStrip
+            // 
+            this.bottomStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.serviceStatus,
+            this.logFolderButton});
+            this.bottomStatusStrip.Location = new System.Drawing.Point(0, 338);
+            this.bottomStatusStrip.Name = "bottomStatusStrip";
+            this.bottomStatusStrip.Size = new System.Drawing.Size(534, 23);
+            this.bottomStatusStrip.TabIndex = 3;
+            this.bottomStatusStrip.Text = "statusStrip1";
+            // 
+            // serviceStatus
+            // 
+            this.serviceStatus.BackColor = System.Drawing.SystemColors.Control;
+            this.serviceStatus.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.serviceStatus.Name = "serviceStatus";
+            this.serviceStatus.Size = new System.Drawing.Size(418, 18);
+            this.serviceStatus.Spring = true;
+            this.serviceStatus.Text = "未知";
+            this.serviceStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // logFolderButton
+            // 
+            this.logFolderButton.DropDownButtonWidth = 0;
+            this.logFolderButton.Image = global::iPem.Configurator.Properties.Resources.folder;
+            this.logFolderButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.logFolderButton.Name = "logFolderButton";
+            this.logFolderButton.Size = new System.Drawing.Size(101, 21);
+            this.logFolderButton.Text = "查看服务日志";
+            this.logFolderButton.ButtonClick += new System.EventHandler(this.logFolderButton_ButtonClick);
+            // 
+            // globalTimer
+            // 
+            this.globalTimer.Interval = 5000;
+            this.globalTimer.Tick += new System.EventHandler(this.globalTimer_Tick);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(534, 361);
+            this.Controls.Add(this.bottomStatusStrip);
             this.Controls.Add(this.viewLayoutPanel);
             this.Controls.Add(this.topMenuStrip);
             this.Font = new System.Drawing.Font("微軟正黑體", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -1025,6 +1064,8 @@
             this.databaseLayoutPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dbPortField)).EndInit();
             this.dbBottomPanel.ResumeLayout(false);
+            this.bottomStatusStrip.ResumeLayout(false);
+            this.bottomStatusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1046,7 +1087,7 @@
         private System.Windows.Forms.Panel databasePanel;
         private System.Windows.Forms.TableLayoutPanel databaseLayoutPanel;
         private System.Windows.Forms.Panel dbBottomPanel;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label line02;
         private System.Windows.Forms.Button dbSaveButton;
         private System.Windows.Forms.Button dbCloseButton;
         private System.Windows.Forms.TextBox dbPwdField;
@@ -1065,7 +1106,7 @@
         private System.Windows.Forms.Panel planPanel;
         private System.Windows.Forms.TableLayoutPanel planLayoutPanel;
         private System.Windows.Forms.Panel planBottomPanel;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label line01;
         private System.Windows.Forms.Button planSaveButton;
         private System.Windows.Forms.Button planCloseButton;
         private System.Windows.Forms.Label planTypeName;
@@ -1097,5 +1138,9 @@
         private System.Windows.Forms.Button uninstallButton;
         private System.Windows.Forms.Button startButton;
         private System.Windows.Forms.Button stopButton;
+        private System.Windows.Forms.StatusStrip bottomStatusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel serviceStatus;
+        private System.Windows.Forms.ToolStripSplitButton logFolderButton;
+        private System.Windows.Forms.Timer globalTimer;
     }
 }
