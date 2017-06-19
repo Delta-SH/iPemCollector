@@ -2,7 +2,7 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 性能统计表
+    /// 历史性能数据统计表
     /// </summary>
     [Serializable]
     public partial class V_Static {

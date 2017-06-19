@@ -12,6 +12,11 @@ namespace iPem.Model {
         public Device Device { get; set; }
 
         /// <summary>
+        /// 关联的信号信息
+        /// </summary>
+        public Point Point { get; set; }
+
+        /// <summary>
         /// 告警流水信息
         /// </summary>
         public A_TAlarm Alarm { get; set; }

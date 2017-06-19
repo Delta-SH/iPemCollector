@@ -2,7 +2,7 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 能耗汇聚表
+    /// 能耗数据表
     /// </summary>
     [Serializable]
     public partial class V_Elec {

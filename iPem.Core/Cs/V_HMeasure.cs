@@ -2,7 +2,7 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 性能数据表
+    /// 历史性能数据表
     /// </summary>
     [Serializable]
     public partial class V_HMeasure {
@@ -54,7 +54,7 @@ namespace iPem.Core {
         /// <summary>
         /// 信号类型
         /// </summary>
-        public EnmPoint Type { get; set; }
+        public int Type { get; set; }
 
         /// <summary>
         /// 监测值

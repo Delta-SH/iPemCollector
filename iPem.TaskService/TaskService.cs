@@ -439,14 +439,15 @@ namespace iPem.TaskService {
                         var allTAlarms = _talmRepository.GetEntities();
                         if (allTAlarms.Count > 0) {
                             var allTAlarmModels = from alarm in allTAlarms
+                                                  join point in iPemWorkContext.Points on new { alarm.SignalId, alarm.SignalNumber } equals new { SignalId = point.Code, SignalNumber = point.Number }
                                                   join device in iPemWorkContext.Devices on new { alarm.FsuId, alarm.DeviceId } equals new { FsuId = device.Current.FsuCode, DeviceId = device.Current.Code }
-                                                  select new TAlarmModel { Device = device.Current, Alarm = alarm };
+                                                  select new TAlarmModel { Device = device.Current, Point = point, Alarm = alarm };
 
                             var currentTAlarms = new List<TAlarmModel>();
                             #region 处理告警触发延迟、告警恢复延迟
                             foreach (var alarm in allTAlarmModels) {
                                 if (alarm.Alarm.AlarmFlag == EnmFlag.Begin) {
-                                    var key = CommonHelper.JoinKeys(alarm.Device.Id, alarm.Alarm.PointId);
+                                    var key = CommonHelper.JoinKeys(alarm.Device.Id, alarm.Point.Id);
                                     if (GlobalConfig.RedefinePoints.ContainsKey(key)) {
                                         var redefine = GlobalConfig.RedefinePoints[key];
                                         if (redefine.AlarmDelay > 0 && alarm.Alarm.AlarmTime.AddSeconds(redefine.AlarmDelay) > DateTime.Now) {
@@ -454,7 +455,7 @@ namespace iPem.TaskService {
                                         }
                                     }
                                 } else if (alarm.Alarm.AlarmFlag == EnmFlag.End) {
-                                    var key = CommonHelper.JoinKeys(alarm.Device.Id, alarm.Alarm.PointId);
+                                    var key = CommonHelper.JoinKeys(alarm.Device.Id, alarm.Point.Id);
                                     if (GlobalConfig.RedefinePoints.ContainsKey(key)) {
                                         var redefine = GlobalConfig.RedefinePoints[key];
                                         if (redefine.AlarmRecoveryDelay > 0 && alarm.Alarm.AlarmTime.AddSeconds(redefine.AlarmRecoveryDelay) > DateTime.Now) {
@@ -471,7 +472,7 @@ namespace iPem.TaskService {
                             var finalReservations = GlobalConfig.Reservations.FindAll(a => DateTime.Now >= a.Reservation.StartTime.AddHours(-1) && DateTime.Now <= a.Reservation.EndTime.AddHours(1));
                             foreach (var alarm in currentTAlarms) {
                                 try {
-                                    var almId = string.Format("{0}-{1}-{2}-{3}", alarm.Device.FsuId, alarm.Device.Id, alarm.Alarm.PointId, alarm.Alarm.SerialNo);
+                                    var almId = string.Format("{0}-{1}-{2}-{3}", alarm.Alarm.SerialNo, alarm.Point.Id, alarm.Device.Id, alarm.Device.FsuId);
                                     if (alarm.Alarm.AlarmFlag == EnmFlag.Begin) {
                                         #region 开始告警
                                         try {
@@ -481,10 +482,10 @@ namespace iPem.TaskService {
                                                 StationId = alarm.Device.StationId,
                                                 RoomId = alarm.Device.RoomId,
                                                 FsuId = alarm.Device.FsuId,
-                                                FsuCode = alarm.Alarm.FsuId,
+                                                FsuCode = alarm.Device.FsuCode,
                                                 DeviceId = alarm.Device.Id,
-                                                DeviceCode = alarm.Alarm.DeviceId,
-                                                PointId = alarm.Alarm.PointId,
+                                                DeviceCode = alarm.Device.Code,
+                                                PointId = alarm.Point.Id,
                                                 SerialNo = alarm.Alarm.SerialNo,
                                                 NMAlarmId = alarm.Alarm.NMAlarmId,
                                                 AlarmTime = alarm.Alarm.AlarmTime,
@@ -582,10 +583,10 @@ namespace iPem.TaskService {
                                             var current = new EndAlarm {
                                                 Id = almId,
                                                 FsuId = alarm.Device.FsuId,
-                                                FsuCode = alarm.Alarm.FsuId,
+                                                FsuCode = alarm.Device.FsuCode,
                                                 DeviceId = alarm.Device.Id,
-                                                DeviceCode = alarm.Alarm.DeviceId,
-                                                PointId = alarm.Alarm.PointId,
+                                                DeviceCode = alarm.Device.Code,
+                                                PointId = alarm.Point.Id,
                                                 SerialNo = alarm.Alarm.SerialNo,
                                                 NMAlarmId = alarm.Alarm.NMAlarmId,
                                                 StartTime = alarm.Alarm.AlarmTime,
@@ -701,7 +702,7 @@ namespace iPem.TaskService {
                                     var _value = 0d;
                                     try {
                                         foreach (var _detail in _details) {
-                                            var _diff = _measureRepository.GetValDiff(_detail.Device.Id, _detail.Point.Id, _start, _end);
+                                            var _diff = _measureRepository.GetValDiff(_detail.Device.Id, _detail.Point.Code, _detail.Point.Number, _start, _end);
                                             _current = _current.Replace(_detail.Variable, _diff.ToString());
                                         }
 
@@ -770,7 +771,7 @@ namespace iPem.TaskService {
                     try {
                         foreach (var model in GlobalConfig.BatModels) {
                             try {
-                                var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Id, _curTask.Start, _curTask.End);
+                                var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Code, model.Point.Number, _curTask.Start, _curTask.End);
                                 if (_values.Count == 0) continue;
 
                                 var _details = new List<BatDetail>();
@@ -802,7 +803,7 @@ namespace iPem.TaskService {
                                 var __details = new List<BatDetail>();
                                 foreach (var _point in model.SubPoints) {
                                     foreach (var _detail in _details) {
-                                        var __values = _measureRepository.GetEntities(model.Device.Id, _point.Id, _detail.StartTime, _detail.EndTime);
+                                        var __values = _measureRepository.GetEntities(model.Device.Id, _point.Code, _point.Number, _detail.StartTime, _detail.EndTime);
                                         if (__values.Count > 0) {
                                             var _first = __values.First();
                                             var _last = __values.Last();
@@ -939,7 +940,7 @@ namespace iPem.TaskService {
                             var _end = _curTask.Start.AddMinutes(model.Interval);
                             while (_curTask.End >= _end) {
                                 try {
-                                    var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Id, _start, _end);
+                                    var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Code, model.Point.Number, _start, _end);
                                     if (_values.Count > 0) {
                                         var _target = new V_Static {
                                             AreaId = model.Device.AreaId,
@@ -1065,7 +1066,7 @@ namespace iPem.TaskService {
                                         Value = 0,
                                     };
 
-                                    var _ztValues = _measureRepository.GetEntities(_device.Id, _ztPoint.Id, _load.StartTime, _load.EndTime);
+                                    var _ztValues = _measureRepository.GetEntities(_device.Id, _ztPoint.Code, _ztPoint.Number, _load.StartTime, _load.EndTime);
                                     var _intervals = new List<IdValuePair<DateTime, DateTime>>();
 
                                     DateTime? _start = null;
@@ -1092,7 +1093,7 @@ namespace iPem.TaskService {
                                     }
 
                                     if (_intervals.Count > 0) {
-                                        var _fzValues = _measureRepository.GetEntities(_device.Id, _fzPoint.Id, _load.StartTime, _load.EndTime);
+                                        var _fzValues = _measureRepository.GetEntities(_device.Id, _fzPoint.Code, _fzPoint.Number, _load.StartTime, _load.EndTime);
                                         foreach (var _interval in _intervals) {
                                             var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
                                             var _fzMax = _fzMatch.Max(f => f.Value);
@@ -1140,7 +1141,7 @@ namespace iPem.TaskService {
                                         Value = 0,
                                     };
 
-                                    var _ztValues = _measureRepository.GetEntities(_device.Id, _ztPoint.Id, _load.StartTime, _load.EndTime);
+                                    var _ztValues = _measureRepository.GetEntities(_device.Id, _ztPoint.Code, _ztPoint.Number, _load.StartTime, _load.EndTime);
                                     var _intervals = new List<IdValuePair<DateTime, DateTime>>();
 
                                     DateTime? _start = null;
@@ -1167,7 +1168,7 @@ namespace iPem.TaskService {
                                     }
 
                                     if (_intervals.Count > 0) {
-                                        var _fzValues = _measureRepository.GetEntities(_device.Id, _fzPoint.Id, _load.StartTime, _load.EndTime);
+                                        var _fzValues = _measureRepository.GetEntities(_device.Id, _fzPoint.Code, _fzPoint.Number, _load.StartTime, _load.EndTime);
                                         foreach (var _interval in _intervals) {
                                             var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
                                             var _fzMax = _fzMatch.Max(f => f.Value);

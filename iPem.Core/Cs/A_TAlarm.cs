@@ -22,6 +22,16 @@ namespace iPem.Core {
         public string PointId { get; set; }
 
         /// <summary>
+        /// 信号编码
+        /// </summary>
+        public string SignalId { get; set; }
+
+        /// <summary>
+        /// 信号编码
+        /// </summary>
+        public string SignalNumber { get; set; }
+
+        /// <summary>
         /// 告警流水号
         /// </summary>
         public string SerialNo { get; set; }

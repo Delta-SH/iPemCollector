@@ -2,7 +2,7 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 开关电源带载率表
+    /// 开关电源带载率数据表
     /// </summary>
     [Serializable]
     public partial class V_Load {
@@ -37,7 +37,7 @@ namespace iPem.Core {
         public DateTime EndTime { get; set; }
 
         /// <summary>
-        /// 汇聚值
+        /// 开关电源带载率
         /// </summary>
         public double Value { get; set; }
     }

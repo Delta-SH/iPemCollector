@@ -2,7 +2,7 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 设备类型信息
+    /// 设备类型信息表
     /// </summary>
     [Serializable]
     public partial class DeviceType {

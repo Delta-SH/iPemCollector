@@ -7,7 +7,7 @@ namespace iPem.Core {
     [Serializable]
     public partial class Reservation {
         /// <summary>
-        /// 唯一标识
+        /// 预约编号
         /// </summary>
         public string Id { get; set; }
 
