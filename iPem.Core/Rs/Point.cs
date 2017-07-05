@@ -77,6 +77,11 @@ namespace iPem.Core {
         public string BusiEffect { get; set; }
 
         /// <summary>
+        /// 信号说明
+        /// </summary>
+        public string Comment { get; set; }
+
+        /// <summary>
         /// 信号解释
         /// </summary>
         public string Interpret { get; set; }
@@ -90,11 +95,6 @@ namespace iPem.Core {
         /// 扩展设置2
         /// </summary>
         public string ExtSet2 { get; set; }
-
-        /// <summary>
-        /// 信号说明
-        /// </summary>
-        public string Comment { get; set; }
 
         /// <summary>
         /// 备注

@@ -19,7 +19,7 @@ namespace iPem.Core {
         /// <summary>
         /// 现有整流模块总数
         /// </summary>
-        public string ExisRModuleCount { get; set; }
+        public int ExisRModuleCount { get; set; }
 
         /// <summary>
         /// 整流模块型号
@@ -34,12 +34,12 @@ namespace iPem.Core {
         /// <summary>
         /// 单个整流模块额定输出容量 单位：A 
         /// </summary>
-        public string SingRModuleRatedOPCap { get; set; }
+        public double SingRModuleRatedOPCap { get; set; }
 
         /// <summary>
         /// 单组电池组熔丝容量
         /// </summary>
-        public string SingGBattGFuseCap { get; set; }
+        public double SingGBattGFuseCap { get; set; }
 
         /// <summary>
         /// 电池组熔丝组数

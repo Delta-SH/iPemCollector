@@ -5,7 +5,7 @@ namespace iPem.Core {
     /// 开始告警信息
     /// </summary>
     [Serializable]
-    public partial class StartAlarm {
+    public partial class AlarmStart {
         /// <summary>
         /// 告警唯一标识
         /// </summary>
@@ -135,5 +135,10 @@ namespace iPem.Core {
         /// 翻转告警次数(当本身为主翻转告警时，此值为NULL)
         /// </summary>
         public int ReversalCount { get; set; }
+
+        /// <summary>
+        /// 是否为屏蔽告警
+        /// </summary>
+        public bool Masked { get; set; }
     }
 }

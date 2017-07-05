@@ -34,7 +34,6 @@ namespace iPem.Data {
                     var entity = new A_TAlarm();
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
-                    entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
                     entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
                     entity.SerialNo = SqlTypeConverter.DBNullStringHandler(rdr["SerialNo"]);
@@ -64,7 +63,6 @@ namespace iPem.Data {
                     var entity = new A_TAlarm();
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
-                    entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
                     entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
                     entity.SerialNo = SqlTypeConverter.DBNullStringHandler(rdr["SerialNo"]);

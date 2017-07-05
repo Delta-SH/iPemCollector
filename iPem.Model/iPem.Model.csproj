@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,7 +42,12 @@
   <ItemGroup>
     <Compile Include="BatDetail.cs" />
     <Compile Include="BatModel.cs" />
-    <Compile Include="LoadModel.cs" />
+    <Compile Include="BatParam.cs" />
+    <Compile Include="BInterface\BIPackMgr.cs" />
+    <Compile Include="BInterface\EnmBInterface.cs" />
+    <Compile Include="BInterface\FSUService.cs" />
+    <Compile Include="BInterface\GetFsuInfoAckPackage.cs" />
+    <Compile Include="BInterface\GetFsuInfoPackage.cs" />
     <Compile Include="OrderEntity.cs" />
     <Compile Include="ParamEntity.cs" />
     <Compile Include="ReservationModel.cs" />
@@ -50,6 +56,7 @@
     <Compile Include="GlobalConfig.cs" />
     <Compile Include="ReversalModel.cs" />
     <Compile Include="RtValues.cs" />
+    <Compile Include="ScHeartbeat.cs" />
     <Compile Include="StaticModel.cs" />
     <Compile Include="TAlarmModel.cs" />
     <Compile Include="TaskEntity.cs" />
@@ -60,6 +67,7 @@
     <Compile Include="WorkContext\WcArea.cs" />
     <Compile Include="WorkContext\WcDevice.cs" />
     <Compile Include="WorkContext\WcFsu.cs" />
+    <Compile Include="WorkContext\WcPoint.cs" />
     <Compile Include="WorkContext\WcProtocol.cs" />
     <Compile Include="WorkContext\WcRoom.cs" />
     <Compile Include="WorkContext\WcStation.cs" />

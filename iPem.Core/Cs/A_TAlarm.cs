@@ -19,11 +19,6 @@ namespace iPem.Core {
         /// <summary>
         /// 信号编码
         /// </summary>
-        public string PointId { get; set; }
-
-        /// <summary>
-        /// 信号编码
-        /// </summary>
         public string SignalId { get; set; }
 
         /// <summary>

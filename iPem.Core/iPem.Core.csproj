@@ -40,8 +40,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonHelper.cs" />
-    <Compile Include="EndAlarm.cs" />
-    <Compile Include="StartAlarm.cs" />
+    <Compile Include="Cs\H_IArea.cs" />
+    <Compile Include="Cs\V_AMeasure.cs" />
+    <Compile Include="Cs\V_Cuted.cs" />
+    <Compile Include="Cs\V_Cutting.cs" />
+    <Compile Include="Cs\V_ParamDiff.cs" />
+    <Compile Include="AlarmEnd.cs" />
+    <Compile Include="Rs\ExtFsu.cs" />
+    <Compile Include="Rs\Group.cs" />
+    <Compile Include="Rs\Masking.cs" />
+    <Compile Include="Rs\SubPoint.cs" />
+    <Compile Include="AlarmStart.cs" />
     <Compile Include="Cs\A_AAlarm.cs" />
     <Compile Include="Cs\H_FsuEvent.cs" />
     <Compile Include="Cs\H_IDevice.cs" />

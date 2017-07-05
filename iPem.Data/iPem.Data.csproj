@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alarmer.cs" />
+    <Compile Include="Cs\H_IAreaRepository.cs" />
     <Compile Include="Cs\H_IDeviceRepository.cs" />
     <Compile Include="Cs\H_IStationRepository.cs" />
     <Compile Include="Common\SqlCommands_Cs.cs" />
@@ -61,10 +62,14 @@
     <Compile Include="Cs\A_AAlarmRepository.cs" />
     <Compile Include="Cs\A_HAlarmRepository.cs" />
     <Compile Include="Cs\A_TAlarmRepository.cs" />
+    <Compile Include="Cs\V_AMeasureRepository.cs" />
     <Compile Include="Cs\V_BatRepository.cs" />
     <Compile Include="Cs\V_BatTimeRepository.cs" />
+    <Compile Include="Cs\V_CutedRepository.cs" />
+    <Compile Include="Cs\V_CuttingRepository.cs" />
     <Compile Include="Cs\V_ElecRepository.cs" />
     <Compile Include="Cs\V_LoadRepository.cs" />
+    <Compile Include="Cs\V_ParamDiffRepository.cs" />
     <Compile Include="Cs\V_StaticRepository.cs" />
     <Compile Include="Cs\V_HMeasureRepository.cs" />
     <Compile Include="Cs\H_FsuEventRepository.cs" />
@@ -79,7 +84,9 @@
     <Compile Include="Rs\DivSwitElecSourRepository.cs" />
     <Compile Include="Rs\EnumMethodsRepository.cs" />
     <Compile Include="Rs\FsuRepository.cs" />
+    <Compile Include="Rs\GroupRepository.cs" />
     <Compile Include="Rs\LogicTypeRepository.cs" />
+    <Compile Include="Rs\MaskingRepository.cs" />
     <Compile Include="Rs\PointRepository.cs" />
     <Compile Include="Rs\ProtocolRepository.cs" />
     <Compile Include="Rs\RedefinePointRepository.cs" />
@@ -87,6 +94,7 @@
     <Compile Include="Rs\RoomTypeRepository.cs" />
     <Compile Include="Rs\StationRepository.cs" />
     <Compile Include="Rs\StationTypeRepository.cs" />
+    <Compile Include="Rs\SubPointRepository.cs" />
     <Compile Include="Sc\ReservationRepository.cs" />
     <Compile Include="Sc\DictionaryRepository.cs" />
     <Compile Include="Sc\FormulaRepository.cs" />

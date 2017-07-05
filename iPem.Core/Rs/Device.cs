@@ -110,6 +110,11 @@ namespace iPem.Core {
         public string StationName { get; set; }
 
         /// <summary>
+        /// 所属站点类型
+        /// </summary>
+        public StationType StationType { get; set; }
+
+        /// <summary>
         /// 所属机房
         /// </summary>
         public string RoomId { get; set; }

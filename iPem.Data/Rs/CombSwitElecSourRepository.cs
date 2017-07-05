@@ -29,7 +29,7 @@ namespace iPem.Data {
         public List<CombSwitElecSour> GetEntities() {
             var entities = new List<CombSwitElecSour>();
             using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Rs.Sql_CombSwitElecSour_Repository_GetEntities, null)) {
-                while(rdr.Read()) {
+                while (rdr.Read()) {
                     var entity = new CombSwitElecSour();
                     entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
                     entity.Code = SqlTypeConverter.DBNullStringHandler(rdr["Code"]);
@@ -59,13 +59,27 @@ namespace iPem.Data {
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
                     entity.RatedOutputVolt = SqlTypeConverter.DBNullDoubleHandler(rdr["RatedOutputVolt"]);
                     entity.MoniModuleModel = SqlTypeConverter.DBNullStringHandler(rdr["MoniModuleModel"]);
-                    entity.ExisRModuleCount = SqlTypeConverter.DBNullStringHandler(rdr["ExisRModuleCount"]);
                     entity.RModuleModel = SqlTypeConverter.DBNullStringHandler(rdr["RModuleModel"]);
                     entity.RModuleRatedWorkVolt = SqlTypeConverter.DBNullInt32Handler(rdr["RModuleRatedWorkVolt"]);
-                    entity.SingRModuleRatedOPCap = SqlTypeConverter.DBNullStringHandler(rdr["SingRModuleRatedOPCap"]);
-                    entity.SingGBattGFuseCap = SqlTypeConverter.DBNullStringHandler(rdr["SingGBattGFuseCap"]);
                     entity.BattGFuseGNumber = SqlTypeConverter.DBNullInt32Handler(rdr["BattGFuseGNumber"]);
                     entity.OrCanSecoDownPower = SqlTypeConverter.DBNullStringHandler(rdr["OrCanSecoDownPower"]);
+
+                    int exisRModuleCount; double singRModuleRatedOPCap, singGBattGFuseCap;
+                    if (int.TryParse(SqlTypeConverter.DBNullStringHandler(rdr["ExisRModuleCount"]), out exisRModuleCount))
+                        entity.ExisRModuleCount = exisRModuleCount;
+                    else
+                        entity.ExisRModuleCount = 0;
+
+                    if (double.TryParse(SqlTypeConverter.DBNullStringHandler(rdr["SingRModuleRatedOPCap"]), out singRModuleRatedOPCap))
+                        entity.SingRModuleRatedOPCap = singRModuleRatedOPCap;
+                    else
+                        entity.SingRModuleRatedOPCap = 0;
+
+                    if (double.TryParse(SqlTypeConverter.DBNullStringHandler(rdr["SingGBattGFuseCap"]), out singGBattGFuseCap))
+                        entity.SingGBattGFuseCap = singGBattGFuseCap;
+                    else
+                        entity.SingGBattGFuseCap = 0;
+
                     entities.Add(entity);
                 }
             }

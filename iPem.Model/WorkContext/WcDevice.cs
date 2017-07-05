@@ -7,6 +7,6 @@ namespace iPem.Model {
     public partial class WcDevice {
         public Device Current { get; set; }
 
-        public WcProtocol Protocol { get; set; }
+        public List<WcPoint> Points { get; set; }
     }
 }

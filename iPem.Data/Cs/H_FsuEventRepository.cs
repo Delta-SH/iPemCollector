@@ -39,7 +39,7 @@ namespace iPem.Data {
                 while (rdr.Read()) {
                     var entity = new H_FsuEvent();
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.EventType = SqlTypeConverter.DBNullEnmFtpEventHandler(rdr["EventType"]);
+                    entity.EventType = SqlTypeConverter.DBNullEnmFsuEventHandler(rdr["EventType"]);
                     entity.EventDesc = SqlTypeConverter.DBNullStringHandler(rdr["EventDesc"]);
                     entity.EventTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["EventTime"]);
                     entities.Add(entity);
@@ -48,7 +48,7 @@ namespace iPem.Data {
             return entities;
         }
 
-        public List<H_FsuEvent> GetEntities(DateTime start, DateTime end, EnmFtpEvent type) {
+        public List<H_FsuEvent> GetEntities(DateTime start, DateTime end, EnmFsuEvent type) {
             SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime),
                                      new SqlParameter("@EventType", SqlDbType.Int) };
@@ -62,7 +62,7 @@ namespace iPem.Data {
                 while (rdr.Read()) {
                     var entity = new H_FsuEvent();
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.EventType = SqlTypeConverter.DBNullEnmFtpEventHandler(rdr["EventType"]);
+                    entity.EventType = SqlTypeConverter.DBNullEnmFsuEventHandler(rdr["EventType"]);
                     entity.EventDesc = SqlTypeConverter.DBNullStringHandler(rdr["EventDesc"]);
                     entity.EventTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["EventTime"]);
                     entities.Add(entity);

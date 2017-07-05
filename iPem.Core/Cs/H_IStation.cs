@@ -7,7 +7,7 @@ namespace iPem.Core {
     [Serializable]
     public partial class H_IStation {
         /// <summary>
-        /// 站点编码
+        /// 站点编号
         /// </summary>
         public string Id { get; set; }
 
@@ -17,18 +17,18 @@ namespace iPem.Core {
         public string Name { get; set; }
 
         /// <summary>
-        /// 站点类型
+        /// 站点类型编号
         /// </summary>
-        public string Type { get; set; }
+        public string TypeId { get; set; }
 
         /// <summary>
-        /// 所属区域
+        /// 站点类型名称
         /// </summary>
-        public string Parent { get; set; }
+        public string TypeName { get; set; }
 
         /// <summary>
-        /// 入库时间
+        /// 区域编号
         /// </summary>
-        public DateTime CreatedTime { get; set; }
+        public string AreaId { get; set; }
     }
 }

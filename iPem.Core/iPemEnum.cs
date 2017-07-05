@@ -34,10 +34,22 @@ namespace iPem.Core {
 
     public enum ParamId {
         Null,
-        Param1,
-        Param2,
-        Param3,
-        Param4
+        /// <summary>
+        /// SC通信中断告警编码
+        /// </summary>
+        ScOff,
+        /// <summary>
+        /// FSU通信中断告警编码
+        /// </summary>
+        FsuOff,
+        /// <summary>
+        /// 开关电源负载电流信号编码
+        /// </summary>
+        FZDL,
+        /// <summary>
+        /// 开关电源工作状态信号编码
+        /// </summary>
+        GZZT
     }
 
     public enum DatabaseType {
@@ -66,9 +78,10 @@ namespace iPem.Core {
         Other
     }
 
-    public enum EnmFtpEvent {
+    public enum EnmFsuEvent {
         Undefined,
-        FTP
+        FTP,
+        FSU
     }
 
     public enum EnmOrganization {
@@ -161,5 +174,25 @@ namespace iPem.Core {
         Fsu = 4,
         Device = 13,
         Point = 14
+    }
+
+    /// <summary>
+    /// 断站-0
+    /// 停电-1
+    /// 发电-2
+    /// </summary>
+    public enum EnmCutType {
+        Off,
+        Cut,
+        Power
+    }
+
+    public enum EnmMaskType {
+        Area,
+        Station,
+        Room,
+        Fsu,
+        Device,
+        Point
     }
 }

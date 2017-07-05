@@ -7,7 +7,7 @@ namespace iPem.Core {
     [Serializable]
     public partial class H_IDevice {
         /// <summary>
-        /// 设备编码
+        /// 设备编号
         /// </summary>
         public string Id { get; set; }
 
@@ -17,18 +17,18 @@ namespace iPem.Core {
         public string Name { get; set; }
 
         /// <summary>
-        /// 设备类型
+        /// 设备类型编号
         /// </summary>
-        public string Type { get; set; }
+        public string TypeId { get; set; }
 
         /// <summary>
-        /// 站点编码
+        /// 设备类型名称
         /// </summary>
-        public string ParentId { get; set; }
+        public string TypeName { get; set; }
 
         /// <summary>
-        /// 入库时间
+        /// 站点编号
         /// </summary>
-        public DateTime CreatedTime { get; set; }
+        public string StationId { get; set; }
     }
 }

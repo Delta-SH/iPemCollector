@@ -63,6 +63,7 @@ namespace iPem.Configurator {
             tv.Nodes.Clear();
 
             var root = new TreeNode { Name = "cfgRoot", Text = "数据处理服务", ImageKey = "cfgRoot", SelectedImageKey = "cfgRoot", Tag = new TagModel { Type = NodeType.Root } };
+            var pmNode = new TreeNode { Name = "cfgParamNode", Text = "常规", ImageKey = "cfgDefault", SelectedImageKey = "cfgDefault", Tag = new TagModel { Type = NodeType.Param } };
             var dbNode = new TreeNode { Name = "cfgDbNode", Text = "数据库", ImageKey = "cfgDb", SelectedImageKey = "cfgDb", Tag = new TagModel { Type = NodeType.Parent } };
             var planNode = new TreeNode { Name = "cfgPlanNode", Text = "计划任务", ImageKey = "cfgPlan", SelectedImageKey = "cfgPlan", Tag = new TagModel { Type = NodeType.Parent } };
 
@@ -81,7 +82,7 @@ namespace iPem.Configurator {
             }
 
             tv.Nodes.Add(root);
-            root.Nodes.AddRange(new TreeNode[] { dbNode, planNode });
+            root.Nodes.AddRange(new TreeNode[] { pmNode, dbNode, planNode });
             tv.SelectedNode = root;
             tv.ExpandAll();
         }
@@ -90,9 +91,11 @@ namespace iPem.Configurator {
             try {
                 _currentNode = e.Node;
                 rootPanel.Dock = DockStyle.None;
+                paramPanel.Dock = DockStyle.None;
                 databasePanel.Dock = DockStyle.None;
                 planPanel.Dock = DockStyle.None;
                 rootPanel.Visible = false;
+                paramPanel.Visible = false;
                 databasePanel.Visible = false;
                 planPanel.Visible = false;
 
@@ -100,6 +103,19 @@ namespace iPem.Configurator {
                 if (tag.Type == NodeType.Root) {
                     rootPanel.Dock = DockStyle.Fill;
                     rootPanel.Visible = true;
+                } else if (tag.Type == NodeType.Param) {
+                    paramPanel.Dock = DockStyle.Fill;
+                    paramPanel.Visible = true;
+
+                    var parms = _registry.GetParams();
+                    var sc = parms.Find(p => p.Id == ParamId.ScOff);
+                    scOff.Text = sc != null ? sc.Value : "";
+                    var fsu = parms.Find(p => p.Id == ParamId.FsuOff);
+                    fsuOff.Text = fsu != null ? fsu.Value : "";
+                    var _fzdl = parms.Find(p => p.Id == ParamId.FZDL);
+                    fzdl.Text = _fzdl != null ? _fzdl.Value : "";
+                    var _gzzt = parms.Find(p => p.Id == ParamId.GZZT);
+                    gzzt.Text = _gzzt != null ? _gzzt.Value : "";
                 } else if (tag.Type == NodeType.Database) {
                     databasePanel.Dock = DockStyle.Fill;
                     databasePanel.Visible = true;
@@ -353,6 +369,46 @@ namespace iPem.Configurator {
             }
         }
 
+        private void paramSaveButton_Click(object sender, EventArgs e) {
+            try {
+                var tag = _currentNode.Tag as TagModel;
+                if (tag.Type != NodeType.Param) throw new Exception("节点类型错误。");
+
+                if (string.IsNullOrWhiteSpace(scOff.Text)) {
+                    scOff.Focus();
+                    MessageBox.Show("告警编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(fsuOff.Text)) {
+                    fsuOff.Focus();
+                    MessageBox.Show("告警编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(fzdl.Text)) {
+                    fzdl.Focus();
+                    MessageBox.Show("负载电流编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(gzzt.Text)) {
+                    gzzt.Focus();
+                    MessageBox.Show("工作状态编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var sc = new ParamEntity { Id = ParamId.ScOff, Value = scOff.Text.Trim(), Time = DateTime.Now };
+                var fsu = new ParamEntity { Id = ParamId.FsuOff, Value = fsuOff.Text.Trim(), Time = DateTime.Now };
+                var _fzdl = new ParamEntity { Id = ParamId.FZDL, Value = fzdl.Text.Trim(), Time = DateTime.Now };
+                var _gzzt = new ParamEntity { Id = ParamId.GZZT, Value = gzzt.Text.Trim(), Time = DateTime.Now };
+                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt });
+                MessageBox.Show("保存成功", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void dbTestButton_Click(object sender, EventArgs e) {
             try {
                 if (string.IsNullOrWhiteSpace(dbIPField.Text)) {
@@ -453,6 +509,30 @@ namespace iPem.Configurator {
             try {
                 var tag = _currentNode.Tag as TagModel;
                 if (tag.Type != NodeType.Database) throw new Exception("节点类型错误。");
+
+                if (string.IsNullOrWhiteSpace(dbIPField.Text)) {
+                    dbIPField.Focus();
+                    MessageBox.Show("数据库地址不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(dbNameField.Text)) {
+                    dbNameField.Focus();
+                    MessageBox.Show("数据库名称不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(dbUidField.Text)) {
+                    dbUidField.Focus();
+                    MessageBox.Show("登录名不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(dbPwdField.Text)) {
+                    dbPwdField.Focus();
+                    MessageBox.Show("密码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
                 var v = Convert.ToInt32(dbTypeField.SelectedValue);
                 var database = (DbEntity)tag.Parameter;

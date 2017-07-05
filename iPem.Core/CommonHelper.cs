@@ -58,6 +58,13 @@ namespace iPem.Core {
             return string.Join(GlobalSeparator, keys);
         }
 
+        public static string[] SplitCondition(string conditions) {
+            if (string.IsNullOrWhiteSpace(conditions))
+                return new string[0];
+
+            return conditions.Split(new char[] { ';', '；' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
         public static bool ValidateFormula(string formula) {
             if(string.IsNullOrWhiteSpace(formula)) return false;
             formula = Regex.Replace(formula, @"\s+", "");
@@ -172,6 +179,14 @@ namespace iPem.Core {
                 if(reg != null)
                     reg.Close();
             }
+        }
+
+        public static string GetIdAsString() {
+            return GetIdAsLong().ToString();
+        }
+
+        public static long GetIdAsLong() {
+            return Math.Abs(DateTime.Now.Subtract(new DateTime(2017, 6, 21)).Ticks);
         }
     }
 }

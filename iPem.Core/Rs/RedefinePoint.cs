@@ -17,6 +17,11 @@ namespace iPem.Core.Rs {
         public string PointId { get; set; }
 
         /// <summary>
+        /// 网管告警编号
+        /// </summary>
+        public string NMAlarmId { get; set; }
+
+        /// <summary>
         /// 告警等级
         /// </summary>
         public int AlarmLevel { get; set; }

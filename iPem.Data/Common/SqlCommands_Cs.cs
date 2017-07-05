@@ -6,10 +6,8 @@ namespace iPem.Data.Common {
         /// Alarm Repository
         /// </summary>
         public const string Sql_Alarm_Repository_Start = @"
-        INSERT INTO [dbo].[A_AAlarm]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmValue],[AlarmDesc],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[ReversalCount],[CreatedTime])
-        VALUES(@Id,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmValue,@AlarmDesc,@AlarmRemark,NULL,NULL,NULL,@ReservationId,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@ReversalCount,GETDATE());
-        INSERT INTO [dbo].[A_IAlarm]([AreaId],[StationId],[RoomId],[DeviceId],[FsuId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[ReservationName],[ReservationStart],[ReservationEnd],[CreatedTime]) 
-        VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@FsuId,@PointId,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@AlarmValue,@AlarmRemark,NULL,NULL,NULL,@ReservationId,@ReservationName,@ReservationStart,@ReservationEnd,GETDATE());
+        INSERT INTO [dbo].[A_AAlarm]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmValue],[AlarmDesc],[AlarmRemark],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[ReversalCount],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmValue,@AlarmDesc,@AlarmRemark,@ReservationId,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@ReversalCount,@Masked,GETDATE());
+        INSERT INTO [dbo].[A_IAlarm]([AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[ReservationId],[ReservationName],[ReservationStart],[ReservationEnd],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[Masked],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@AlarmValue,@AlarmRemark,@ReservationId,@ReservationName,@ReservationStart,@ReservationEnd,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@Masked,GETDATE());
         DELETE FROM [dbo].[A_TAlarm] WHERE [FsuId] = @FsuCode AND [SerialNo] = @SerialNo AND [AlarmFlag] = @AlarmFlag;";
         public const string Sql_Alarm_Repository_End = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'A_HAlarm{0}') AND type in (N'U'))
@@ -23,7 +21,7 @@ namespace iPem.Data.Common {
 	            [DeviceId] [varchar](100) NOT NULL,
 	            [PointId] [varchar](100) NOT NULL,
 	            [SerialNo] [varchar](100) NOT NULL,
-	            [NMAlarmId] [varchar](100) NULL,
+	            [NMAlarmId] [varchar](100) NOT NULL,
 	            [StartTime] [datetime] NOT NULL,
 	            [EndTime] [datetime] NOT NULL,
 	            [AlarmLevel] [int] NOT NULL,
@@ -39,7 +37,8 @@ namespace iPem.Data.Common {
 	            [RelatedId] [varchar](200) NULL,
 	            [FilterId] [varchar](200) NULL,
 	            [ReversalId] [varchar](200) NULL,
-	            [ReversalCount] [int] NULL,
+	            [ReversalCount] [int] NOT NULL,
+	            [Masked] [bit] NOT NULL,
 	            [CreatedTime] [datetime] NOT NULL,
              CONSTRAINT [PK_A_HAlarm_{0}] PRIMARY KEY CLUSTERED 
             (
@@ -47,13 +46,8 @@ namespace iPem.Data.Common {
             )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
             ) ON [PRIMARY]
         END
-
-        INSERT INTO [dbo].[A_HAlarm{0}]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[StartTime],[EndTime],[AlarmLevel],[StartValue],[EndValue],[AlarmDesc],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[ReversalCount],[CreatedTime])
-        SELECT [Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],@StartTime,@EndTime,[AlarmLevel],@StartValue,@EndValue,[AlarmDesc],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[ReversalCount],GETDATE() FROM [dbo].[A_AAlarm] WHERE [Id] = @Id;
-
-        INSERT INTO [dbo].[A_IAlarm]([AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[ReservationName],[ReservationStart],[ReservationEnd],[CreatedTime]) 
-        SELECT [AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],@NMAlarmId,@EndTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@EndValue,@AlarmRemark,[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],NULL,NULL,NULL,GETDATE() FROM [dbo].[A_AAlarm] WHERE [Id] = @Id;
-        
+        INSERT INTO [dbo].[A_HAlarm{0}]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[StartTime],[EndTime],[AlarmLevel],[StartValue],[EndValue],[AlarmDesc],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[ReversalCount],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@StartTime,@EndTime,@AlarmLevel,@StartValue,@EndValue,@AlarmDesc,@AlarmRemark,@Confirmed,@Confirmer,@ConfirmedTime,@ReservationId,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@ReversalCount,@Masked,GETDATE());
+        INSERT INTO [dbo].[A_IAlarm]([AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[ReservationName],[ReservationStart],[ReservationEnd],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[Masked],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@EndTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@EndValue,@AlarmRemark,@Confirmed,@Confirmer,@ConfirmedTime,@ReservationId,@ReservationName,@ReservationStart,@ReservationEnd,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@Masked,GETDATE());
         DELETE FROM [dbo].[A_AAlarm] WHERE [Id] = @Id;
         DELETE FROM [dbo].[A_TAlarm] WHERE [FsuId] = @FsuCode AND [SerialNo] = @SerialNo AND [AlarmFlag] = @AlarmFlag;";
 
@@ -61,6 +55,8 @@ namespace iPem.Data.Common {
         /// A_AAlarm Repository
         /// </summary>
         public const string Sql_A_AAlarm_Repository_GetEntity = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [Id] = @Id;";
+        public const string Sql_A_AAlarm_Repository_GetEntityInPoint = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [DeviceId] = @DeviceId AND [PointId]=@PointId;";
+        public const string Sql_A_AAlarm_Repository_GetEntitiesInDevice = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [DeviceId] = @DeviceId ORDER BY [AlarmTime];";        
         public const string Sql_A_AAlarm_Repository_GetEntities = @"SELECT * FROM [dbo].[A_AAlarm] ORDER BY [AlarmTime];";
 
         /// <summary>
@@ -115,26 +111,79 @@ namespace iPem.Data.Common {
         public const string Sql_H_FsuEvent_Repository_GetEntities2 = @"SELECT * FROM [dbo].[H_FsuEvent] WHERE [EventTime] BETWEEN @Start AND @End AND [EventType] = @EventType ORDER BY [EventTime] DESC;";
 
         /// <summary>
+        /// H_IArea Repository
+        /// </summary>
+        public const string Sql_H_IArea_Repository_SaveEntities = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IArea{0}]') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [dbo].[H_IArea{0}](
+	            [Id] [varchar](100) NOT NULL,
+	            [Name] [varchar](200) NOT NULL,
+	            [TypeId] [varchar](100) NULL,
+	            [TypeName] [varchar](200) NULL,
+	            [ParentId] [varchar](100) NOT NULL,
+             CONSTRAINT [PK_H_IArea{0}] PRIMARY KEY CLUSTERED 
+            (
+	            [Id] ASC
+            )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+            ) ON [PRIMARY]
+        END
+        INSERT INTO [dbo].[H_IArea{0}]([Id],[Name],[TypeId],[TypeName],[ParentId]) VALUES(@Id,@Name,@TypeId,@TypeName,@ParentId);";
+        public const string Sql_H_IArea_Repository_DeleteEntities = @"
+        IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IArea{0}]') AND type in (N'U'))
+        DROP TABLE [dbo].[H_IArea{0}];";
+
+        /// <summary>
         /// H_IDevice Repository
         /// </summary>
         public const string Sql_H_IDevice_Repository_SaveEntities = @"
-        UPDATE [dbo].[H_IDevice] SET [Name] = @Name,[Type] = @Type,[ParentId] = @ParentId,[CreatedTime] = @CreatedTime WHERE [Id] = @Id;
-        IF(@@ROWCOUNT=0)
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IDevice{0}]') AND type in (N'U'))
         BEGIN
-	        INSERT INTO [dbo].[H_IDevice]([Id],[Name],[Type],[ParentId],[CreatedTime]) VALUES(@Id,@Name,@Type,@ParentId,@CreatedTime);
-        END";
-        public const string Sql_H_IDevice_Repository_DeleteEntities = @"TRUNCATE TABLE [dbo].[H_IDevice];";
+            CREATE TABLE [dbo].[H_IDevice{0}](
+		        [Id] [varchar](100) NOT NULL,
+		        [Name] [varchar](200) NOT NULL,
+		        [TypeId] [varchar](100) NULL,
+		        [TypeName] [varchar](200) NULL,
+		        [StationId] [varchar](100) NOT NULL,
+	         CONSTRAINT [PK_H_IDevice{0}] PRIMARY KEY CLUSTERED 
+	        (
+		        [Id] ASC
+	        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	        ) ON [PRIMARY]
+        END
+        INSERT INTO [dbo].[H_IDevice{0}]([Id],[Name],[TypeId],[TypeName],[StationId]) VALUES(@Id,@Name,@TypeId,@TypeName,@StationId);";
+        public const string Sql_H_IDevice_Repository_DeleteEntities = @"
+        IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IDevice{0}]') AND type in (N'U'))
+        DROP TABLE [dbo].[H_IDevice{0}];";
 
         /// <summary>
         /// H_IStation Repository
         /// </summary>
         public const string Sql_H_IStation_Repository_SaveEntities = @"
-        UPDATE [dbo].[H_IStation] SET [Name] = @Name,[Type] = @Type,[Parent] = @Parent,[CreatedTime] = @CreatedTime WHERE [Id] = @Id;
-        IF(@@ROWCOUNT = 0)
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IStation{0}]') AND type in (N'U'))
         BEGIN
-	        INSERT INTO [dbo].[H_IStation]([Id],[Name],[Type],[Parent],[CreatedTime]) VALUES(@Id,@Name,@Type,@Parent,@CreatedTime);
-        END";
-        public const string Sql_H_IStation_Repository_DeleteEntities = @"TRUNCATE TABLE [dbo].[H_IStation];";
+            CREATE TABLE [dbo].[H_IStation{0}](
+		        [Id] [varchar](100) NOT NULL,
+		        [Name] [varchar](200) NOT NULL,
+		        [TypeId] [varchar](100) NULL,
+		        [TypeName] [varchar](200) NULL,
+		        [AreaId] [varchar](100) NOT NULL,
+	         CONSTRAINT [PK_H_IStation{0}] PRIMARY KEY CLUSTERED 
+	        (
+		        [Id] ASC
+	        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	        ) ON [PRIMARY]
+        END
+        INSERT INTO [dbo].[H_IStation{0}]([Id],[Name],[TypeId],[TypeName],[AreaId]) VALUES(@Id,@Name,@TypeId,@TypeName,@AreaId);";
+        public const string Sql_H_IStation_Repository_DeleteEntities = @"
+        IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IStation{0}]') AND type in (N'U'))
+        DROP TABLE [dbo].[H_IStation{0}];";
+
+        /// <summary>
+        /// V_AMeasure Repository
+        /// </summary>
+        public const string Sql_V_AMeasure_Repository_GetEntities = @"SELECT * FROM [dbo].[V_AMeasure];";
+        public const string Sql_V_AMeasure_Repository_GetEntitiesInDevice = @"SELECT * FROM [dbo].[V_AMeasure] WHERE [DeviceId]=@DeviceId;";
 
         /// <summary>
         /// V_Bat Repository
@@ -210,6 +259,112 @@ namespace iPem.Data.Common {
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
         EXECUTE sp_executesql @SQL;";
+
+        /// <summary>
+        /// V_Cuted Repository
+        /// </summary>
+        public const string Sql_V_Cuted_Repository_GetEntities = @"
+        DECLARE @tpDate DATETIME, 
+                @tbName NVARCHAR(255),
+                @tableCnt INT = 0,
+                @SQL NVARCHAR(MAX) = N'';
+
+        SET @tpDate = @Start;
+        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
+        BEGIN
+            SET @tbName = N'[dbo].[V_Cuted'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
+            BEGIN
+                IF(@tableCnt>0)
+                BEGIN
+                SET @SQL += N' 
+                UNION ALL 
+                ';
+                END
+        			
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @tableCnt += 1;
+            END
+            SET @tpDate = DATEADD(MM,1,@tpDate);
+        END
+
+        IF(@tableCnt>0)
+        BEGIN
+	        SET @SQL = N';WITH Values AS
+		        (
+			        ' + @SQL + N'
+		        )
+		        SELECT * FROM Values ORDER BY [StartTime];'
+        END
+
+        EXECUTE sp_executesql @SQL;";
+        public const string Sql_V_Cuted_Repository_GetEntitiesInType = @"
+        DECLARE @tpDate DATETIME,
+                @tbName NVARCHAR(255),
+                @tableCnt INT = 0,
+                @SQL NVARCHAR(MAX) = N'';
+
+        SET @tpDate = @Start;
+        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
+        BEGIN
+            SET @tbName = N'[dbo].[V_Cuted'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
+            BEGIN
+                IF(@tableCnt>0)
+                BEGIN
+                SET @SQL += N' 
+                UNION ALL 
+                ';
+                END
+        			
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [Type] = '+ @Type + N' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @tableCnt += 1;
+            END
+            SET @tpDate = DATEADD(MM,1,@tpDate);
+        END
+
+        IF(@tableCnt>0)
+        BEGIN
+	        SET @SQL = N';WITH Values AS
+		        (
+			        ' + @SQL + N'
+		        )
+		        SELECT * FROM Values ORDER BY [StartTime];'
+        END
+
+        EXECUTE sp_executesql @SQL;";
+        public const string Sql_V_Cuted_Repository_SaveEntities = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Cuted{0}') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [dbo].[V_Cuted{0}](
+	            [Id] [varchar](200) NOT NULL,
+	            [Type] [int] NOT NULL,
+	            [AreaId] [varchar](100) NOT NULL,
+	            [StationId] [varchar](100) NOT NULL,
+	            [RoomId] [varchar](100) NOT NULL,
+	            [FsuId] [varchar](100) NOT NULL,
+	            [DeviceId] [varchar](100) NOT NULL,
+	            [PointId] [varchar](100) NOT NULL,
+	            [StartTime] [datetime] NOT NULL,
+	            [EndTime] [datetime] NOT NULL,
+             CONSTRAINT [PK_V_Cut{0}] PRIMARY KEY CLUSTERED 
+            (
+	            [Id] ASC
+            )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+            ) ON [PRIMARY]
+        END
+        DELETE FROM [dbo].[V_Cutting] WHERE [Id]=@Id AND [Type]=@Type;
+        DELETE FROM [dbo].[V_Cuted{0}] WHERE [Id]=@Id AND [Type]=@Type;
+        INSERT INTO [dbo].[V_Cuted{0}]([Id],[Type],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[StartTime],[EndTime]) VALUES(@Id,@Type,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,,@StartTime,@EndTime);";
+
+        /// <summary>
+        /// V_Cutting Repository
+        /// </summary>
+        public const string Sql_V_Cutting_Repository_GetEntity = @"SELECT * FROM [dbo].[V_Cutting] WHERE [Id]=@Id AND [Type]=@Type;";
+        public const string Sql_V_Cutting_Repository_GetEntities = @"SELECT * FROM [dbo].[V_Cutting];";
+        public const string Sql_V_Cutting_Repository_SaveEntities = @"
+        DELETE FROM [dbo].[V_Cutting] WHERE [Id]=@Id AND [Type]=@Type;
+        INSERT INTO [dbo].[V_Cutting]([Id],[Type],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[StartTime]) VALUES(@Id,@Type,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,,@StartTime);";
 
         /// <summary>
         /// V_Elec Repository
@@ -429,5 +584,33 @@ namespace iPem.Data.Common {
         END
 
         EXECUTE sp_executesql @SQL;";
+
+        /// <summary>
+        /// V_ParamDiff Repository
+        /// </summary>
+        public const string Sql_V_ParamDiff_Repository_SaveEntities = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_ParamDiff{0}]') AND type in (N'U'))
+        BEGIN
+        CREATE TABLE [dbo].[V_ParamDiff{0}](
+	        [DeviceId] [varchar](100) NOT NULL,
+	        [PointId] [varchar](100) NOT NULL,
+	        [Threshold] [varchar](20) NULL,
+	        [AlarmLevel] [varchar](20) NULL,
+	        [NMAlarmID] [varchar](50) NULL,
+	        [AbsoluteVal] [varchar](20) NULL,
+	        [RelativeVal] [varchar](20) NULL,
+	        [StorageInterval] [varchar](20) NULL,
+	        [StorageRefTime] [varchar](20) NULL,
+         CONSTRAINT [PK_V_ParamDiff{0}] PRIMARY KEY CLUSTERED 
+        (
+	        [DeviceId] ASC,
+	        [PointId] ASC
+        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+        ) ON [PRIMARY]
+        END
+        INSERT INTO [dbo].[V_ParamDiff{0}]([DeviceId],[PointId],[Threshold],[AlarmLevel],[NMAlarmID],[AbsoluteVal],[RelativeVal],[StorageInterval],[StorageRefTime]) VALUES(@DeviceId,@PointId,@Threshold,@AlarmLevel,@NMAlarmID,@AbsoluteVal,@RelativeVal,@StorageInterval,@StorageRefTime);";
+        public const string Sql_V_ParamDiff_Repository_DeleteEntities = @"
+        IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_ParamDiff{0}]') AND type in (N'U'))
+        DROP TABLE [dbo].[V_ParamDiff{0}];";
     }
 }

@@ -11,10 +11,22 @@ namespace iPem.Configurator {
 
     public enum ParamId {
         Null,
-        Param1,
-        Param2,
-        Param3,
-        Param4
+        /// <summary>
+        /// SC通信中断告警编码
+        /// </summary>
+        ScOff,
+        /// <summary>
+        /// FSU通信中断告警编码
+        /// </summary>
+        FsuOff,
+        /// <summary>
+        /// 开关电源负载电流信号编码
+        /// </summary>
+        FZDL,
+        /// <summary>
+        /// 开关电源工作状态信号编码
+        /// </summary>
+        GZZT
     }
 
     public enum DatabaseType {
@@ -33,6 +45,7 @@ namespace iPem.Configurator {
     public enum NodeType {
         Root,
         Parent,
+        Param,
         Database,
         Plan
     }

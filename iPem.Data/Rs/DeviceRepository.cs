@@ -55,6 +55,7 @@ namespace iPem.Data {
                     entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
                     entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
                     entity.StationName = SqlTypeConverter.DBNullStringHandler(rdr["StationName"]);
+                    entity.StationType = new StationType { Id = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeName"]) };
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
@@ -95,6 +96,7 @@ namespace iPem.Data {
                     entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
                     entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
                     entity.StationName = SqlTypeConverter.DBNullStringHandler(rdr["StationName"]);
+                    entity.StationType = new StationType { Id = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeName"]) };
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
@@ -133,6 +135,7 @@ namespace iPem.Data {
                     entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
                     entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
                     entity.StationName = SqlTypeConverter.DBNullStringHandler(rdr["StationName"]);
+                    entity.StationType = new StationType { Id = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["StationTypeName"]) };
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);

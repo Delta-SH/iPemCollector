@@ -20,6 +20,8 @@ namespace iPem.Model {
 
         public static List<Point> Points { get; set; }
 
+        public static List<SubPoint> SubPoints { get; set; }
+
         public static List<WcProtocol> Protocols { get; set; }
 
         public static List<WcDevice> Devices { get; set; }

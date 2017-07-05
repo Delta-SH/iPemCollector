@@ -14,7 +14,7 @@ namespace iPem.Core {
         /// <summary>
         /// 日志类型
         /// </summary>
-        public EnmFtpEvent EventType { get; set; }
+        public EnmFsuEvent EventType { get; set; }
 
         /// <summary>
         /// 日志信息

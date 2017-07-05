@@ -59,14 +59,28 @@ namespace iPem.Data {
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
                     entity.RatedOutputVolt = SqlTypeConverter.DBNullDoubleHandler(rdr["RatedOutputVolt"]);
                     entity.MoniModuleModel = SqlTypeConverter.DBNullStringHandler(rdr["MoniModuleModel"]);
-                    entity.ExisRModuleCount = SqlTypeConverter.DBNullStringHandler(rdr["ExisRModuleCount"]);
                     entity.RModuleModel = SqlTypeConverter.DBNullStringHandler(rdr["RModuleModel"]);
                     entity.RModuleRatedWorkVolt = SqlTypeConverter.DBNullInt32Handler(rdr["RModuleRatedWorkVolt"]);
-                    entity.SingRModuleRatedOPCap = SqlTypeConverter.DBNullStringHandler(rdr["SingRModuleRatedOPCap"]);
-                    entity.SingGBattGFuseCap = SqlTypeConverter.DBNullStringHandler(rdr["SingGBattGFuseCap"]);
                     entity.BattGFuseGNumber = SqlTypeConverter.DBNullInt32Handler(rdr["BattGFuseGNumber"]);
                     entity.OPDistBoardModel = SqlTypeConverter.DBNullStringHandler(rdr["OPDistBoardModel"]);
                     entity.OPDistBoardNumber = SqlTypeConverter.DBNullInt32Handler(rdr["OPDistBoardNumber"]);
+
+                    int exisRModuleCount; double singRModuleRatedOPCap, singGBattGFuseCap;
+                    if (int.TryParse(SqlTypeConverter.DBNullStringHandler(rdr["ExisRModuleCount"]), out exisRModuleCount))
+                        entity.ExisRModuleCount = exisRModuleCount;
+                    else
+                        entity.ExisRModuleCount = 0;
+
+                    if (double.TryParse(SqlTypeConverter.DBNullStringHandler(rdr["SingRModuleRatedOPCap"]), out singRModuleRatedOPCap))
+                        entity.SingRModuleRatedOPCap = singRModuleRatedOPCap;
+                    else
+                        entity.SingRModuleRatedOPCap = 0;
+
+                    if (double.TryParse(SqlTypeConverter.DBNullStringHandler(rdr["SingGBattGFuseCap"]), out singGBattGFuseCap))
+                        entity.SingGBattGFuseCap = singGBattGFuseCap;
+                    else
+                        entity.SingGBattGFuseCap = 0;
+
                     entities.Add(entity);
                 }
             }

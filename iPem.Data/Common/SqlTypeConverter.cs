@@ -126,7 +126,7 @@ namespace iPem.Data.Common {
         /// </summary>
         /// <param name="val">val</param>
         public static object DBNullDateTimeNullableChecker(DateTime? val) {
-            if(!val.HasValue) { return DBNull.Value; }
+            if (!val.HasValue || val == default(DateTime)) { return DBNull.Value; }
             return val.Value;
         }
 
@@ -247,14 +247,14 @@ namespace iPem.Data.Common {
         }
 
         /// <summary>
-        /// DBNull EnmFtpEvent Handler
+        /// DBNull EnmFsuEvent Handler
         /// </summary>
         /// <param name="val">val</param>
-        public static EnmFtpEvent DBNullEnmFtpEventHandler(object val) {
-            if (val == DBNull.Value) { return EnmFtpEvent.Undefined; }
+        public static EnmFsuEvent DBNullEnmFsuEventHandler(object val) {
+            if (val == DBNull.Value) { return EnmFsuEvent.Undefined; }
 
             var v = (Int32)val;
-            return Enum.IsDefined(typeof(EnmFtpEvent), v) ? (EnmFtpEvent)v : EnmFtpEvent.Undefined;
+            return Enum.IsDefined(typeof(EnmFsuEvent), v) ? (EnmFsuEvent)v : EnmFsuEvent.Undefined;
         }
 
         public static OrderId DBNullOrderIdHandler(object val) {
@@ -269,6 +269,20 @@ namespace iPem.Data.Common {
 
             var v = (Int32)val;
             return Enum.IsDefined(typeof(ParamId), v) ? (ParamId)v : ParamId.Null;
+        }
+
+        public static EnmCutType DBNullEnmCutTypeHandler(object val) {
+            if (val == DBNull.Value) { return EnmCutType.Cut; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(EnmCutType), v) ? (EnmCutType)v : EnmCutType.Cut;
+        }
+
+        public static EnmMaskType DBNullEnmMaskTypeHandler(object val) {
+            if (val == DBNull.Value) { return EnmMaskType.Area; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(EnmMaskType), v) ? (EnmMaskType)v : EnmMaskType.Area;
         }
 
         public static String CreateConnectionString(DbEntity database) {

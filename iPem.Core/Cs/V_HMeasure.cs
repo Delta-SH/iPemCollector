@@ -32,11 +32,6 @@ namespace iPem.Core {
         public string DeviceId { get; set; }
 
         /// <summary>
-        /// 信号编码
-        /// </summary>
-        public string PointId { get; set; }
-
-        /// <summary>
         /// 信号标准化编码
         /// </summary>
         public string SignalId { get; set; }
@@ -52,7 +47,7 @@ namespace iPem.Core {
         public string SignalDesc { get; set; }
 
         /// <summary>
-        /// 信号类型
+        /// 测值类型(绝对阈值，百分比阈值)
         /// </summary>
         public int Type { get; set; }
 

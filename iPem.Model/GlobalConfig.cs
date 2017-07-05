@@ -46,6 +46,8 @@ namespace iPem.Model {
 
         public static Dictionary<string, RedefinePoint> RedefinePoints { get; set; }
 
+        public static HashSet<string> Maskings { get; set; }
+
         public static List<ReservationModel> Reservations { get; set; }
 
         public static Dictionary<string, ReversalModel> ReversalKeys { get; set; }
@@ -54,37 +56,45 @@ namespace iPem.Model {
 
         public static List<BatModel> BatModels { get; set; }
 
+        public static HashSet<string> Offs { get; set; }
+
+        public static HashSet<string> Cuttings { get; set; }
+
+        public static HashSet<string> Powers { get; set; }
+
+        public static List<ScHeartbeat> ScHeartbeats { get; set; }
+
         #region 告警相关
 
         /// <summary>
         /// 当前的活动告警
         /// </summary>
-        public static List<StartAlarm> Alarms { get; private set; }
+        public static List<AlarmStart> Alarms { get; private set; }
 
         /// <summary>
         /// Key: 告警唯一标识
         /// </summary>
-        public static Dictionary<string, StartAlarm> AlarmKeys1 { get; private set; }
+        public static Dictionary<string, AlarmStart> AlarmKeys1 { get; private set; }
 
         /// <summary>
         /// Key: 设备编码+信号编码
         /// </summary>
-        public static Dictionary<string, StartAlarm> AlarmKeys2 { get; private set; }
+        public static Dictionary<string, AlarmStart> AlarmKeys2 { get; private set; }
 
         /// <summary>
         /// 清空告警
         /// </summary>
         public static void InitAlarm() {
-            Alarms = new List<StartAlarm>();
-            AlarmKeys1 = new Dictionary<string, StartAlarm>();
-            AlarmKeys2 = new Dictionary<string, StartAlarm>();
+            Alarms = new List<AlarmStart>();
+            AlarmKeys1 = new Dictionary<string, AlarmStart>();
+            AlarmKeys2 = new Dictionary<string, AlarmStart>();
         }
 
         /// <summary>
         /// 活动告警
         /// </summary>
         public static void AddAlarm(A_AAlarm alarm) {
-            AddAlarm(new StartAlarm {
+            AddAlarm(new AlarmStart {
                 Id = alarm.Id,
                 AreaId = alarm.AreaId,
                 StationId = alarm.StationId,
@@ -117,11 +127,11 @@ namespace iPem.Model {
         /// <summary>
         /// 开始告警
         /// </summary>
-        public static void AddAlarm(StartAlarm alarm) {
+        public static void AddAlarm(AlarmStart alarm) {
             if (alarm == null) return;
-            if (Alarms == null) Alarms = new List<StartAlarm>();
-            if (AlarmKeys1 == null) AlarmKeys1 = new Dictionary<string, StartAlarm>();
-            if (AlarmKeys2 == null) AlarmKeys1 = new Dictionary<string, StartAlarm>();
+            if (Alarms == null) Alarms = new List<AlarmStart>();
+            if (AlarmKeys1 == null) AlarmKeys1 = new Dictionary<string, AlarmStart>();
+            if (AlarmKeys2 == null) AlarmKeys1 = new Dictionary<string, AlarmStart>();
 
             Alarms.Add(alarm);
             AlarmKeys1[alarm.Id] = alarm;
@@ -131,7 +141,7 @@ namespace iPem.Model {
         /// <summary>
         /// 结束告警
         /// </summary>
-        public static void RemoveAlarm(EndAlarm alarm) {
+        public static void RemoveAlarm(AlarmEnd alarm) {
             if (alarm == null) return;
             if (Alarms != null) Alarms.RemoveAll(a => a.Id == alarm.Id);
             if (AlarmKeys1 != null) AlarmKeys1.Remove(alarm.Id);

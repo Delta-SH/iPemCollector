@@ -41,9 +41,10 @@ namespace iPem.Configurator {
         );
 
         --创建默认参数信息
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(1,'1');
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(2,'1');
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(3,'1');
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(1,'076013000');
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(2,'076010000');
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(3,'006309000');
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(4,'006402000');
         
         --创建默认数据库信息
         INSERT OR IGNORE INTO [databases]([id],[name],[type],[ip],[port],[uid],[password],[db]) VALUES('D001','资源数据库',1,NULL,1433,NULL,NULL,NULL);
@@ -55,7 +56,8 @@ namespace iPem.Configurator {
         INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T002','电池充放电处理任务',NULL,NULL,NULL,NULL,2);
         INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T003','信号测值统计任务',NULL,NULL,NULL,NULL,3);
         INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T004','开关电源带载率统计任务',NULL,NULL,NULL,NULL,4);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T005','资管接口同步任务',NULL,NULL,NULL,NULL,5);";
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T005','资管接口同步任务',NULL,NULL,NULL,NULL,5);
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T006','参数自检处理任务',NULL,NULL,NULL,NULL,6);";
 
         public const string Registry_Get_Order = @"
         SELECT [id],[param],[time] FROM [orders];";
