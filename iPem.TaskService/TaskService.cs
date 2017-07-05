@@ -473,6 +473,68 @@ namespace iPem.TaskService {
                                 } finally {
                                     _configWriterLock.ExitWriteLock();
                                 }
+                            } else if (order.Id == OrderId.ExTask001) {
+                                try {
+                                    var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
+                                    if (task != null) this.ExTask001(task.Start, task.End);
+                                    Logger.Information("能耗数据处理命令执行完成。");
+                                } catch (Exception err) {
+                                    Logger.Error(string.Format("能耗数据处理命令执行错误，{0}", err.Message), err);
+                                }
+                            } else if (order.Id == OrderId.ExTask002) {
+                                try {
+                                    var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
+                                    if (task != null) this.ExTask002(task.Start, task.End);
+                                    Logger.Information("电池充放电处理命令执行完成。");
+                                } catch (Exception err) {
+                                    Logger.Error(string.Format("电池充放电处理命令执行错误，{0}", err.Message), err);
+                                }
+                            } else if (order.Id == OrderId.ExTask003) {
+                                try {
+                                    var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
+                                    if (task != null) this.ExTask003(task.Start, task.End);
+                                    Logger.Information("信号测值统计命令执行完成。");
+                                } catch (Exception err) {
+                                    Logger.Error(string.Format("信号测值统计命令执行错误，{0}", err.Message), err);
+                                }
+                            } else if (order.Id == OrderId.ExTask004) {
+                                try {
+                                    var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
+                                    if (task != null) {
+                                        var _FzdlParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.FZDL);
+                                        if (_FzdlParam == null || string.IsNullOrWhiteSpace(_FzdlParam.Value))
+                                            throw new Exception("尚未配置负载电流信号");
+
+                                        var _FzdlPoint = iPemWorkContext.Points.Find(p => p.Id == _FzdlParam.Value);
+                                        if (_FzdlPoint == null) throw new Exception("负载电流信号配置错误");
+
+                                        var _GzztParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.GZZT);
+                                        if (_GzztParam == null || string.IsNullOrWhiteSpace(_GzztParam.Value))
+                                            throw new Exception("尚未配置工作状态信号");
+
+                                        var _GzztPoint = iPemWorkContext.Points.Find(p => p.Id == _GzztParam.Value);
+                                        if (_GzztPoint == null) throw new Exception("工作状态信号配置错误");
+
+                                        this.ExTask004(task.Start, task.End, _FzdlPoint, _GzztPoint);
+                                        Logger.Information("开关电源带载率统计命令执行完成。");
+                                    }
+                                } catch (Exception err) {
+                                    Logger.Error(string.Format("开关电源带载率统计命令执行错误，{0}", err.Message), err);
+                                }
+                            } else if (order.Id == OrderId.ExTask005) {
+                                try {
+                                    this.ExTask005();
+                                    Logger.Information("资管接口同步命令执行完成。");
+                                } catch (Exception err) {
+                                    Logger.Error(string.Format("资管接口同步命令执行错误，{0}", err.Message), err);
+                                }
+                            } else if (order.Id == OrderId.ExTask006) {
+                                try {
+                                    this.ExTask006();
+                                    Logger.Information("参数自检处理命令执行完成。");
+                                } catch (Exception err) {
+                                    Logger.Error(string.Format("参数自检处理命令执行错误，{0}", err.Message), err);
+                                }
                             }
                         }
                         #endregion
@@ -1150,81 +1212,88 @@ namespace iPem.TaskService {
                     }
 
                     try {
-                        var _times = CommonHelper.GetHourSpan(_curTask.Start, _curTask.End);
-                        if (_times.Count == 0) continue;
-
-                        var _formulas = _formulaRepository.GetEntities();
-                        foreach (var _formula in _formulas) {
-                            try {
-                                var _formulaText = _formula.FormulaText;
-                                if (string.IsNullOrWhiteSpace(_formulaText)) continue;
-                                if (!CommonHelper.ValidateFormula(_formulaText)) throw new Exception("无效的公式。");
-                                var _variables = CommonHelper.GetFormulaVariables(_formulaText);
-                                if (_variables == null) throw new Exception("无效的公式。");
-
-                                var _devices = new List<WcDevice>();
-                                if (_formula.Type == EnmOrganization.Station) {
-                                    var _current = iPemWorkContext.Stations.Find(c => c.Current.Id == _formula.Id);
-                                    if (_current == null) throw new Exception("未找到公式所对应的站点。");
-                                    _devices.AddRange(_current.Rooms.SelectMany(r => r.Devices));
-                                } else if (_formula.Type == EnmOrganization.Room) {
-                                    var _current = iPemWorkContext.Rooms.Find(c => c.Current.Id == _formula.Id);
-                                    if (_current == null) throw new Exception("未找到公式所对应的机房。");
-                                    _devices.AddRange(_current.Devices);
-                                }
-
-                                var _details = new List<VariableDetail>();
-                                foreach (var _variable in _variables) {
-                                    var _factors = _variable.Split(new string[] { ">>" }, StringSplitOptions.None);
-                                    var _devkey = _factors[0].Substring(1);
-                                    var _potkey = _factors[1];
-                                    var _device = _devices.Find(d => d.Current.Name == _devkey);
-                                    if (_device == null) throw new Exception(string.Format("未找到变量{0}中的设备信息。", _variable));
-                                    var _point = _device.Points.Find(p => p.Current.Name == _potkey);
-                                    if (_point == null) throw new Exception(string.Format("未找到变量{0}中的信号信息。", _variable));
-                                    _details.Add(new VariableDetail { Device = _device.Current, Point = _point.Current, Variable = _variable });
-                                }
-
-                                var _result = new List<V_Elec>();
-                                foreach (var _time in _times) {
-                                    var _start = _time;
-                                    var _end = _time.AddHours(1).AddMilliseconds(-1);
-                                    var _current = _formulaText;
-                                    var _value = 0d;
-                                    try {
-                                        foreach (var _detail in _details) {
-                                            var _diff = _measureRepository.GetValDiff(_detail.Device.Id, _detail.Point.Code, _detail.Point.Number, _start, _end);
-                                            _current = _current.Replace(_detail.Variable, _diff.ToString());
-                                        }
-
-                                        var __value = _computer.Compute(_current, "");
-                                        if (__value != DBNull.Value) _value = Convert.ToDouble(__value);
-                                        if (double.IsNaN(_value) || double.IsInfinity(_value)) _value = 0d;
-                                    } catch { }
-
-                                    _result.Add(new V_Elec {
-                                        Id = _formula.Id,
-                                        Type = _formula.Type,
-                                        FormulaType = _formula.FormulaType,
-                                        StartTime = _start,
-                                        EndTime = _end,
-                                        Value = _value
-                                    });
-                                }
-
-                                _elecRepository.DeleteEntities(_formula.Id, _formula.Type, _formula.FormulaType, _curTask.Start, _curTask.End);
-                                _elecRepository.SaveEntities(_result);
-                            } catch (Exception err) {
-                                Logger.Error(err.Message);
-                                Logger.Error(string.Format("能耗处理发生错误,详见错误日志({0})。", JsonConvert.SerializeObject(_formula)), err);
-                            }
-                        }
+                        this.ExTask001(_curTask.Start, _curTask.End);
                     } catch (Exception err) {
                         Logger.Error(err.Message, err);
                     } finally {
                         GlobalConfig.SetTaskPloy(_curTask);
                         Logger.Information(string.Format("{0}执行完成，下次执行时间：{1}。", _curTask.Name, CommonHelper.ToDateTimeString(_curTask.Next)));
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 能耗处理方法
+        /// </summary>
+        private void ExTask001(DateTime start, DateTime end) {
+            var _times = CommonHelper.GetHourSpan(start, end);
+            if (_times.Count == 0) return;
+
+            var _formulas = _formulaRepository.GetEntities();
+            foreach (var _formula in _formulas) {
+                try {
+                    var _formulaText = _formula.FormulaText;
+                    if (string.IsNullOrWhiteSpace(_formulaText)) continue;
+                    if (!CommonHelper.ValidateFormula(_formulaText)) throw new Exception("无效的公式。");
+                    var _variables = CommonHelper.GetFormulaVariables(_formulaText);
+                    if (_variables == null) throw new Exception("无效的公式。");
+
+                    var _devices = new List<WcDevice>();
+                    if (_formula.Type == EnmOrganization.Station) {
+                        var _current = iPemWorkContext.Stations.Find(c => c.Current.Id == _formula.Id);
+                        if (_current == null) throw new Exception("未找到公式所对应的站点。");
+                        _devices.AddRange(_current.Rooms.SelectMany(r => r.Devices));
+                    } else if (_formula.Type == EnmOrganization.Room) {
+                        var _current = iPemWorkContext.Rooms.Find(c => c.Current.Id == _formula.Id);
+                        if (_current == null) throw new Exception("未找到公式所对应的机房。");
+                        _devices.AddRange(_current.Devices);
+                    }
+
+                    var _details = new List<VariableDetail>();
+                    foreach (var _variable in _variables) {
+                        var _factors = _variable.Split(new string[] { ">>" }, StringSplitOptions.None);
+                        var _devkey = _factors[0].Substring(1);
+                        var _potkey = _factors[1];
+                        var _device = _devices.Find(d => d.Current.Name == _devkey);
+                        if (_device == null) throw new Exception(string.Format("未找到变量{0}中的设备信息。", _variable));
+                        var _point = _device.Points.Find(p => p.Current.Name == _potkey);
+                        if (_point == null) throw new Exception(string.Format("未找到变量{0}中的信号信息。", _variable));
+                        _details.Add(new VariableDetail { Device = _device.Current, Point = _point.Current, Variable = _variable });
+                    }
+
+                    var _result = new List<V_Elec>();
+                    foreach (var _time in _times) {
+                        var _start = _time;
+                        var _end = _time.AddHours(1).AddMilliseconds(-1);
+                        var _current = _formulaText;
+                        var _value = 0d;
+                        try {
+                            foreach (var _detail in _details) {
+                                var _diff = _measureRepository.GetValDiff(_detail.Device.Id, _detail.Point.Code, _detail.Point.Number, _start, _end);
+                                _current = _current.Replace(_detail.Variable, _diff.ToString());
+                            }
+
+                            var __value = _computer.Compute(_current, "");
+                            if (__value != DBNull.Value) _value = Convert.ToDouble(__value);
+                            if (double.IsNaN(_value) || double.IsInfinity(_value)) _value = 0d;
+                        } catch { }
+
+                        _result.Add(new V_Elec {
+                            Id = _formula.Id,
+                            Type = _formula.Type,
+                            FormulaType = _formula.FormulaType,
+                            StartTime = _start,
+                            EndTime = _end,
+                            Value = _value
+                        });
+                    }
+
+                    _elecRepository.DeleteEntities(_formula.Id, _formula.Type, _formula.FormulaType, start, end);
+                    _elecRepository.SaveEntities(_result);
+                } catch (Exception err) {
+                    Logger.Error(err.Message);
+                    Logger.Error(string.Format("能耗处理发生错误,详见错误日志({0})。", JsonConvert.SerializeObject(_formula)), err);
                 }
             }
         }
@@ -1264,134 +1333,141 @@ namespace iPem.TaskService {
                     }
 
                     try {
-                        foreach (var model in GlobalConfig.BatModels) {
-                            try {
-                                var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Code, model.Point.Number, _curTask.Start, _curTask.End);
-                                if (_values.Count == 0) continue;
-
-                                var _details = new List<BatDetail>();
-                                BatDetail _current = null;
-                                foreach (var _value in _values) {
-                                    if (_value.Value < model.Voltage) {
-                                        if (_current == null) _current = new BatDetail { Device = model.Device, Point = model.Point, PackId = model.PackId, StartTime = _value.UpdateTime, StartValue = _value.Value, Values = new List<IdValuePair<DateTime, double>>() };
-                                        _current.Values.Add(new IdValuePair<DateTime, double> { Id = _value.UpdateTime, Value = _value.Value });
-                                    } else if (_value.Value >= model.Voltage && _current != null) {
-                                        _current.EndTime = _value.UpdateTime;
-                                        _current.EndValue = _value.Value;
-                                        _current.Values.Add(new IdValuePair<DateTime, double> { Id = _value.UpdateTime, Value = _value.Value });
-                                        _details.Add(_current);
-                                        _current = null;
-                                    }
-                                }
-
-                                if (_current != null) {
-                                    var _last = _current.Values.LastOrDefault();
-                                    if (_last != null) {
-                                        _current.EndTime = _last.Id;
-                                        _current.EndValue = _last.Value;
-                                        _details.Add(_current);
-                                    }
-
-                                    _current = null;
-                                }
-
-                                var __details = new List<BatDetail>();
-                                foreach (var _point in model.SubPoints) {
-                                    foreach (var _detail in _details) {
-                                        var __values = _measureRepository.GetEntities(model.Device.Id, _point.Code, _point.Number, _detail.StartTime, _detail.EndTime);
-                                        if (__values.Count > 0) {
-                                            var _first = __values.First();
-                                            var _last = __values.Last();
-                                            __details.Add(new BatDetail {
-                                                Device = model.Device,
-                                                Point = _point,
-                                                PackId = model.PackId,
-                                                StartTime = _first.UpdateTime,
-                                                StartValue = _first.Value,
-                                                EndTime = _last.UpdateTime,
-                                                EndValue = _last.Value,
-                                                Values = __values.Select(v => new IdValuePair<DateTime, double> { Id = v.UpdateTime, Value = v.Value }).ToList()
-                                            });
-                                        }
-                                    }
-                                }
-
-                                var batValues = new List<V_Bat>();
-                                var batTimes = new List<V_BatTime>();
-                                foreach (var _detail in _details) {
-                                    batTimes.Add(new V_BatTime {
-                                        AreaId = _detail.Device.AreaId,
-                                        StationId = _detail.Device.StationId,
-                                        RoomId = _detail.Device.RoomId,
-                                        DeviceId = _detail.Device.Id,
-                                        PointId = _detail.Point.Id,
-                                        PackId = _detail.PackId,
-                                        StartTime = _detail.StartTime,
-                                        StartValue = _detail.StartValue,
-                                        EndTime = _detail.EndTime,
-                                        EndValue = _detail.EndValue
-                                    });
-
-                                    foreach (var _value in _detail.Values) {
-                                        batValues.Add(new V_Bat {
-                                            AreaId = _detail.Device.AreaId,
-                                            StationId = _detail.Device.StationId,
-                                            RoomId = _detail.Device.RoomId,
-                                            DeviceId = _detail.Device.Id,
-                                            PointId = _detail.Point.Id,
-                                            PackId = _detail.PackId,
-                                            StartTime = _detail.StartTime,
-                                            Value = _value.Value,
-                                            ValueTime = _value.Id
-                                        });
-                                    }
-                                }
-
-                                foreach (var __detail in __details) {
-                                    batTimes.Add(new V_BatTime {
-                                        AreaId = __detail.Device.AreaId,
-                                        StationId = __detail.Device.StationId,
-                                        RoomId = __detail.Device.RoomId,
-                                        DeviceId = __detail.Device.Id,
-                                        PointId = __detail.Point.Id,
-                                        PackId = __detail.PackId,
-                                        StartTime = __detail.StartTime,
-                                        StartValue = __detail.StartValue,
-                                        EndTime = __detail.EndTime,
-                                        EndValue = __detail.EndValue
-                                    });
-
-                                    foreach (var __value in __detail.Values) {
-                                        batValues.Add(new V_Bat {
-                                            AreaId = __detail.Device.AreaId,
-                                            StationId = __detail.Device.StationId,
-                                            RoomId = __detail.Device.RoomId,
-                                            DeviceId = __detail.Device.Id,
-                                            PointId = __detail.Point.Id,
-                                            PackId = __detail.PackId,
-                                            StartTime = __detail.StartTime,
-                                            Value = __value.Value,
-                                            ValueTime = __value.Id
-                                        });
-                                    }
-                                }
-
-                                _batRepository.DeleteEntities(model.Device.Id, model.Point.Id, model.PackId, _curTask.Start, _curTask.End);
-                                _batRepository.SaveEntities(batValues);
-
-                                _batTimeRepository.DeleteEntities(model.Device.Id, model.Point.Id, model.PackId, _curTask.Start, _curTask.End);
-                                _batTimeRepository.SaveEntities(batTimes);
-                            } catch (Exception err) {
-                                Logger.Error(err.Message);
-                                Logger.Error("电池放电统计发生错误,详见错误日志。", err);
-                            }
-                        }
+                        this.ExTask002(_curTask.Start, _curTask.End);
                     } catch (Exception err) {
                         Logger.Error(err.Message, err);
                     } finally {
                         GlobalConfig.SetTaskPloy(_curTask);
                         Logger.Information(string.Format("{0}执行完成，下次执行时间：{1}。", _curTask.Name, CommonHelper.ToDateTimeString(_curTask.Next)));
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 电池放电处理方法
+        /// </summary>
+        private void ExTask002(DateTime start, DateTime end) {
+            foreach (var model in GlobalConfig.BatModels) {
+                try {
+                    var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Code, model.Point.Number, start, end);
+                    if (_values.Count == 0) continue;
+
+                    var _details = new List<BatDetail>();
+                    BatDetail _current = null;
+                    foreach (var _value in _values) {
+                        if (_value.Value < model.Voltage) {
+                            if (_current == null) _current = new BatDetail { Device = model.Device, Point = model.Point, PackId = model.PackId, StartTime = _value.UpdateTime, StartValue = _value.Value, Values = new List<IdValuePair<DateTime, double>>() };
+                            _current.Values.Add(new IdValuePair<DateTime, double> { Id = _value.UpdateTime, Value = _value.Value });
+                        } else if (_value.Value >= model.Voltage && _current != null) {
+                            _current.EndTime = _value.UpdateTime;
+                            _current.EndValue = _value.Value;
+                            _current.Values.Add(new IdValuePair<DateTime, double> { Id = _value.UpdateTime, Value = _value.Value });
+                            _details.Add(_current);
+                            _current = null;
+                        }
+                    }
+
+                    if (_current != null) {
+                        var _last = _current.Values.LastOrDefault();
+                        if (_last != null) {
+                            _current.EndTime = _last.Id;
+                            _current.EndValue = _last.Value;
+                            _details.Add(_current);
+                        }
+
+                        _current = null;
+                    }
+
+                    var __details = new List<BatDetail>();
+                    foreach (var _point in model.SubPoints) {
+                        foreach (var _detail in _details) {
+                            var __values = _measureRepository.GetEntities(model.Device.Id, _point.Code, _point.Number, _detail.StartTime, _detail.EndTime);
+                            if (__values.Count > 0) {
+                                var _first = __values.First();
+                                var _last = __values.Last();
+                                __details.Add(new BatDetail {
+                                    Device = model.Device,
+                                    Point = _point,
+                                    PackId = model.PackId,
+                                    StartTime = _first.UpdateTime,
+                                    StartValue = _first.Value,
+                                    EndTime = _last.UpdateTime,
+                                    EndValue = _last.Value,
+                                    Values = __values.Select(v => new IdValuePair<DateTime, double> { Id = v.UpdateTime, Value = v.Value }).ToList()
+                                });
+                            }
+                        }
+                    }
+
+                    var batValues = new List<V_Bat>();
+                    var batTimes = new List<V_BatTime>();
+                    foreach (var _detail in _details) {
+                        batTimes.Add(new V_BatTime {
+                            AreaId = _detail.Device.AreaId,
+                            StationId = _detail.Device.StationId,
+                            RoomId = _detail.Device.RoomId,
+                            DeviceId = _detail.Device.Id,
+                            PointId = _detail.Point.Id,
+                            PackId = _detail.PackId,
+                            StartTime = _detail.StartTime,
+                            StartValue = _detail.StartValue,
+                            EndTime = _detail.EndTime,
+                            EndValue = _detail.EndValue
+                        });
+
+                        foreach (var _value in _detail.Values) {
+                            batValues.Add(new V_Bat {
+                                AreaId = _detail.Device.AreaId,
+                                StationId = _detail.Device.StationId,
+                                RoomId = _detail.Device.RoomId,
+                                DeviceId = _detail.Device.Id,
+                                PointId = _detail.Point.Id,
+                                PackId = _detail.PackId,
+                                StartTime = _detail.StartTime,
+                                Value = _value.Value,
+                                ValueTime = _value.Id
+                            });
+                        }
+                    }
+
+                    foreach (var __detail in __details) {
+                        batTimes.Add(new V_BatTime {
+                            AreaId = __detail.Device.AreaId,
+                            StationId = __detail.Device.StationId,
+                            RoomId = __detail.Device.RoomId,
+                            DeviceId = __detail.Device.Id,
+                            PointId = __detail.Point.Id,
+                            PackId = __detail.PackId,
+                            StartTime = __detail.StartTime,
+                            StartValue = __detail.StartValue,
+                            EndTime = __detail.EndTime,
+                            EndValue = __detail.EndValue
+                        });
+
+                        foreach (var __value in __detail.Values) {
+                            batValues.Add(new V_Bat {
+                                AreaId = __detail.Device.AreaId,
+                                StationId = __detail.Device.StationId,
+                                RoomId = __detail.Device.RoomId,
+                                DeviceId = __detail.Device.Id,
+                                PointId = __detail.Point.Id,
+                                PackId = __detail.PackId,
+                                StartTime = __detail.StartTime,
+                                Value = __value.Value,
+                                ValueTime = __value.Id
+                            });
+                        }
+                    }
+
+                    _batRepository.DeleteEntities(model.Device.Id, model.Point.Id, model.PackId, start, end);
+                    _batRepository.SaveEntities(batValues);
+
+                    _batTimeRepository.DeleteEntities(model.Device.Id, model.Point.Id, model.PackId, start, end);
+                    _batTimeRepository.SaveEntities(batTimes);
+                } catch (Exception err) {
+                    Logger.Error(err.Message);
+                    Logger.Error("电池放电统计发生错误,详见错误日志。", err);
                 }
             }
         }
@@ -1431,56 +1507,7 @@ namespace iPem.TaskService {
                     }
 
                     try {
-                        foreach (var model in GlobalConfig.StaticModels) {
-                            if (model.Interval <= 0) continue;
-
-                            var _result = new List<V_Static>();
-                            var _start = _curTask.Start;
-                            var _end = _curTask.Start.AddMinutes(model.Interval);
-                            while (_curTask.End >= _end) {
-                                try {
-                                    var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Code, model.Point.Number, _start, _end);
-                                    if (_values.Count > 0) {
-                                        var _target = new V_Static {
-                                            AreaId = model.Device.AreaId,
-                                            StationId = model.Device.StationId,
-                                            RoomId = model.Device.RoomId,
-                                            DeviceId = model.Device.Id,
-                                            PointId = model.Point.Id,
-                                            StartTime = _start,
-                                            EndTime = _end,
-                                            MaxValue = double.MinValue,
-                                            MinValue = double.MaxValue,
-                                            AvgValue = _values.Average(v => v.Value),
-                                            Total = _values.Count
-                                        };
-
-                                        foreach (var _v in _values) {
-                                            if (_v.Value > _target.MaxValue) {
-                                                _target.MaxValue = _v.Value;
-                                                _target.MaxTime = _v.UpdateTime;
-                                            }
-
-                                            if (_v.Value < _target.MinValue) {
-                                                _target.MinValue = _v.Value;
-                                                _target.MinTime = _v.UpdateTime;
-                                            }
-                                        }
-
-                                        _result.Add(_target);
-                                    }
-                                } catch (Exception err) {
-                                    Logger.Error(err.Message);
-                                    Logger.Error("信号测值统计发生错误,详见错误日志。", err);
-                                } finally {
-                                    _start = _end;
-                                    _end = _end.AddMinutes(model.Interval);
-                                }
-                            }
-
-                            _staticRepository.DeleteEntities(model.Device.Id, model.Point.Id, _curTask.Start, _curTask.End);
-                            _staticRepository.SaveEntities(_result);
-                        }
+                        this.ExTask003(_curTask.Start, _curTask.End);
                     } catch (Exception err) {
                         Logger.Error(err.Message, err);
                     } finally {
@@ -1488,6 +1515,62 @@ namespace iPem.TaskService {
                         Logger.Information(string.Format("{0}执行完成，下次执行时间：{1}。", _curTask.Name, CommonHelper.ToDateTimeString(_curTask.Next)));
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// 信号测值统计方法
+        /// </summary>
+        private void ExTask003(DateTime start, DateTime end) {
+            foreach (var model in GlobalConfig.StaticModels) {
+                if (model.Interval <= 0) continue;
+
+                var _result = new List<V_Static>();
+                var _start = start;
+                var _end = start.AddMinutes(model.Interval);
+                while (end >= _end) {
+                    try {
+                        var _values = _measureRepository.GetEntities(model.Device.Id, model.Point.Code, model.Point.Number, _start, _end);
+                        if (_values.Count > 0) {
+                            var _target = new V_Static {
+                                AreaId = model.Device.AreaId,
+                                StationId = model.Device.StationId,
+                                RoomId = model.Device.RoomId,
+                                DeviceId = model.Device.Id,
+                                PointId = model.Point.Id,
+                                StartTime = _start,
+                                EndTime = _end,
+                                MaxValue = double.MinValue,
+                                MinValue = double.MaxValue,
+                                AvgValue = _values.Average(v => v.Value),
+                                Total = _values.Count
+                            };
+
+                            foreach (var _v in _values) {
+                                if (_v.Value > _target.MaxValue) {
+                                    _target.MaxValue = _v.Value;
+                                    _target.MaxTime = _v.UpdateTime;
+                                }
+
+                                if (_v.Value < _target.MinValue) {
+                                    _target.MinValue = _v.Value;
+                                    _target.MinTime = _v.UpdateTime;
+                                }
+                            }
+
+                            _result.Add(_target);
+                        }
+                    } catch (Exception err) {
+                        Logger.Error(err.Message);
+                        Logger.Error("信号测值统计发生错误,详见错误日志。", err);
+                    } finally {
+                        _start = _end;
+                        _end = _end.AddMinutes(model.Interval);
+                    }
+                }
+
+                _staticRepository.DeleteEntities(model.Device.Id, model.Point.Id, start, end);
+                _staticRepository.SaveEntities(_result);
             }
         }
 
@@ -1552,158 +1635,7 @@ namespace iPem.TaskService {
                     }
 
                     try {
-                        var _dates = CommonHelper.GetDateSpan(_curTask.Start, _curTask.End);
-                        if (_dates.Count == 0) continue;
-
-                        var _comDevices = _combSwitElecSourRepository.GetEntities();
-                        var _divDevices = _divSwitElecSourRepository.GetEntities();
-
-                        #region 组合开关电源
-                        foreach (var _device in _comDevices) {
-                            try {
-                                var _current = iPemWorkContext.Devices.Find(d => d.Current.Id == _device.Id);
-                                if (_current == null) continue;
-                                var _ztPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.DI && p.Current.Id == _FzdlPoint.Id);
-                                if (_ztPoint == null) continue;
-                                var _fzPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.AI && p.Current.Id == _GzztPoint.Id);
-                                if (_fzPoint == null) continue;
-                                var _fzCap = _device.SingRModuleRatedOPCap * _device.ExisRModuleCount;
-                                if (_fzCap == 0) continue;
-
-                                var _result = new List<V_Load>();
-                                var _ztFlag = CommonHelper.GetPointFlag(_ztPoint.Current, "浮充");
-                                foreach (var _date in _dates) {
-                                    var _load = new V_Load {
-                                        AreaId = _device.AreaId,
-                                        StationId = _device.StationId,
-                                        RoomId = _device.RoomId,
-                                        DeviceId = _device.Id,
-                                        StartTime = _date,
-                                        EndTime = _date.AddDays(1).AddMilliseconds(-1),
-                                        Value = 0,
-                                    };
-
-                                    var _ztValues = _measureRepository.GetEntities(_device.Id, _ztPoint.Current.Code, _ztPoint.Current.Number, _load.StartTime, _load.EndTime);
-                                    var _intervals = new List<IdValuePair<DateTime, DateTime>>();
-
-                                    DateTime? _start = null;
-                                    foreach (var _value in _ztValues.OrderBy(v => v.UpdateTime)) {
-                                        if (_value.Value == _ztFlag && !_start.HasValue) {
-                                            _start = _value.UpdateTime;
-                                        } else if (_value.Value != _ztFlag && _start.HasValue) {
-                                            _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                                Id = _start.Value,
-                                                Value = _value.UpdateTime
-                                            });
-
-                                            _start = null;
-                                        }
-                                    }
-
-                                    if (_start.HasValue) {
-                                        _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                            Id = _start.Value,
-                                            Value = _load.EndTime
-                                        });
-
-                                        _start = null;
-                                    }
-
-                                    if (_intervals.Count > 0) {
-                                        var _fzValues = _measureRepository.GetEntities(_device.Id, _fzPoint.Current.Code, _fzPoint.Current.Number, _load.StartTime, _load.EndTime);
-                                        foreach (var _interval in _intervals) {
-                                            var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
-                                            var _fzMax = _fzMatch.Max(f => f.Value);
-                                            if (_fzMax > _load.Value) _load.Value = _fzMax;
-                                        }
-                                        _load.Value = _load.Value / _fzCap;
-                                    }
-
-                                    _result.Add(_load);
-                                }
-
-                                _loadRepository.DeleteEntities(_device.Id, _curTask.Start, _curTask.End);
-                                _loadRepository.SaveEntities(_result);
-                            } catch (Exception err) {
-                                Logger.Error(err.Message);
-                                Logger.Error("组合开关电源带载率统计发生错误,详见错误日志。", err);
-                            }
-                        }
-                        #endregion
-
-                        #region 分立开关电源
-                        foreach (var _device in _divDevices) {
-                            try {
-                                var _current = iPemWorkContext.Devices.Find(d => d.Current.Id == _device.Id);
-                                if (_current == null) continue;
-                                var _ztPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.DI && p.Current.Id == _FzdlPoint.Id);
-                                if (_ztPoint == null) continue;
-                                var _fzPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.AI && p.Current.Id == _GzztPoint.Id);
-                                if (_fzPoint == null) continue;
-                                var _fzCap = _device.SingRModuleRatedOPCap * _device.ExisRModuleCount;
-                                if (_fzCap == 0) continue;
-
-                                var _result = new List<V_Load>();
-                                var _ztFlag = CommonHelper.GetPointFlag(_ztPoint.Current, "浮充");
-                                foreach (var _date in _dates) {
-                                    var _load = new V_Load {
-                                        AreaId = _device.AreaId,
-                                        StationId = _device.StationId,
-                                        RoomId = _device.RoomId,
-                                        DeviceId = _device.Id,
-                                        StartTime = _date,
-                                        EndTime = _date.AddDays(1).AddMilliseconds(-1),
-                                        Value = 0,
-                                    };
-
-                                    var _ztValues = _measureRepository.GetEntities(_device.Id, _ztPoint.Current.Code, _ztPoint.Current.Number, _load.StartTime, _load.EndTime);
-                                    var _intervals = new List<IdValuePair<DateTime, DateTime>>();
-
-                                    DateTime? _start = null;
-                                    foreach (var _value in _ztValues.OrderBy(v => v.UpdateTime)) {
-                                        if (_value.Value == _ztFlag && !_start.HasValue) {
-                                            _start = _value.UpdateTime;
-                                        } else if (_value.Value != _ztFlag && _start.HasValue) {
-                                            _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                                Id = _start.Value,
-                                                Value = _value.UpdateTime
-                                            });
-
-                                            _start = null;
-                                        }
-                                    }
-
-                                    if (_start.HasValue) {
-                                        _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                            Id = _start.Value,
-                                            Value = _load.EndTime
-                                        });
-
-                                        _start = null;
-                                    }
-
-                                    if (_intervals.Count > 0) {
-                                        var _fzValues = _measureRepository.GetEntities(_device.Id, _fzPoint.Current.Code, _fzPoint.Current.Number, _load.StartTime, _load.EndTime);
-                                        foreach (var _interval in _intervals) {
-                                            var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
-                                            var _fzMax = _fzMatch.Max(f => f.Value);
-                                            if (_fzMax > _load.Value) _load.Value = _fzMax;
-                                        }
-                                        _load.Value = _load.Value / _fzCap;
-                                    }
-
-                                    _result.Add(_load);
-                                }
-
-                                _loadRepository.DeleteEntities(_device.Id, _curTask.Start, _curTask.End);
-                                _loadRepository.SaveEntities(_result);
-                            } catch (Exception err) {
-                                Logger.Error(err.Message);
-                                Logger.Error("分立开关电源带载率统计发生错误,详见错误日志。", err);
-                            }
-                        }
-                        #endregion
-
+                        this.ExTask004(_curTask.Start, _curTask.End, _FzdlPoint, _GzztPoint);
                     } catch (Exception err) {
                         Logger.Error(err.Message, err);
                     } finally {
@@ -1712,6 +1644,163 @@ namespace iPem.TaskService {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 开关电源带载率统计方法
+        /// </summary>
+        private void ExTask004(DateTime start, DateTime end, iPem.Core.Point fzdlPoint, iPem.Core.Point gzztPoint) {
+            var _dates = CommonHelper.GetDateSpan(start, end);
+            if (_dates.Count == 0) return;
+
+            var _comDevices = _combSwitElecSourRepository.GetEntities();
+            var _divDevices = _divSwitElecSourRepository.GetEntities();
+
+            #region 组合开关电源
+            foreach (var _device in _comDevices) {
+                try {
+                    var _current = iPemWorkContext.Devices.Find(d => d.Current.Id == _device.Id);
+                    if (_current == null) continue;
+                    var _ztPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.DI && p.Current.Id == fzdlPoint.Id);
+                    if (_ztPoint == null) continue;
+                    var _fzPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.AI && p.Current.Id == gzztPoint.Id);
+                    if (_fzPoint == null) continue;
+                    var _fzCap = _device.SingRModuleRatedOPCap * _device.ExisRModuleCount;
+                    if (_fzCap == 0) continue;
+
+                    var _result = new List<V_Load>();
+                    var _ztFlag = CommonHelper.GetPointFlag(_ztPoint.Current, "浮充");
+                    foreach (var _date in _dates) {
+                        var _load = new V_Load {
+                            AreaId = _device.AreaId,
+                            StationId = _device.StationId,
+                            RoomId = _device.RoomId,
+                            DeviceId = _device.Id,
+                            StartTime = _date,
+                            EndTime = _date.AddDays(1).AddMilliseconds(-1),
+                            Value = 0,
+                        };
+
+                        var _ztValues = _measureRepository.GetEntities(_device.Id, _ztPoint.Current.Code, _ztPoint.Current.Number, _load.StartTime, _load.EndTime);
+                        var _intervals = new List<IdValuePair<DateTime, DateTime>>();
+
+                        DateTime? _start = null;
+                        foreach (var _value in _ztValues.OrderBy(v => v.UpdateTime)) {
+                            if (_value.Value == _ztFlag && !_start.HasValue) {
+                                _start = _value.UpdateTime;
+                            } else if (_value.Value != _ztFlag && _start.HasValue) {
+                                _intervals.Add(new IdValuePair<DateTime, DateTime> {
+                                    Id = _start.Value,
+                                    Value = _value.UpdateTime
+                                });
+
+                                _start = null;
+                            }
+                        }
+
+                        if (_start.HasValue) {
+                            _intervals.Add(new IdValuePair<DateTime, DateTime> {
+                                Id = _start.Value,
+                                Value = _load.EndTime
+                            });
+
+                            _start = null;
+                        }
+
+                        if (_intervals.Count > 0) {
+                            var _fzValues = _measureRepository.GetEntities(_device.Id, _fzPoint.Current.Code, _fzPoint.Current.Number, _load.StartTime, _load.EndTime);
+                            foreach (var _interval in _intervals) {
+                                var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
+                                var _fzMax = _fzMatch.Max(f => f.Value);
+                                if (_fzMax > _load.Value) _load.Value = _fzMax;
+                            }
+                            _load.Value = _load.Value / _fzCap;
+                        }
+
+                        _result.Add(_load);
+                    }
+
+                    _loadRepository.DeleteEntities(_device.Id, start, end);
+                    _loadRepository.SaveEntities(_result);
+                } catch (Exception err) {
+                    Logger.Error(err.Message);
+                    Logger.Error("组合开关电源带载率统计发生错误,详见错误日志。", err);
+                }
+            }
+            #endregion
+
+            #region 分立开关电源
+            foreach (var _device in _divDevices) {
+                try {
+                    var _current = iPemWorkContext.Devices.Find(d => d.Current.Id == _device.Id);
+                    if (_current == null) continue;
+                    var _ztPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.DI && p.Current.Id == fzdlPoint.Id);
+                    if (_ztPoint == null) continue;
+                    var _fzPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.AI && p.Current.Id == gzztPoint.Id);
+                    if (_fzPoint == null) continue;
+                    var _fzCap = _device.SingRModuleRatedOPCap * _device.ExisRModuleCount;
+                    if (_fzCap == 0) continue;
+
+                    var _result = new List<V_Load>();
+                    var _ztFlag = CommonHelper.GetPointFlag(_ztPoint.Current, "浮充");
+                    foreach (var _date in _dates) {
+                        var _load = new V_Load {
+                            AreaId = _device.AreaId,
+                            StationId = _device.StationId,
+                            RoomId = _device.RoomId,
+                            DeviceId = _device.Id,
+                            StartTime = _date,
+                            EndTime = _date.AddDays(1).AddMilliseconds(-1),
+                            Value = 0,
+                        };
+
+                        var _ztValues = _measureRepository.GetEntities(_device.Id, _ztPoint.Current.Code, _ztPoint.Current.Number, _load.StartTime, _load.EndTime);
+                        var _intervals = new List<IdValuePair<DateTime, DateTime>>();
+
+                        DateTime? _start = null;
+                        foreach (var _value in _ztValues.OrderBy(v => v.UpdateTime)) {
+                            if (_value.Value == _ztFlag && !_start.HasValue) {
+                                _start = _value.UpdateTime;
+                            } else if (_value.Value != _ztFlag && _start.HasValue) {
+                                _intervals.Add(new IdValuePair<DateTime, DateTime> {
+                                    Id = _start.Value,
+                                    Value = _value.UpdateTime
+                                });
+
+                                _start = null;
+                            }
+                        }
+
+                        if (_start.HasValue) {
+                            _intervals.Add(new IdValuePair<DateTime, DateTime> {
+                                Id = _start.Value,
+                                Value = _load.EndTime
+                            });
+
+                            _start = null;
+                        }
+
+                        if (_intervals.Count > 0) {
+                            var _fzValues = _measureRepository.GetEntities(_device.Id, _fzPoint.Current.Code, _fzPoint.Current.Number, _load.StartTime, _load.EndTime);
+                            foreach (var _interval in _intervals) {
+                                var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
+                                var _fzMax = _fzMatch.Max(f => f.Value);
+                                if (_fzMax > _load.Value) _load.Value = _fzMax;
+                            }
+                            _load.Value = _load.Value / _fzCap;
+                        }
+
+                        _result.Add(_load);
+                    }
+
+                    _loadRepository.DeleteEntities(_device.Id, start, end);
+                    _loadRepository.SaveEntities(_result);
+                } catch (Exception err) {
+                    Logger.Error(err.Message);
+                    Logger.Error("分立开关电源带载率统计发生错误,详见错误日志。", err);
+                }
+            }
+            #endregion
         }
 
         /// <summary>
@@ -1749,67 +1838,7 @@ namespace iPem.TaskService {
                     }
 
                     try {
-
-                        #region 处理接口设备数据
-                        try {
-                            var _iDevices = new List<H_IDevice>();
-                            foreach (var _device in _deviceRepository.GetEntities()) {
-                                _iDevices.Add(new H_IDevice {
-                                    Id = _device.Id,
-                                    Name = _device.Name,
-                                    TypeId = _device.Type.Id,
-                                    TypeName = _device.Type.Name,
-                                    StationId = _device.StationId
-                                });
-                            }
-
-                            _iDeviceRepository.SaveEntities(_iDevices,DateTime.Now);
-                        } catch (Exception err) {
-                            Logger.Error(err.Message);
-                            Logger.Error("资管接口同步设备发生错误,详见错误日志。", err);
-                        }
-                        #endregion
-
-                        #region 处理接口站点数据
-                        try {
-                            var _iStations = new List<H_IStation>();
-                            foreach (var _station in _stationRepository.GetEntities()) {
-                                _iStations.Add(new H_IStation {
-                                    Id = _station.Id,
-                                    Name = _station.Name,
-                                    TypeId = _station.Type.Id,
-                                    TypeName = _station.Type.Name,
-                                    AreaId = _station.AreaId
-                                });
-                            }
-
-                            _iStationRepository.SaveEntities(_iStations, DateTime.Now);
-                        } catch (Exception err) {
-                            Logger.Error(err.Message);
-                            Logger.Error("资管接口同步站点发生错误,详见错误日志。", err);
-                        }
-                        #endregion
-
-                        #region 处理接口区域数据
-                        try {
-                            var _iAreas = new List<H_IArea>();
-                            foreach (var _area in _areaRepository.GetEntities()) {
-                                _iAreas.Add(new H_IArea {
-                                    Id = _area.Id,
-                                    Name = _area.Name,
-                                    TypeId = _area.Type.Id.ToString(),
-                                    TypeName = _area.Type.Value,
-                                    ParentId = _area.ParentId
-                                });
-                            }
-
-                            _iAreaRepository.SaveEntities(_iAreas, DateTime.Now);
-                        } catch (Exception err) {
-                            Logger.Error(err.Message);
-                            Logger.Error("资管接口同步区域发生错误,详见错误日志。", err);
-                        }
-                        #endregion
-
+                        this.ExTask005();
                     } catch (Exception err) {
                         Logger.Error(err.Message, err);
                     } finally {
@@ -1818,6 +1847,73 @@ namespace iPem.TaskService {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 资管接口同步方法
+        /// </summary>
+        private void ExTask005() {
+
+            #region 处理接口设备数据
+            try {
+                var _iDevices = new List<H_IDevice>();
+                foreach (var _device in _deviceRepository.GetEntities()) {
+                    _iDevices.Add(new H_IDevice {
+                        Id = _device.Id,
+                        Name = _device.Name,
+                        TypeId = _device.Type.Id,
+                        TypeName = _device.Type.Name,
+                        StationId = _device.StationId
+                    });
+                }
+
+                _iDeviceRepository.SaveEntities(_iDevices, DateTime.Now);
+            } catch (Exception err) {
+                Logger.Error(err.Message);
+                Logger.Error("资管接口同步设备发生错误,详见错误日志。", err);
+            }
+            #endregion
+
+            #region 处理接口站点数据
+            try {
+                var _iStations = new List<H_IStation>();
+                foreach (var _station in _stationRepository.GetEntities()) {
+                    _iStations.Add(new H_IStation {
+                        Id = _station.Id,
+                        Name = _station.Name,
+                        TypeId = _station.Type.Id,
+                        TypeName = _station.Type.Name,
+                        AreaId = _station.AreaId
+                    });
+                }
+
+                _iStationRepository.SaveEntities(_iStations, DateTime.Now);
+            } catch (Exception err) {
+                Logger.Error(err.Message);
+                Logger.Error("资管接口同步站点发生错误,详见错误日志。", err);
+            }
+            #endregion
+
+            #region 处理接口区域数据
+            try {
+                var _iAreas = new List<H_IArea>();
+                foreach (var _area in _areaRepository.GetEntities()) {
+                    _iAreas.Add(new H_IArea {
+                        Id = _area.Id,
+                        Name = _area.Name,
+                        TypeId = _area.Type.Id.ToString(),
+                        TypeName = _area.Type.Value,
+                        ParentId = _area.ParentId
+                    });
+                }
+
+                _iAreaRepository.SaveEntities(_iAreas, DateTime.Now);
+            } catch (Exception err) {
+                Logger.Error(err.Message);
+                Logger.Error("资管接口同步区域发生错误,详见错误日志。", err);
+            }
+            #endregion
+
         }
 
         /// <summary>
@@ -1855,26 +1951,7 @@ namespace iPem.TaskService {
                     }
 
                     try {
-                        var diffs = new List<V_ParamDiff>();
-                        foreach (var param in _redefinePointRepository.GetEntities()) {
-                            var device = iPemWorkContext.Devices.Find(d => d.Current.Id == param.DeviceId);
-                            if (device == null) continue;
-
-                            var point = device.Points.Find(p => p.Current.Id == param.PointId);
-                            if (point == null) continue;
-                            if (point.SubPoint == null) continue;
-
-                            var diff = new V_ParamDiff();
-                            if (param.AlarmLimit != point.SubPoint.AlarmLimit) diff.Threshold = string.Format("{0}&{1}", param.AlarmLimit, point.SubPoint.AlarmLimit);
-                            if (param.AlarmLevel != (int)point.SubPoint.AlarmLevel) diff.AlarmLevel = string.Format("{0}&{1}", param.AlarmLevel, (int)point.SubPoint.AlarmLevel);
-                            if (param.NMAlarmId != point.Current.NMAlarmId) diff.NMAlarmID = string.Format("{0}&{1}", param.NMAlarmId, point.Current.NMAlarmId);
-                            if (param.AbsoluteThreshold != point.SubPoint.AbsoluteThreshold) diff.AbsoluteVal = string.Format("{0}&{1}", param.AbsoluteThreshold, point.SubPoint.AbsoluteThreshold);
-                            if (param.PerThreshold != point.SubPoint.PerThreshold) diff.RelativeVal = string.Format("{0}&{1}", param.PerThreshold, point.SubPoint.PerThreshold);
-                            if (param.SavedPeriod != point.SubPoint.SavedPeriod) diff.StorageInterval = string.Format("{0}&{1}", param.SavedPeriod, point.SubPoint.SavedPeriod);
-                            diffs.Add(diff);
-                        }
-
-                        if (diffs.Count > 0) _paramDiffRepository.SaveEntities(diffs, DateTime.Now);
+                        this.ExTask006();
                     } catch (Exception err) {
                         Logger.Error(err.Message, err);
                     } finally {
@@ -1883,6 +1960,32 @@ namespace iPem.TaskService {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 参数自检处理方法
+        /// </summary>
+        private void ExTask006() {
+            var diffs = new List<V_ParamDiff>();
+            foreach (var param in _redefinePointRepository.GetEntities()) {
+                var device = iPemWorkContext.Devices.Find(d => d.Current.Id == param.DeviceId);
+                if (device == null) continue;
+
+                var point = device.Points.Find(p => p.Current.Id == param.PointId);
+                if (point == null) continue;
+                if (point.SubPoint == null) continue;
+
+                var diff = new V_ParamDiff();
+                if (param.AlarmLimit != point.SubPoint.AlarmLimit) diff.Threshold = string.Format("{0}&{1}", param.AlarmLimit, point.SubPoint.AlarmLimit);
+                if (param.AlarmLevel != (int)point.SubPoint.AlarmLevel) diff.AlarmLevel = string.Format("{0}&{1}", param.AlarmLevel, (int)point.SubPoint.AlarmLevel);
+                if (param.NMAlarmId != point.Current.NMAlarmId) diff.NMAlarmID = string.Format("{0}&{1}", param.NMAlarmId, point.Current.NMAlarmId);
+                if (param.AbsoluteThreshold != point.SubPoint.AbsoluteThreshold) diff.AbsoluteVal = string.Format("{0}&{1}", param.AbsoluteThreshold, point.SubPoint.AbsoluteThreshold);
+                if (param.PerThreshold != point.SubPoint.PerThreshold) diff.RelativeVal = string.Format("{0}&{1}", param.PerThreshold, point.SubPoint.PerThreshold);
+                if (param.SavedPeriod != point.SubPoint.SavedPeriod) diff.StorageInterval = string.Format("{0}&{1}", param.SavedPeriod, point.SubPoint.SavedPeriod);
+                diffs.Add(diff);
+            }
+
+            if (diffs.Count > 0) _paramDiffRepository.SaveEntities(diffs, DateTime.Now);
         }
 
         /// <summary>

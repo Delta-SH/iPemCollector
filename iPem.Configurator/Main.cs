@@ -601,6 +601,29 @@ namespace iPem.Configurator {
             }
         }
 
+        private void exButton_Click(object sender, EventArgs e) {
+            try {
+                var tag = _currentNode.Tag as TagModel;
+                if (tag.Type != NodeType.Plan) throw new Exception("节点类型错误。");
+
+                var current = this.GetService();
+                if (current == null) {
+                    MessageBox.Show("服务尚未安装，无法执行计划。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (current.Status != ServiceControllerStatus.Running) {
+                    MessageBox.Show("服务尚未运行，无法执行计划。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var task = (TaskEntity)tag.Parameter;
+                new ExForm(task.Id).ShowDialog();
+            } catch (Exception err) {
+                MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void Quit_Click(object sender, EventArgs e) {
             Application.Exit();
         }

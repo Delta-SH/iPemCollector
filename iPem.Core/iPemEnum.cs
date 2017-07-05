@@ -29,7 +29,13 @@ namespace iPem.Core {
         Restart,
         Reload,
         SyncConfig,
-        SyncAlarm
+        SyncAlarm,
+        ExTask001,
+        ExTask002,
+        ExTask003,
+        ExTask004,
+        ExTask005,
+        ExTask006
     }
 
     public enum ParamId {

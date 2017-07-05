@@ -68,8 +68,15 @@
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
     <Compile Include="Common\Common.cs" />
+    <Compile Include="ExForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExForm.Designer.cs">
+      <DependentUpon>ExForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Model\DbEntity.cs" />
     <Compile Include="Common\iPemEnum.cs" />
+    <Compile Include="Model\ExTask.cs" />
     <Compile Include="Model\OrderEntity.cs" />
     <Compile Include="Model\ParamEntity.cs" />
     <Compile Include="Model\TagModel.cs" />
@@ -89,6 +96,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExForm.resx">
+      <DependentUpon>ExForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
