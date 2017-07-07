@@ -179,7 +179,7 @@ namespace iPem.TaskService {
                 _workerThread.Start();
                 _workerThreads.Add(_workerThread);
 
-                //创建自检处理线程
+                //创建系统自检线程
                 _workerThread = new Thread(new ThreadStart(DoChecking));
                 _workerThread.IsBackground = true;
                 _workerThread.Start();
@@ -217,6 +217,12 @@ namespace iPem.TaskService {
 
                 //创建资管接口同步线程
                 _workerThread = new Thread(new ThreadStart(DoTask005));
+                _workerThread.IsBackground = true;
+                _workerThread.Start();
+                _workerThreads.Add(_workerThread);
+
+                //创建参数巡检线程
+                _workerThread = new Thread(new ThreadStart(DoTask006));
                 _workerThread.IsBackground = true;
                 _workerThread.Start();
                 _workerThreads.Add(_workerThread);
@@ -531,9 +537,9 @@ namespace iPem.TaskService {
                             } else if (order.Id == OrderId.ExTask006) {
                                 try {
                                     this.ExTask006();
-                                    Logger.Information("参数自检处理命令执行完成。");
+                                    Logger.Information("参数自动巡检命令执行完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("参数自检处理命令执行错误，{0}", err.Message), err);
+                                    Logger.Error(string.Format("参数自动巡检命令执行错误，{0}", err.Message), err);
                                 }
                             }
                         }
@@ -896,12 +902,12 @@ namespace iPem.TaskService {
         }
 
         /// <summary>
-        /// 自检告警任务
+        /// 系统自检任务
         /// </summary>
         private void DoChecking() {
             _allDone.WaitOne();
 
-            Logger.Information("自检处理线程已启动。");
+            Logger.Information("系统自检线程已启动。");
 
             #region 定义变量
             WcPoint _ScOffPoint = null, _FsuOffPoint = null;
@@ -1861,8 +1867,8 @@ namespace iPem.TaskService {
                     _iDevices.Add(new H_IDevice {
                         Id = _device.Id,
                         Name = _device.Name,
-                        TypeId = _device.Type.Id,
-                        TypeName = _device.Type.Name,
+                        TypeId = _device.SubType.Id,
+                        TypeName = _device.SubType.Name,
                         StationId = _device.StationId
                     });
                 }
@@ -1917,7 +1923,7 @@ namespace iPem.TaskService {
         }
 
         /// <summary>
-        /// 参数自检处理任务
+        /// 参数自动巡检任务
         /// </summary>
         private void DoTask006() {
             _allDone.WaitOne();
@@ -1963,7 +1969,7 @@ namespace iPem.TaskService {
         }
 
         /// <summary>
-        /// 参数自检处理方法
+        /// 参数自动巡检处理方法
         /// </summary>
         private void ExTask006() {
             var diffs = new List<V_ParamDiff>();
@@ -1982,6 +1988,19 @@ namespace iPem.TaskService {
                 if (param.AbsoluteThreshold != point.SubPoint.AbsoluteThreshold) diff.AbsoluteVal = string.Format("{0}&{1}", param.AbsoluteThreshold, point.SubPoint.AbsoluteThreshold);
                 if (param.PerThreshold != point.SubPoint.PerThreshold) diff.RelativeVal = string.Format("{0}&{1}", param.PerThreshold, point.SubPoint.PerThreshold);
                 if (param.SavedPeriod != point.SubPoint.SavedPeriod) diff.StorageInterval = string.Format("{0}&{1}", param.SavedPeriod, point.SubPoint.SavedPeriod);
+
+                diff.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(device.Current.Id, "masking-all"));
+                if (!diff.Masked) diff.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(device.Current.Id, point.Current.Id));
+
+                if (string.IsNullOrWhiteSpace(diff.Threshold)
+                    && string.IsNullOrWhiteSpace(diff.AlarmLevel)
+                    && string.IsNullOrWhiteSpace(diff.NMAlarmID)
+                    && string.IsNullOrWhiteSpace(diff.AbsoluteVal)
+                    && string.IsNullOrWhiteSpace(diff.RelativeVal)
+                    && string.IsNullOrWhiteSpace(diff.StorageInterval)
+                    && !diff.Masked
+                    ) continue;
+
                 diffs.Add(diff);
             }
 

@@ -57,7 +57,7 @@ namespace iPem.Configurator {
         INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T003','信号测值统计任务',NULL,NULL,NULL,NULL,3);
         INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T004','开关电源带载率统计任务',NULL,NULL,NULL,NULL,4);
         INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T005','资管接口同步任务',NULL,NULL,NULL,NULL,5);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T006','参数自检处理任务',NULL,NULL,NULL,NULL,6);";
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T006','参数自动巡检任务',NULL,NULL,NULL,NULL,6);";
 
         public const string Registry_Get_Order = @"
         SELECT [id],[param],[time] FROM [orders];";

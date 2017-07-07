@@ -2,7 +2,7 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 资管接口区域表
+    /// 参数自检表
     /// </summary>
     [Serializable]
     public partial class V_ParamDiff {
@@ -50,5 +50,10 @@ namespace iPem.Core {
         /// 存储参考时间（格式：新值&旧值）
         /// </summary>
         public string StorageRefTime { get; set; }
+
+        /// <summary>
+        /// 屏蔽信号
+        /// </summary>
+        public bool Masked { get; set; }
     }
 }
