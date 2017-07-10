@@ -48,6 +48,7 @@
     <Compile Include="BInterface\FSUService.cs" />
     <Compile Include="BInterface\GetFsuInfoAckPackage.cs" />
     <Compile Include="BInterface\GetFsuInfoPackage.cs" />
+    <Compile Include="BInterface\LSCService.cs" />
     <Compile Include="ExTask.cs" />
     <Compile Include="OrderEntity.cs" />
     <Compile Include="ParamEntity.cs" />

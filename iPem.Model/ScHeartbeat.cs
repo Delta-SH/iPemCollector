@@ -46,7 +46,7 @@ namespace iPem.Model {
         /// 发送心跳
         /// </summary>
         public GetFsuInfoAckPackage Keep() {
-            return BIPackMgr.GetFsuInfo(new UriBuilder("http", this.Current.IP, this.Current.Port, "").ToString(), new GetFsuInfoPackage { FsuId = this.Current.Id });
+            return BIPackMgr.GetFsuInfo(new UriBuilder("http", this.Current.IP, this.Current.Port, "/services/FSUService").ToString(), new GetFsuInfoPackage { FsuId = this.Current.Id });
         }
 
         /// <summary>
