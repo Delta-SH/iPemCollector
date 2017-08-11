@@ -20,7 +20,7 @@ namespace iPem.Configurator {
 
         private void ExForm_Load(object sender, EventArgs e) {
             startDate.Value = DateTime.Today.AddDays(-1);
-            endDate.Value = DateTime.Today;
+            endDate.Value = DateTime.Today.AddSeconds(-1);
         }
 
         private void exButton_Click(object sender, EventArgs e) {
@@ -62,6 +62,8 @@ namespace iPem.Configurator {
                 return OrderId.ExTask005;
             if (this._taskId == "T006")
                 return OrderId.ExTask006;
+            if (this._taskId == "T007")
+                return OrderId.ExTask007;
             return OrderId.Null;
         }
     }

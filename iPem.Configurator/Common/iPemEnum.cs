@@ -7,12 +7,17 @@ namespace iPem.Configurator {
         Reload,
         SyncConfig,
         SyncAlarm,
+        SyncReservation,
+        SyncFormula,
+        SyncMasking,
+        SyncRedefine,
         ExTask001,
         ExTask002,
         ExTask003,
         ExTask004,
         ExTask005,
-        ExTask006
+        ExTask006,
+        ExTask007
     }
 
     public enum ParamId {

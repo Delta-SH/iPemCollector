@@ -30,12 +30,17 @@ namespace iPem.Core {
         Reload,
         SyncConfig,
         SyncAlarm,
+        SyncReservation,
+        SyncFormula,
+        SyncMasking,
+        SyncRedefine,
         ExTask001,
         ExTask002,
         ExTask003,
         ExTask004,
         ExTask005,
-        ExTask006
+        ExTask006,
+        ExTask007
     }
 
     public enum ParamId {
@@ -90,24 +95,53 @@ namespace iPem.Core {
         FSU
     }
 
-    public enum EnmOrganization {
+    public enum EnmSSH {
+        /// <summary>
+        /// 全部
+        /// </summary>
+        Root = -1,
+        /// <summary>
+        /// 区域
+        /// </summary>
         Area,
+        /// <summary>
+        /// 站点
+        /// </summary>
         Station,
+        /// <summary>
+        /// 机房
+        /// </summary>
         Room,
+        /// <summary>
+        /// Fsu
+        /// </summary>
+        Fsu,
+        /// <summary>
+        /// 设备
+        /// </summary>
         Device,
+        /// <summary>
+        /// 信号
+        /// </summary>
         Point
     }
 
-    /// <remarks>
-    /// 4-遥信信号（DI）
-    /// 3-遥测信号（AI）
-    /// 1-遥控信号（DO）
-    /// 2-遥调信号（AO）
-    /// </remarks>
     public enum EnmPoint {
+        /// <summary>
+        /// 遥信
+        /// </summary>
         DI = 4,
+        /// <summary>
+        /// 遥测
+        /// </summary>
         AI = 3,
+        /// <summary>
+        /// 遥控
+        /// </summary>
         DO = 1,
+        /// <summary>
+        /// 遥调
+        /// </summary>
         AO = 2
     }
 
@@ -134,71 +168,122 @@ namespace iPem.Core {
         End
     }
 
-    /// <remarks>
-    /// KT: 空调
-    /// ZM: 照明
-    /// BG: 办公
-    /// SB: 设备
-    /// KGDY: 开关电源
-    /// UPS: UPS
-    /// QT: 其他
-    /// ZL: 总量
-    /// </remarks>
+    /// <summary>
+    /// 能耗公式类型
+    /// </summary>
     public enum EnmFormula {
+        /// <summary>
+        /// 空调
+        /// </summary>
         KT,
+        /// <summary>
+        /// 照明
+        /// </summary>
         ZM,
+        /// <summary>
+        /// 办公
+        /// </summary>
         BG,
+        /// <summary>
+        /// 设备
+        /// </summary>
         SB,
+        /// <summary>
+        /// 开关电源
+        /// </summary>
         KGDY,
+        /// <summary>
+        /// UPS
+        /// </summary>
         UPS,
+        /// <summary>
+        /// 其他
+        /// </summary>
         QT,
+        /// <summary>
+        /// 总量
+        /// </summary>
         ZL,
+        /// <summary>
+        /// 室内温度
+        /// </summary>
+        SNWD,
+        /// <summary>
+        /// 室内湿度
+        /// </summary>
+        SNSD,
+        /// <summary>
+        /// PUE
+        /// </summary>
         PUE
     }
 
-    /// <remarks>
-    /// { Id: 1, Name: "区域" }
-    /// { Id: 2, Name: "站点" }
-    /// { Id: 3, Name: "机房" }
-    /// { Id: 4, Name: "FSU" }
-    /// { Id: 5, Name: "UPS" }
-    /// { Id: 6, Name: "变压器" }
-    /// { Id: 7, Name: "发电机组" }
-    /// { Id: 8, Name: "风能设备" }
-    /// { Id: 9, Name: "开关熔丝" }
-    /// { Id: 10, Name: "移动发电机" }
-    /// { Id: 11, Name: "中央空调主机系统" }
-    /// { Id: 12, Name: "自动电源切换柜" }
-    /// { Id: 13, Name: "设备" }
-    /// { Id: 14, Name: "信号" }
-    /// { Id: 15, Name: "员工"}
-    /// </remarks>
     public enum EnmMethodType {
+        /// <summary>
+        /// 区域
+        /// </summary>
         Area = 1,
+        /// <summary>
+        /// 站点
+        /// </summary>
         Station = 2,
+        /// <summary>
+        /// 机房
+        /// </summary>
         Room = 3,
+        /// <summary>
+        /// FSU
+        /// </summary>
         Fsu = 4,
+        /// <summary>
+        /// 设备
+        /// </summary>
         Device = 13,
+        /// <summary>
+        /// 信号
+        /// </summary>
         Point = 14
     }
 
-    /// <summary>
-    /// 断站-0
-    /// 停电-1
-    /// 发电-2
-    /// </summary>
     public enum EnmCutType {
+        /// <summary>
+        /// 断站
+        /// </summary>
         Off,
+        /// <summary>
+        /// 停电
+        /// </summary>
         Cut,
+        /// <summary>
+        /// 发电
+        /// </summary>
         Power
     }
 
     public enum EnmMaskType {
+        /// <summary>
+        /// 区域
+        /// </summary>
         Area,
+        /// <summary>
+        /// 站点
+        /// </summary>
         Station,
+        /// <summary>
+        /// 机房
+        /// </summary>
         Room,
+        /// <summary>
+        /// FSU
+        /// </summary>
         Fsu,
+        /// <summary>
+        /// 设备
+        /// </summary>
         Device,
+        /// <summary>
+        /// 信号
+        /// </summary>
         Point
     }
 }

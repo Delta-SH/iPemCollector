@@ -658,7 +658,7 @@ namespace iPem.Configurator {
             return string.Empty;
         }
 
-        private ServiceController GetService(string service = "TaskService") {
+        private ServiceController GetService(string service = "PECS2Service") {
             return ServiceController.GetServices().FirstOrDefault(s => s.ServiceName.Equals(service, StringComparison.CurrentCultureIgnoreCase));
         }
 

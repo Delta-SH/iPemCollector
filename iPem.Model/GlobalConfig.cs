@@ -52,6 +52,8 @@ namespace iPem.Model {
 
         public static Dictionary<string, ReversalModel> ReversalKeys { get; set; }
 
+        public static List<Formula> FormulaModels { get; set; }
+
         public static List<StaticModel> StaticModels { get; set; }
 
         public static List<BatModel> BatModels { get; set; }

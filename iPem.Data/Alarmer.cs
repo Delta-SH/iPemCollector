@@ -174,6 +174,27 @@ namespace iPem.Data {
             }
         }
 
+        public void Delete(A_TAlarm entity) {
+            SqlParameter[] parms = { new SqlParameter("@FsuId", SqlDbType.VarChar, 100), 
+                                     new SqlParameter("@SerialNo", SqlDbType.VarChar, 100), 
+                                     new SqlParameter("@AlarmFlag", SqlDbType.Int) };
+
+            using (var conn = new SqlConnection(this._databaseConnectionString)) {
+                conn.Open();
+                var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
+                try {
+                    parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.FsuId);
+                    parms[1].Value = SqlTypeConverter.DBNullStringChecker(entity.SerialNo);
+                    parms[2].Value = (int)entity.AlarmFlag;
+                    SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_Alarm_Repository_Delete, parms);
+                    trans.Commit();
+                } catch {
+                    trans.Rollback();
+                    throw;
+                }
+            }
+        }
+
         #endregion
 
     }

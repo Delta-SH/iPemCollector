@@ -34,9 +34,9 @@
             // 
             // ServiceInstaller
             // 
-            this.ServiceInstaller.Description = "智能监控管理系统数据处理服务 中达电通股份有限公司";
-            this.ServiceInstaller.DisplayName = "Task Service";
-            this.ServiceInstaller.ServiceName = "TaskService";
+            this.ServiceInstaller.Description = "PECS-II数据处理服务 中达电通股份有限公司";
+            this.ServiceInstaller.DisplayName = "PECS-II Data Service";
+            this.ServiceInstaller.ServiceName = "PECS2Service";
             this.ServiceInstaller.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller

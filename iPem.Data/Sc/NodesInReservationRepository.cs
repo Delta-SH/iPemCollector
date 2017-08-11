@@ -41,7 +41,7 @@ namespace iPem.Data {
             return entities;
         }
 
-        public List<NodesInReservation> GetEntities(EnmOrganization type) {
+        public List<NodesInReservation> GetEntities(EnmSSH type) {
             SqlParameter[] parms = { new SqlParameter("@NodeType", SqlDbType.Int) };
             parms[0].Value = (int)type;
 

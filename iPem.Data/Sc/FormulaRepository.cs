@@ -27,7 +27,7 @@ namespace iPem.Data {
 
         #region Methods
 
-        public Formula GetEntity(string id, EnmOrganization type, EnmFormula formulaType) {
+        public Formula GetEntity(string id, EnmSSH type, EnmFormula formulaType) {
             SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.VarChar, 100),
                                      new SqlParameter("@Type", SqlDbType.Int),
                                      new SqlParameter("@FormulaType", SqlDbType.Int) };
@@ -50,7 +50,7 @@ namespace iPem.Data {
             return entity;
         }
 
-        public List<Formula> GetEntities(string id, EnmOrganization type) {
+        public List<Formula> GetEntities(string id, EnmSSH type) {
             SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.VarChar, 100),
                                      new SqlParameter("@Type", SqlDbType.Int) };
             parms[0].Value = id;

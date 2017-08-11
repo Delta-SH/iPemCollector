@@ -217,11 +217,11 @@ namespace iPem.Data.Common {
         /// DBNull Organisation Handler
         /// </summary>
         /// <param name="val">val</param>
-        public static EnmOrganization DBNullEnmOrganizationHandler(object val) {
-            if(val == DBNull.Value) { return EnmOrganization.Area; }
+        public static EnmSSH DBNullEnmOrganizationHandler(object val) {
+            if (val == DBNull.Value) { return EnmSSH.Root; }
 
             var v = (Int32)val;
-            return Enum.IsDefined(typeof(EnmOrganization), v) ? (EnmOrganization)v : EnmOrganization.Area;
+            return Enum.IsDefined(typeof(EnmSSH), v) ? (EnmSSH)v : EnmSSH.Root;
         }
 
         /// <summary>

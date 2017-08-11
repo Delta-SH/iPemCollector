@@ -9,21 +9,21 @@ namespace iPem.Core {
         /// Gets or sets the application identifier
         /// </summary>
         public static Guid Id {
-            get { return new Guid("0121F3F2-AB54-4105-A6DE-C645D9DA5C8B"); }
+            get { return new Guid("0121f3f2-ab54-4105-a6de-c645d9da5c8b"); }
         }
 
         /// <summary>
         /// Gets or sets the application name
         /// </summary>
         public static string Name {
-            get { return "智能监控数据处理服务"; }
+            get { return "PECS-II数据处理服务"; }
         }
 
         /// <summary>
         /// Gets or sets the application version
         /// </summary>
         public static string Version {
-            get { return "V1.0.0 Build170610"; }
+            get { return "V1.0.0 Build170725"; }
         }
 
         /// <summary>

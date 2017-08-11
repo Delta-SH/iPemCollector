@@ -38,6 +38,7 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
+                    entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
                     entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
                     entity.SignalDesc = SqlTypeConverter.DBNullStringHandler(rdr["SignalDesc"]);
@@ -63,6 +64,7 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
+                    entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
                     entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
                     entity.SignalDesc = SqlTypeConverter.DBNullStringHandler(rdr["SignalDesc"]);

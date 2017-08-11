@@ -19,6 +19,6 @@ namespace iPem.Core {
         /// <summary>
         /// 预约节点类型
         /// </summary>
-        public EnmOrganization NodeType { get; set; }
+        public EnmSSH NodeType { get; set; }
     }
 }

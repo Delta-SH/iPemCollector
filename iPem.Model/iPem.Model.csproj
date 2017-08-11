@@ -50,6 +50,7 @@
     <Compile Include="BInterface\GetFsuInfoPackage.cs" />
     <Compile Include="BInterface\LSCService.cs" />
     <Compile Include="ExTask.cs" />
+    <Compile Include="FAlarmModel.cs" />
     <Compile Include="OrderEntity.cs" />
     <Compile Include="ParamEntity.cs" />
     <Compile Include="ReservationModel.cs" />

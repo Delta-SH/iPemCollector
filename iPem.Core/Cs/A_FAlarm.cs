@@ -2,10 +2,10 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 告警流水表
+    /// 告警同步表
     /// </summary>
     [Serializable]
-    public partial class A_TAlarm {
+    public partial class A_FAlarm {
         /// <summary>
         /// FSU编码
         /// </summary>

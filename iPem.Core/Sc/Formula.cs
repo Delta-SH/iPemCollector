@@ -14,7 +14,7 @@ namespace iPem.Core {
         /// <summary>
         /// 类型(机房、站点)
         /// </summary>
-        public EnmOrganization Type { get; set; }
+        public EnmSSH Type { get; set; }
 
         /// <summary>
         /// 公式类型(空调、照明、办公、设备、开关电源、UPS、其他、总量)

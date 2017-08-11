@@ -56,7 +56,7 @@ namespace iPem.Data {
             }
         }
 
-        public void DeleteEntities(string id, EnmOrganization type, EnmFormula formulaType, DateTime start, DateTime end) {
+        public void DeleteEntities(string id, EnmSSH type, EnmFormula formulaType, DateTime start, DateTime end) {
             SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.VarChar,100),
                                      new SqlParameter("@Type", SqlDbType.Int),
                                      new SqlParameter("@FormulaType", SqlDbType.Int),

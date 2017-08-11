@@ -16,14 +16,14 @@ namespace iPem.Configurator {
         /// Gets or sets the application name
         /// </summary>
         public static string Name {
-            get { return "数据处理服务 - 配置管理器"; }
+            get { return "PECS-II数据处理服务 - 配置管理器"; }
         }
 
         /// <summary>
         /// Gets or sets the application version
         /// </summary>
         public static string Version {
-            get { return "V1.0.0 Build170610"; }
+            get { return "V1.0.0 Build170725"; }
         }
 
         /// <summary>

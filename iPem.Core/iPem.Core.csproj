@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonHelper.cs" />
+    <Compile Include="Cs\A_FAlarm.cs" />
     <Compile Include="Cs\H_IArea.cs" />
     <Compile Include="Cs\V_AMeasure.cs" />
     <Compile Include="Cs\V_Cuted.cs" />
@@ -49,6 +50,7 @@
     <Compile Include="Rs\ExtFsu.cs" />
     <Compile Include="Rs\Group.cs" />
     <Compile Include="Rs\Masking.cs" />
+    <Compile Include="Rs\Notice.cs" />
     <Compile Include="Rs\SubPoint.cs" />
     <Compile Include="AlarmStart.cs" />
     <Compile Include="Cs\A_AAlarm.cs" />

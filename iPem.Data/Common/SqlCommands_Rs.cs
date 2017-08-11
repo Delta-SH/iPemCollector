@@ -117,6 +117,13 @@ namespace iPem.Data.Common {
         public const string Sql_Masking_Repository_GetEntities = @"SELECT * FROM [dbo].[H_Masking];";
 
         /// <summary>
+        /// Notice Repository
+        /// </summary>
+        public const string Sql_Notice_Repository_GetEntities = @"SELECT * FROM [dbo].[H_Note] WHERE [SysType] = 2;";
+        public const string Sql_Notice_Repository_Delete = @"DELETE FROM [dbo].[H_Note] WHERE [ID]=@Id;";
+        public const string Sql_Notice_Repository_Clear = @"DELETE FROM [dbo].[H_Note] WHERE [SysType] = 2;";
+
+        /// <summary>
         /// Point Repository
         /// </summary>
         public const string Sql_Point_Repository_GetEntitiesByDevice = @"

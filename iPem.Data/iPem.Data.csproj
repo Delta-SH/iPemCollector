@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alarmer.cs" />
+    <Compile Include="Cs\A_FAlarmRepository.cs" />
     <Compile Include="Cs\H_IAreaRepository.cs" />
     <Compile Include="Cs\H_IDeviceRepository.cs" />
     <Compile Include="Cs\H_IStationRepository.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Rs\GroupRepository.cs" />
     <Compile Include="Rs\LogicTypeRepository.cs" />
     <Compile Include="Rs\MaskingRepository.cs" />
+    <Compile Include="Rs\NoticeRepository.cs" />
     <Compile Include="Rs\PointRepository.cs" />
     <Compile Include="Rs\ProtocolRepository.cs" />
     <Compile Include="Rs\RedefinePointRepository.cs" />
