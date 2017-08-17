@@ -41,6 +41,10 @@ namespace iPem.Configurator {
                 dbTypeField.DisplayMember = "Name";
                 dbTypeField.DataSource = Common.GetDbStore();
 
+                nhPeriodField.ValueMember = "Id";
+                nhPeriodField.DisplayMember = "Name";
+                nhPeriodField.DataSource = Common.GetPeriodStore();
+
                 this.SetServiceStatus();
                 globalTimer.Start();
             } catch (Exception err) {
@@ -116,6 +120,8 @@ namespace iPem.Configurator {
                     fzdl.Text = _fzdl != null ? _fzdl.Value : "";
                     var _gzzt = parms.Find(p => p.Id == ParamId.GZZT);
                     gzzt.Text = _gzzt != null ? _gzzt.Value : "";
+                    var _ssnh = parms.Find(p => p.Id == ParamId.SSNH);
+                    nhPeriodField.SelectedValue = _ssnh != null ? int.Parse(_ssnh.Value) : (int)PeriodType.Day;
                 } else if (tag.Type == NodeType.Database) {
                     databasePanel.Dock = DockStyle.Fill;
                     databasePanel.Visible = true;
@@ -402,7 +408,8 @@ namespace iPem.Configurator {
                 var fsu = new ParamEntity { Id = ParamId.FsuOff, Value = fsuOff.Text.Trim(), Time = DateTime.Now };
                 var _fzdl = new ParamEntity { Id = ParamId.FZDL, Value = fzdl.Text.Trim(), Time = DateTime.Now };
                 var _gzzt = new ParamEntity { Id = ParamId.GZZT, Value = gzzt.Text.Trim(), Time = DateTime.Now };
-                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt });
+                var _ssnh = new ParamEntity { Id = ParamId.SSNH, Value = nhPeriodField.SelectedValue.ToString(), Time = DateTime.Now };
+                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _ssnh });
                 MessageBox.Show("保存成功", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);

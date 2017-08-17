@@ -28,6 +28,34 @@ namespace iPem.Data {
 
         #region Methods
 
+        public V_AMeasure GetEntity(string device, string point) {
+            SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar, 100),
+                                     new SqlParameter("@PointId", SqlDbType.VarChar, 100) };
+
+            parms[0].Value = SqlTypeConverter.DBNullStringChecker(device);
+            parms[1].Value = SqlTypeConverter.DBNullStringChecker(point);
+
+            V_AMeasure entity = null;
+            using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_V_AMeasure_Repository_GetEntity, parms)) {
+                if (rdr.Read()) {
+                    entity = new V_AMeasure();
+                    entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
+                    entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
+                    entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
+                    entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
+                    entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
+                    entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
+                    entity.SignalId = SqlTypeConverter.DBNullStringHandler(rdr["SignalId"]);
+                    entity.SignalNumber = SqlTypeConverter.DBNullStringHandler(rdr["SignalNumber"]);
+                    entity.SignalDesc = SqlTypeConverter.DBNullStringHandler(rdr["SignalDesc"]);
+                    entity.Status = SqlTypeConverter.DBNullEnmStateHandler(rdr["Status"]);
+                    entity.Value = SqlTypeConverter.DBNullDoubleHandler(rdr["Value"]);
+                    entity.UpdateTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["UpdateTime"]);
+                }
+            }
+            return entity;
+        }
+
         public List<V_AMeasure> GetEntities() {
             var entities = new List<V_AMeasure>();
             using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_V_AMeasure_Repository_GetEntities, null)) {

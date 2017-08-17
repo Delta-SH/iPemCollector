@@ -247,6 +247,17 @@ namespace iPem.Data.Common {
         }
 
         /// <summary>
+        /// DBNull EnmCompute Handler
+        /// </summary>
+        /// <param name="val">val</param>
+        public static EnmCompute DBNullEnmComputeHandler(object val) {
+            if (val == DBNull.Value) { return EnmCompute.Diff; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(EnmCompute), v) ? (EnmCompute)v : EnmCompute.Diff;
+        }
+
+        /// <summary>
         /// DBNull EnmFsuEvent Handler
         /// </summary>
         /// <param name="val">val</param>

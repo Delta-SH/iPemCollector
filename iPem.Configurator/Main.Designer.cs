@@ -113,6 +113,10 @@
             this.serviceStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.logFolderButton = new System.Windows.Forms.ToolStripSplitButton();
             this.globalTimer = new System.Windows.Forms.Timer(this.components);
+            this.ssnhPanel = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.nhPeriodField = new System.Windows.Forms.ComboBox();
             this.topMenuStrip.SuspendLayout();
             this.viewLayoutPanel.SuspendLayout();
             this.conditonContainer.SuspendLayout();
@@ -138,6 +142,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dbPortField)).BeginInit();
             this.dbBottomPanel.SuspendLayout();
             this.bottomStatusStrip.SuspendLayout();
+            this.ssnhPanel.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // topMenuStrip
@@ -242,9 +248,9 @@
             // 
             // conditonContainer
             // 
+            this.conditonContainer.Controls.Add(this.paramPanel);
             this.conditonContainer.Controls.Add(this.planPanel);
             this.conditonContainer.Controls.Add(this.rootPanel);
-            this.conditonContainer.Controls.Add(this.paramPanel);
             this.conditonContainer.Controls.Add(this.databasePanel);
             this.conditonContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.conditonContainer.Location = new System.Drawing.Point(260, 5);
@@ -802,16 +808,19 @@
             this.paramContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.paramContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
             this.paramContainer.Controls.Add(this.checkingPanel, 1, 0);
-            this.paramContainer.Controls.Add(this.paramBottomPanel, 0, 4);
+            this.paramContainer.Controls.Add(this.paramBottomPanel, 0, 6);
             this.paramContainer.Controls.Add(this.dzlPanel, 1, 2);
+            this.paramContainer.Controls.Add(this.ssnhPanel, 1, 4);
             this.paramContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.paramContainer.Location = new System.Drawing.Point(0, 0);
             this.paramContainer.Margin = new System.Windows.Forms.Padding(0);
             this.paramContainer.Name = "paramContainer";
-            this.paramContainer.RowCount = 5;
+            this.paramContainer.RowCount = 7;
             this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.paramContainer.Size = new System.Drawing.Size(328, 57);
@@ -1297,6 +1306,59 @@
             this.globalTimer.Interval = 5000;
             this.globalTimer.Tick += new System.EventHandler(this.globalTimer_Tick);
             // 
+            // ssnhPanel
+            // 
+            this.ssnhPanel.Controls.Add(this.tableLayoutPanel1);
+            this.ssnhPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ssnhPanel.Location = new System.Drawing.Point(5, 220);
+            this.ssnhPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.ssnhPanel.Name = "ssnhPanel";
+            this.ssnhPanel.Size = new System.Drawing.Size(318, 70);
+            this.ssnhPanel.TabIndex = 4;
+            this.ssnhPanel.TabStop = false;
+            this.ssnhPanel.Text = "能耗参数";
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 4;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.tableLayoutPanel1.Controls.Add(this.label1, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.nhPeriodField, 2, 1);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 19);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 3;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(312, 48);
+            this.tableLayoutPanel1.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label1.Location = new System.Drawing.Point(5, 11);
+            this.label1.Margin = new System.Windows.Forms.Padding(0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(135, 25);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "实时能耗统计周期:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // nhPeriodField
+            // 
+            this.nhPeriodField.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.nhPeriodField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.nhPeriodField.Location = new System.Drawing.Point(140, 11);
+            this.nhPeriodField.Margin = new System.Windows.Forms.Padding(0);
+            this.nhPeriodField.Name = "nhPeriodField";
+            this.nhPeriodField.Size = new System.Drawing.Size(167, 24);
+            this.nhPeriodField.TabIndex = 3;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -1347,6 +1409,8 @@
             this.dbBottomPanel.ResumeLayout(false);
             this.bottomStatusStrip.ResumeLayout(false);
             this.bottomStatusStrip.PerformLayout();
+            this.ssnhPanel.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1442,5 +1506,9 @@
         private System.Windows.Forms.Label fzdlLabel;
         private System.Windows.Forms.Label gzztLabel;
         private System.Windows.Forms.Button exButton;
+        private System.Windows.Forms.GroupBox ssnhPanel;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox nhPeriodField;
     }
 }

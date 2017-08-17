@@ -37,7 +37,16 @@ namespace iPem.Configurator {
         /// <summary>
         /// 开关电源工作状态信号编码
         /// </summary>
-        GZZT
+        GZZT,
+        /// <summary>
+        /// 实时能耗统计时段
+        /// </summary>
+        SSNH
+    }
+
+    public enum PeriodType {
+        Day,
+        Month
     }
 
     public enum DatabaseType {

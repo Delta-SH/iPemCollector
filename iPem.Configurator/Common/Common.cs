@@ -19,6 +19,14 @@ namespace iPem.Configurator {
             return data;
         }
 
+        public static List<object> GetPeriodStore() {
+            var data = new List<object>();
+            foreach (PeriodType period in Enum.GetValues(typeof(PeriodType))) {
+                data.Add(new { Id = (int)period, Name = Common.GetPeriodName(period) });
+            }
+            return data;
+        }
+
         public static string GetPlanTypeName(PlanType type) {
             switch (type) {
                 case PlanType.Hour:
@@ -26,6 +34,17 @@ namespace iPem.Configurator {
                 case PlanType.Day:
                     return "每天";
                 case PlanType.Month:
+                    return "每月";
+                default:
+                    return "未定义";
+            }
+        }
+
+        public static string GetPeriodName(PeriodType type) {
+            switch (type) {
+                case PeriodType.Day:
+                    return "每天";
+                case PeriodType.Month:
                     return "每月";
                 default:
                     return "未定义";

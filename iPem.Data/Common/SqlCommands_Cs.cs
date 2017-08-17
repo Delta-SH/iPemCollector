@@ -196,6 +196,7 @@ namespace iPem.Data.Common {
         /// <summary>
         /// V_AMeasure Repository
         /// </summary>
+        public const string Sql_V_AMeasure_Repository_GetEntity = @"SELECT * FROM [dbo].[V_AMeasure] WHERE [DeviceId]=@DeviceId AND [PointId]=@PointId;";
         public const string Sql_V_AMeasure_Repository_GetEntities = @"SELECT * FROM [dbo].[V_AMeasure];";
         public const string Sql_V_AMeasure_Repository_GetEntitiesInDevice = @"SELECT * FROM [dbo].[V_AMeasure] WHERE [DeviceId]=@DeviceId;";
 
@@ -383,6 +384,12 @@ namespace iPem.Data.Common {
         /// <summary>
         /// V_Elec Repository
         /// </summary>
+        public const string Sql_V_Elec_Repository_SaveActiveEntities = @"
+        UPDATE [dbo].[V_Elec] SET [ComputeType] = @ComputeType,[StartTime] = @StartTime,[EndTime] = @EndTime,[Value] = @Value WHERE [Id] = @Id AND [Type] = @Type AND [FormulaType] = @FormulaType;
+        IF(@@ROWCOUNT = 0)
+        BEGIN
+          INSERT INTO [dbo].[V_Elec]([Id],[Type],[FormulaType],[ComputeType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@ComputeType,@StartTime,@EndTime,@Value);	
+        END";
         public const string Sql_V_Elec_Repository_SaveEntities = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Elec{0}') AND type in (N'U'))
         BEGIN
@@ -390,12 +397,20 @@ namespace iPem.Data.Common {
 	            [Id] [varchar](100) NOT NULL,
 	            [Type] [int] NOT NULL,
 	            [FormulaType] [int] NOT NULL,
+	            [ComputeType] [int] NOT NULL,
 	            [StartTime] [datetime] NOT NULL,
 	            [EndTime] [datetime] NOT NULL,
-	            [Value] [float] NOT NULL
+	            [Value] [float] NOT NULL,
+             CONSTRAINT [PK_V_Elec{0}] PRIMARY KEY CLUSTERED 
+            (
+	            [Id] ASC,
+	            [Type] ASC,
+	            [FormulaType] ASC,
+	            [StartTime] ASC
+            )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
             ) ON [PRIMARY]
         END
-        INSERT INTO [dbo].[V_Elec{0}]([Id],[Type],[FormulaType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@StartTime,@EndTime,@Value);";
+        INSERT INTO [dbo].[V_Elec{0}]([Id],[Type],[FormulaType],[ComputeType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@ComputeType,@StartTime,@EndTime,@Value);";
         public const string Sql_V_Elec_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
@@ -408,7 +423,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [Id]='''+ @Id + N''' AND [Type] = '+ CAST(@Type AS NVARCHAR) + N' AND [FormulaType] = '+ CAST(@FormulaType AS NVARCHAR) +N' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
@@ -598,7 +613,77 @@ namespace iPem.Data.Common {
         END
 
         EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_HMeasure_Repository_GetProcedure = @"
+        public const string Sql_V_HMeasure_Repository_GetFirst = @"
+        DECLARE @tpDate DATETIME, 
+                @tbName NVARCHAR(255),
+                @tableCnt INT = 0,
+                @SQL NVARCHAR(MAX) = N'';
+
+        SET @tpDate = @Start;
+        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
+        BEGIN
+            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
+            BEGIN
+                IF(@tableCnt>0)
+                BEGIN
+                SET @SQL += N' 
+                UNION ALL 
+                ';
+                END
+        			
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @tableCnt += 1;
+            END
+            SET @tpDate = DATEADD(MM,1,@tpDate);
+        END
+
+        IF(@tableCnt>0)
+        BEGIN
+	        SET @SQL = N';WITH HisValue AS
+		        (
+			        ' + @SQL + N'
+		        )
+		        SELECT TOP1 * FROM HisValue ORDER BY [UpdateTime];'
+        END
+
+        EXECUTE sp_executesql @SQL;";
+        public const string Sql_V_HMeasure_Repository_GetLast = @"
+        DECLARE @tpDate DATETIME, 
+                @tbName NVARCHAR(255),
+                @tableCnt INT = 0,
+                @SQL NVARCHAR(MAX) = N'';
+
+        SET @tpDate = @Start;
+        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
+        BEGIN
+            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
+            BEGIN
+                IF(@tableCnt>0)
+                BEGIN
+                SET @SQL += N' 
+                UNION ALL 
+                ';
+                END
+        			
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @tableCnt += 1;
+            END
+            SET @tpDate = DATEADD(MM,1,@tpDate);
+        END
+
+        IF(@tableCnt>0)
+        BEGIN
+	        SET @SQL = N';WITH HisValue AS
+		        (
+			        ' + @SQL + N'
+		        )
+		        SELECT TOP1 * FROM HisValue ORDER BY [UpdateTime] DESC;'
+        END
+
+        EXECUTE sp_executesql @SQL;";
+        public const string Sql_V_HMeasure_Repository_GetValDiff = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
                 @tableCnt INT = 0,
@@ -630,6 +715,41 @@ namespace iPem.Data.Common {
 			        ' + @SQL + N'
 		        )
 		        SELECT MAX([Value]) AS [MaxValue], MIN([Value]) AS [MinValue] FROM HisValue;'
+        END
+
+        EXECUTE sp_executesql @SQL;";
+        public const string Sql_V_HMeasure_Repository_GetValAvg = @"
+        DECLARE @tpDate DATETIME, 
+                @tbName NVARCHAR(255),
+                @tableCnt INT = 0,
+                @SQL NVARCHAR(MAX) = N'';
+
+        SET @tpDate = @Start;
+        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
+        BEGIN
+            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
+            BEGIN
+                IF(@tableCnt>0)
+                BEGIN
+                SET @SQL += N' 
+                UNION ALL 
+                ';
+                END
+        			
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @tableCnt += 1;
+            END
+            SET @tpDate = DATEADD(MM,1,@tpDate);
+        END
+
+        IF(@tableCnt>0)
+        BEGIN
+	        SET @SQL = N';WITH HisValue AS
+		        (
+			        ' + @SQL + N'
+		        )
+		        SELECT AVG([Value]) AS [AvgValue] FROM HisValue;'
         END
 
         EXECUTE sp_executesql @SQL;";

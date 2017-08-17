@@ -22,6 +22,11 @@ namespace iPem.Core {
         public EnmFormula FormulaType { get; set; }
 
         /// <summary>
+        /// 运算方式(电表电度、电压电流)
+        /// </summary>
+        public EnmCompute ComputeType { get; set; }
+
+        /// <summary>
         /// 开始日期
         /// </summary>
         public DateTime StartTime { get; set; }

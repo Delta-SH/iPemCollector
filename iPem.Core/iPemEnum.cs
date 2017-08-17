@@ -60,7 +60,16 @@ namespace iPem.Core {
         /// <summary>
         /// 开关电源工作状态信号编码
         /// </summary>
-        GZZT
+        GZZT,
+        /// <summary>
+        /// 实时能耗统计时段
+        /// </summary>
+        SSNH
+    }
+
+    public enum PeriodType {
+        Day,
+        Month
     }
 
     public enum DatabaseType {
@@ -175,7 +184,7 @@ namespace iPem.Core {
         /// <summary>
         /// 空调
         /// </summary>
-        KT,
+        KT = 1001,
         /// <summary>
         /// 照明
         /// </summary>
@@ -185,7 +194,7 @@ namespace iPem.Core {
         /// </summary>
         BG,
         /// <summary>
-        /// 设备
+        /// IT设备
         /// </summary>
         SB,
         /// <summary>
@@ -205,17 +214,27 @@ namespace iPem.Core {
         /// </summary>
         ZL,
         /// <summary>
-        /// 室内温度
-        /// </summary>
-        SNWD,
-        /// <summary>
-        /// 室内湿度
-        /// </summary>
-        SNSD,
-        /// <summary>
         /// PUE
         /// </summary>
-        PUE
+        PUE = 2001,
+        /// <summary>
+        /// 能效比
+        /// </summary>
+        EER
+    }
+
+    /// <summary>
+    /// 公式运算方式
+    /// </summary>
+    public enum EnmCompute {
+        /// <summary>
+        /// 电表电度
+        /// </summary>
+        Diff,
+        /// <summary>
+        /// 电压电流
+        /// </summary>
+        Avg
     }
 
     public enum EnmMethodType {

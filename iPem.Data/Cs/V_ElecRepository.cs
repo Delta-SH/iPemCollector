@@ -27,10 +27,42 @@ namespace iPem.Data {
 
         #region Methods
 
+        public void SaveActiveEntities(List<V_Elec> entities) {
+            SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.VarChar,100),
+                                     new SqlParameter("@Type", SqlDbType.Int),
+                                     new SqlParameter("@FormulaType", SqlDbType.Int),
+                                     new SqlParameter("@ComputeType", SqlDbType.Int),
+                                     new SqlParameter("@StartTime", SqlDbType.DateTime),
+                                     new SqlParameter("@EndTime", SqlDbType.DateTime),
+                                     new SqlParameter("@Value", SqlDbType.Float)};
+
+            using (var conn = new SqlConnection(this._databaseConnectionString)) {
+                conn.Open();
+                var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
+                try {
+                    foreach (var entity in entities) {
+                        parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.Id);
+                        parms[1].Value = (int)entity.Type;
+                        parms[2].Value = (int)entity.FormulaType;
+                        parms[3].Value = (int)entity.ComputeType;
+                        parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
+                        parms[5].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
+                        parms[6].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_V_Elec_Repository_SaveActiveEntities, parms);
+                    }
+                    trans.Commit();
+                } catch {
+                    trans.Rollback();
+                    throw;
+                }
+            }
+        }
+
         public void SaveEntities(List<V_Elec> entities) {
             SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.VarChar,100),
                                      new SqlParameter("@Type", SqlDbType.Int),
                                      new SqlParameter("@FormulaType", SqlDbType.Int),
+                                     new SqlParameter("@ComputeType", SqlDbType.Int),
                                      new SqlParameter("@StartTime", SqlDbType.DateTime),
                                      new SqlParameter("@EndTime", SqlDbType.DateTime),
                                      new SqlParameter("@Value", SqlDbType.Float)};
@@ -43,9 +75,10 @@ namespace iPem.Data {
                         parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.Id);
                         parms[1].Value = (int)entity.Type;
                         parms[2].Value = (int)entity.FormulaType;
-                        parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
-                        parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
-                        parms[5].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
+                        parms[3].Value = (int)entity.ComputeType;
+                        parms[4].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
+                        parms[5].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
+                        parms[6].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
                         SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_Elec_Repository_SaveEntities, entity.StartTime.ToString("yyyyMM")), parms);
                     }
                     trans.Commit();
@@ -56,18 +89,12 @@ namespace iPem.Data {
             }
         }
 
-        public void DeleteEntities(string id, EnmSSH type, EnmFormula formulaType, DateTime start, DateTime end) {
-            SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.VarChar,100),
-                                     new SqlParameter("@Type", SqlDbType.Int),
-                                     new SqlParameter("@FormulaType", SqlDbType.Int),
-                                     new SqlParameter("@Start", SqlDbType.DateTime),
+        public void DeleteEntities(DateTime start, DateTime end) {
+            SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
-            parms[0].Value = SqlTypeConverter.DBNullStringChecker(id);
-            parms[1].Value = (int)type;
-            parms[2].Value = (int)formulaType;
-            parms[3].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
-            parms[4].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
+            parms[0].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
+            parms[1].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();
