@@ -1457,35 +1457,6 @@ namespace iPem.TaskServer {
                         }
                         #endregion
 
-                        #region 能耗指标
-                        var _zlall = _result.FindAll(t => t.FormulaType == EnmFormula.ZL);
-                        var _sball = _result.FindAll(t => t.FormulaType == EnmFormula.SB);
-                        foreach (var _zl in _zlall) {
-                            var _sb = _sball.Find(s => s.Id == _zl.Id && s.Type == _zl.Type);
-                            if (_sb == null) continue;
-
-                            _result.Add(new V_Elec {
-                                Id = _zl.Id,
-                                Type = _zl.Type,
-                                FormulaType = EnmFormula.PUE,
-                                ComputeType = _zl.ComputeType,
-                                StartTime = _zl.StartTime,
-                                EndTime = _zl.EndTime,
-                                Value = Math.Round(_sb.Value != 0 ? _zl.Value / _sb.Value : 0, 3, MidpointRounding.AwayFromZero)
-                            });
-
-                            _result.Add(new V_Elec {
-                                Id = _zl.Id,
-                                Type = _zl.Type,
-                                FormulaType = EnmFormula.EER,
-                                ComputeType = _zl.ComputeType,
-                                StartTime = _zl.StartTime,
-                                EndTime = _zl.EndTime,
-                                Value = Math.Round(_zl.Value != 0 ? _sb.Value / _zl.Value : 0, 3, MidpointRounding.AwayFromZero)
-                            });
-                        }
-                        #endregion
-
                         _elecRepository.SaveActiveEntities(_result);
                     } catch (Exception err) {
                         Logger.Error(err.Message, err);
@@ -1664,35 +1635,6 @@ namespace iPem.TaskServer {
                     Logger.Error(err.Message);
                     Logger.Error(string.Format("能耗处理发生错误,详见错误日志({0})。", JsonConvert.SerializeObject(_formula)), err);
                 }
-            }
-            #endregion
-
-            #region 能耗指标
-            var _zlall = _result.FindAll(t => t.FormulaType == EnmFormula.ZL);
-            var _sball = _result.FindAll(t => t.FormulaType == EnmFormula.SB);
-            foreach (var _zl in _zlall) {
-                var _sb = _sball.Find(s => s.Id == _zl.Id && s.Type == _zl.Type && s.StartTime == _zl.StartTime && s.EndTime == _zl.EndTime);
-                if (_sb == null) continue;
-
-                _result.Add(new V_Elec {
-                    Id = _zl.Id,
-                    Type = _zl.Type,
-                    FormulaType = EnmFormula.PUE,
-                    ComputeType = _zl.ComputeType,
-                    StartTime = _zl.StartTime,
-                    EndTime = _zl.EndTime,
-                    Value = Math.Round(_sb.Value != 0 ? _zl.Value / _sb.Value : 0, 3, MidpointRounding.AwayFromZero)
-                });
-
-                _result.Add(new V_Elec {
-                    Id = _zl.Id,
-                    Type = _zl.Type,
-                    FormulaType = EnmFormula.EER,
-                    ComputeType = _zl.ComputeType,
-                    StartTime = _zl.StartTime,
-                    EndTime = _zl.EndTime,
-                    Value = Math.Round(_zl.Value != 0 ? _sb.Value / _zl.Value : 0, 3, MidpointRounding.AwayFromZero)
-                });
             }
             #endregion
 

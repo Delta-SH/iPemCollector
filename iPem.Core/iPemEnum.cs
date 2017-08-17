@@ -212,15 +212,7 @@ namespace iPem.Core {
         /// <summary>
         /// 总量
         /// </summary>
-        ZL,
-        /// <summary>
-        /// PUE
-        /// </summary>
-        PUE = 2001,
-        /// <summary>
-        /// 能效比
-        /// </summary>
-        EER
+        ZL
     }
 
     /// <summary>
