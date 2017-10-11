@@ -44,8 +44,6 @@ namespace iPem.Model {
             }
         }
 
-        public static Dictionary<string, RedefinePoint> RedefinePoints { get; set; }
-
         public static HashSet<string> Maskings { get; set; }
 
         public static List<ReservationModel> Reservations { get; set; }

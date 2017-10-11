@@ -2,10 +2,10 @@
 
 namespace iPem.Core.Rs {
     /// <summary>
-    /// 信号重定义信息
+    /// 信号关系信息
     /// </summary>
     [Serializable]
-    public partial class RedefinePoint {
+    public partial class Signal {
         /// <summary>
         /// 设备编码
         /// </summary>
@@ -15,6 +15,26 @@ namespace iPem.Core.Rs {
         /// 信号编码
         /// </summary>
         public string PointId { get; set; }
+
+        /// <summary>
+        /// 信号名称
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// 信号类型
+        /// </summary>
+        public EnmPoint Type { get; set; }
+
+        /// <summary>
+        /// 单位/描述
+        /// </summary>
+        public string UnitState { get; set; }
+
+        /// <summary>
+        /// 标准告警编号
+        /// </summary>
+        public string AlarmId { get; set; }
 
         /// <summary>
         /// 网管告警编号
@@ -27,14 +47,19 @@ namespace iPem.Core.Rs {
         public int AlarmLevel { get; set; }
 
         /// <summary>
+        /// 告警对设备的影响
+        /// </summary>
+        public string DeviceEffect { get; set; }
+
+        /// <summary>
+        /// 告警对业务的影响
+        /// </summary>
+        public string BusiEffect { get; set; }
+
+        /// <summary>
         /// 告警门限
         /// </summary>
         public double AlarmLimit { get; set; }
-
-        /// <summary>
-        /// 告警回差
-        /// </summary>
-        public double AlarmReturnDiff { get; set; }
 
         /// <summary>
         /// 告警触发延迟
@@ -45,11 +70,6 @@ namespace iPem.Core.Rs {
         /// 告警恢复延迟
         /// </summary>
         public int AlarmRecoveryDelay { get; set; }
-
-        /// <summary>
-        /// 触发类型
-        /// </summary>
-        public int TriggerTypeID { get; set; }
 
         /// <summary>
         /// 存储周期
@@ -67,9 +87,14 @@ namespace iPem.Core.Rs {
         public double PerThreshold { get; set; }
 
         /// <summary>
-        /// 统计周期
+        /// 统计周期（分钟）
         /// </summary>
         public int StaticPeriod { get; set; }
+
+        /// <summary>
+        /// 存储参考时间
+        /// </summary>
+        public string StorageRefTime { get; set; }
 
         /// <summary>
         /// 主次告警
@@ -95,10 +120,5 @@ namespace iPem.Core.Rs {
         /// 扩展设置
         /// </summary>
         public string Extend { get; set; }
-
-        /// <summary>
-        /// 更新时间
-        /// </summary>
-        public DateTime UpdateTime { get; set; }
     }
 }

@@ -93,8 +93,8 @@ namespace iPem.Data {
             SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
-            parms[0].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
-            parms[1].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
+            parms[0].Value = SqlTypeConverter.DBNullDateTimeHandler(start);
+            parms[1].Value = SqlTypeConverter.DBNullDateTimeHandler(end);
 
             using(var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();

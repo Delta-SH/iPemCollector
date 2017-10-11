@@ -36,13 +36,14 @@ namespace iPem.Data {
                                      new SqlParameter("@AbsoluteVal",SqlDbType.VarChar,20),
                                      new SqlParameter("@RelativeVal", SqlDbType.VarChar,20),
                                      new SqlParameter("@StorageInterval", SqlDbType.VarChar,20),
-                                     new SqlParameter("@StorageRefTime", SqlDbType.VarChar,20)};
+                                     new SqlParameter("@StorageRefTime", SqlDbType.VarChar,50), 
+                                     new SqlParameter("@Masked", SqlDbType.Bit)};
 
             using (var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();
                 var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
                 try {
-                    SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_H_IDevice_Repository_DeleteEntities, curDate.ToString("yyyyMM")), parms);
+                    SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_ParamDiff_Repository_DeleteEntities, curDate.ToString("yyyyMM")), null);
                     foreach (var entity in entities) {
                         parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.DeviceId);
                         parms[1].Value = SqlTypeConverter.DBNullStringChecker(entity.PointId);
@@ -53,7 +54,8 @@ namespace iPem.Data {
                         parms[6].Value = SqlTypeConverter.DBNullStringChecker(entity.RelativeVal);
                         parms[7].Value = SqlTypeConverter.DBNullStringChecker(entity.StorageInterval);
                         parms[8].Value = SqlTypeConverter.DBNullStringChecker(entity.StorageRefTime);
-                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_Static_Repository_SaveEntities, curDate.ToString("yyyyMM")), parms);
+                        parms[9].Value = entity.Masked;
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_ParamDiff_Repository_SaveEntities, curDate.ToString("yyyyMM")), parms);
                     }
                     trans.Commit();
                 } catch {

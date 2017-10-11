@@ -1,4 +1,5 @@
 ﻿using iPem.Core;
+using iPem.Core.Rs;
 using System;
 
 namespace iPem.Model {
@@ -7,14 +8,34 @@ namespace iPem.Model {
     /// </summary>
     public partial class StaticModel {
         /// <summary>
-        /// 设备信息类
+        /// 所属区域
         /// </summary>
-        public Device Device { get; set; }
+        public string AreaId { get; set; }
+
+        /// <summary>
+        /// 所属站点
+        /// </summary>
+        public string StationId { get; set; }
+
+        /// <summary>
+        /// 所属机房
+        /// </summary>
+        public string RoomId { get; set; }
+
+        /// <summary>
+        /// 所属Fsu
+        /// </summary>
+        public string FsuId { get; set; }
+
+        /// <summary>
+        /// 所属设备
+        /// </summary>
+        public string DeviceId { get; set; }
 
         /// <summary>
         /// 信号信息类
         /// </summary>
-        public Point Point { get; set; }
+        public string PointId { get; set; }
 
         /// <summary>
         /// 统计周期(分钟)

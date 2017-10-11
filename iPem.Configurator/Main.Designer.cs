@@ -36,6 +36,30 @@
             this.cfgNodeTree = new System.Windows.Forms.TreeView();
             this.TreeImages = new System.Windows.Forms.ImageList(this.components);
             this.conditonContainer = new System.Windows.Forms.Panel();
+            this.paramPanel = new System.Windows.Forms.Panel();
+            this.paramContainer = new System.Windows.Forms.TableLayoutPanel();
+            this.checkingPanel = new System.Windows.Forms.GroupBox();
+            this.checkingContainer = new System.Windows.Forms.TableLayoutPanel();
+            this.scOff = new System.Windows.Forms.TextBox();
+            this.fsuOff = new System.Windows.Forms.TextBox();
+            this.scOffLabel = new System.Windows.Forms.Label();
+            this.fsuOffLabel = new System.Windows.Forms.Label();
+            this.paramBottomPanel = new System.Windows.Forms.Panel();
+            this.line03 = new System.Windows.Forms.Label();
+            this.paramSaveButton = new System.Windows.Forms.Button();
+            this.paramCloseButton = new System.Windows.Forms.Button();
+            this.dzlPanel = new System.Windows.Forms.GroupBox();
+            this.dzlContainer = new System.Windows.Forms.TableLayoutPanel();
+            this.fzdl = new System.Windows.Forms.TextBox();
+            this.gzzt = new System.Windows.Forms.TextBox();
+            this.fzdlLabel = new System.Windows.Forms.Label();
+            this.gzztLabel = new System.Windows.Forms.Label();
+            this.ssnhPanel = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.nhPeriodLabel = new System.Windows.Forms.Label();
+            this.nhPeriodField = new System.Windows.Forms.ComboBox();
+            this.gjjkLabel = new System.Windows.Forms.Label();
+            this.gjjkField = new System.Windows.Forms.CheckBox();
             this.planPanel = new System.Windows.Forms.Panel();
             this.planLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.planRateField = new System.Windows.Forms.NumericUpDown();
@@ -72,24 +96,6 @@
             this.uninstallButton = new System.Windows.Forms.Button();
             this.startButton = new System.Windows.Forms.Button();
             this.stopButton = new System.Windows.Forms.Button();
-            this.paramPanel = new System.Windows.Forms.Panel();
-            this.paramContainer = new System.Windows.Forms.TableLayoutPanel();
-            this.checkingPanel = new System.Windows.Forms.GroupBox();
-            this.checkingContainer = new System.Windows.Forms.TableLayoutPanel();
-            this.scOff = new System.Windows.Forms.TextBox();
-            this.fsuOff = new System.Windows.Forms.TextBox();
-            this.scOffLabel = new System.Windows.Forms.Label();
-            this.fsuOffLabel = new System.Windows.Forms.Label();
-            this.paramBottomPanel = new System.Windows.Forms.Panel();
-            this.line03 = new System.Windows.Forms.Label();
-            this.paramSaveButton = new System.Windows.Forms.Button();
-            this.paramCloseButton = new System.Windows.Forms.Button();
-            this.dzlPanel = new System.Windows.Forms.GroupBox();
-            this.dzlContainer = new System.Windows.Forms.TableLayoutPanel();
-            this.fzdl = new System.Windows.Forms.TextBox();
-            this.gzzt = new System.Windows.Forms.TextBox();
-            this.fzdlLabel = new System.Windows.Forms.Label();
-            this.gzztLabel = new System.Windows.Forms.Label();
             this.databasePanel = new System.Windows.Forms.Panel();
             this.databaseLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.dbPwdField = new System.Windows.Forms.TextBox();
@@ -113,13 +119,18 @@
             this.serviceStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.logFolderButton = new System.Windows.Forms.ToolStripSplitButton();
             this.globalTimer = new System.Windows.Forms.Timer(this.components);
-            this.ssnhPanel = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.nhPeriodField = new System.Windows.Forms.ComboBox();
             this.topMenuStrip.SuspendLayout();
             this.viewLayoutPanel.SuspendLayout();
             this.conditonContainer.SuspendLayout();
+            this.paramPanel.SuspendLayout();
+            this.paramContainer.SuspendLayout();
+            this.checkingPanel.SuspendLayout();
+            this.checkingContainer.SuspendLayout();
+            this.paramBottomPanel.SuspendLayout();
+            this.dzlPanel.SuspendLayout();
+            this.dzlContainer.SuspendLayout();
+            this.ssnhPanel.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.planPanel.SuspendLayout();
             this.planLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.planRateField)).BeginInit();
@@ -130,20 +141,11 @@
             this.opServiceContainer.SuspendLayout();
             this.reServicePanel.SuspendLayout();
             this.reServiceContainer.SuspendLayout();
-            this.paramPanel.SuspendLayout();
-            this.paramContainer.SuspendLayout();
-            this.checkingPanel.SuspendLayout();
-            this.checkingContainer.SuspendLayout();
-            this.paramBottomPanel.SuspendLayout();
-            this.dzlPanel.SuspendLayout();
-            this.dzlContainer.SuspendLayout();
             this.databasePanel.SuspendLayout();
             this.databaseLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dbPortField)).BeginInit();
             this.dbBottomPanel.SuspendLayout();
             this.bottomStatusStrip.SuspendLayout();
-            this.ssnhPanel.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // topMenuStrip
@@ -258,6 +260,317 @@
             this.conditonContainer.Name = "conditonContainer";
             this.conditonContainer.Size = new System.Drawing.Size(369, 354);
             this.conditonContainer.TabIndex = 1;
+            // 
+            // paramPanel
+            // 
+            this.paramPanel.Controls.Add(this.paramContainer);
+            this.paramPanel.Location = new System.Drawing.Point(22, 90);
+            this.paramPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.paramPanel.Name = "paramPanel";
+            this.paramPanel.Size = new System.Drawing.Size(331, 91);
+            this.paramPanel.TabIndex = 3;
+            this.paramPanel.Visible = false;
+            // 
+            // paramContainer
+            // 
+            this.paramContainer.ColumnCount = 3;
+            this.paramContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.paramContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.paramContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.paramContainer.Controls.Add(this.checkingPanel, 1, 0);
+            this.paramContainer.Controls.Add(this.paramBottomPanel, 0, 6);
+            this.paramContainer.Controls.Add(this.dzlPanel, 1, 2);
+            this.paramContainer.Controls.Add(this.ssnhPanel, 1, 4);
+            this.paramContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.paramContainer.Location = new System.Drawing.Point(0, 0);
+            this.paramContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.paramContainer.Name = "paramContainer";
+            this.paramContainer.RowCount = 7;
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 90F));
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 90F));
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 90F));
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.paramContainer.Size = new System.Drawing.Size(331, 91);
+            this.paramContainer.TabIndex = 0;
+            // 
+            // checkingPanel
+            // 
+            this.checkingPanel.Controls.Add(this.checkingContainer);
+            this.checkingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.checkingPanel.Location = new System.Drawing.Point(5, 0);
+            this.checkingPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.checkingPanel.Name = "checkingPanel";
+            this.checkingPanel.Size = new System.Drawing.Size(321, 90);
+            this.checkingPanel.TabIndex = 4;
+            this.checkingPanel.TabStop = false;
+            this.checkingPanel.Text = "自检参数";
+            // 
+            // checkingContainer
+            // 
+            this.checkingContainer.ColumnCount = 4;
+            this.checkingContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.checkingContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
+            this.checkingContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.checkingContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.checkingContainer.Controls.Add(this.scOff, 2, 0);
+            this.checkingContainer.Controls.Add(this.fsuOff, 2, 2);
+            this.checkingContainer.Controls.Add(this.scOffLabel, 1, 0);
+            this.checkingContainer.Controls.Add(this.fsuOffLabel, 1, 2);
+            this.checkingContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.checkingContainer.Location = new System.Drawing.Point(3, 19);
+            this.checkingContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.checkingContainer.Name = "checkingContainer";
+            this.checkingContainer.RowCount = 4;
+            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.checkingContainer.Size = new System.Drawing.Size(315, 68);
+            this.checkingContainer.TabIndex = 1;
+            // 
+            // scOff
+            // 
+            this.scOff.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.scOff.Location = new System.Drawing.Point(140, 0);
+            this.scOff.Margin = new System.Windows.Forms.Padding(0);
+            this.scOff.Name = "scOff";
+            this.scOff.Size = new System.Drawing.Size(170, 23);
+            this.scOff.TabIndex = 0;
+            // 
+            // fsuOff
+            // 
+            this.fsuOff.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fsuOff.Location = new System.Drawing.Point(140, 35);
+            this.fsuOff.Margin = new System.Windows.Forms.Padding(0);
+            this.fsuOff.Name = "fsuOff";
+            this.fsuOff.Size = new System.Drawing.Size(170, 23);
+            this.fsuOff.TabIndex = 0;
+            // 
+            // scOffLabel
+            // 
+            this.scOffLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.scOffLabel.Location = new System.Drawing.Point(5, 0);
+            this.scOffLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.scOffLabel.Name = "scOffLabel";
+            this.scOffLabel.Size = new System.Drawing.Size(135, 25);
+            this.scOffLabel.TabIndex = 1;
+            this.scOffLabel.Text = "SC通信中断告警编码:";
+            this.scOffLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // fsuOffLabel
+            // 
+            this.fsuOffLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fsuOffLabel.Location = new System.Drawing.Point(5, 35);
+            this.fsuOffLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.fsuOffLabel.Name = "fsuOffLabel";
+            this.fsuOffLabel.Size = new System.Drawing.Size(135, 25);
+            this.fsuOffLabel.TabIndex = 1;
+            this.fsuOffLabel.Text = "FSU通信中断告警编码:";
+            this.fsuOffLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // paramBottomPanel
+            // 
+            this.paramContainer.SetColumnSpan(this.paramBottomPanel, 2);
+            this.paramBottomPanel.Controls.Add(this.line03);
+            this.paramBottomPanel.Controls.Add(this.paramSaveButton);
+            this.paramBottomPanel.Controls.Add(this.paramCloseButton);
+            this.paramBottomPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.paramBottomPanel.Location = new System.Drawing.Point(0, 41);
+            this.paramBottomPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.paramBottomPanel.Name = "paramBottomPanel";
+            this.paramBottomPanel.Size = new System.Drawing.Size(326, 50);
+            this.paramBottomPanel.TabIndex = 0;
+            // 
+            // line03
+            // 
+            this.line03.BackColor = System.Drawing.Color.Gray;
+            this.line03.Dock = System.Windows.Forms.DockStyle.Top;
+            this.line03.Location = new System.Drawing.Point(0, 0);
+            this.line03.Name = "line03";
+            this.line03.Size = new System.Drawing.Size(326, 1);
+            this.line03.TabIndex = 1;
+            // 
+            // paramSaveButton
+            // 
+            this.paramSaveButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.paramSaveButton.Location = new System.Drawing.Point(136, 10);
+            this.paramSaveButton.Margin = new System.Windows.Forms.Padding(0);
+            this.paramSaveButton.Name = "paramSaveButton";
+            this.paramSaveButton.Size = new System.Drawing.Size(90, 30);
+            this.paramSaveButton.TabIndex = 0;
+            this.paramSaveButton.Text = "保存(&S)";
+            this.paramSaveButton.UseVisualStyleBackColor = true;
+            this.paramSaveButton.Click += new System.EventHandler(this.paramSaveButton_Click);
+            // 
+            // paramCloseButton
+            // 
+            this.paramCloseButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.paramCloseButton.Location = new System.Drawing.Point(236, 10);
+            this.paramCloseButton.Margin = new System.Windows.Forms.Padding(0);
+            this.paramCloseButton.Name = "paramCloseButton";
+            this.paramCloseButton.Size = new System.Drawing.Size(90, 30);
+            this.paramCloseButton.TabIndex = 0;
+            this.paramCloseButton.Text = "关闭(&C)";
+            this.paramCloseButton.UseVisualStyleBackColor = true;
+            this.paramCloseButton.Click += new System.EventHandler(this.Quit_Click);
+            // 
+            // dzlPanel
+            // 
+            this.dzlPanel.Controls.Add(this.dzlContainer);
+            this.dzlPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dzlPanel.Location = new System.Drawing.Point(5, 95);
+            this.dzlPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.dzlPanel.Name = "dzlPanel";
+            this.dzlPanel.Size = new System.Drawing.Size(321, 90);
+            this.dzlPanel.TabIndex = 4;
+            this.dzlPanel.TabStop = false;
+            this.dzlPanel.Text = "开关电源带载率参数";
+            // 
+            // dzlContainer
+            // 
+            this.dzlContainer.ColumnCount = 4;
+            this.dzlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.dzlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
+            this.dzlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.dzlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.dzlContainer.Controls.Add(this.fzdl, 2, 0);
+            this.dzlContainer.Controls.Add(this.gzzt, 2, 2);
+            this.dzlContainer.Controls.Add(this.fzdlLabel, 1, 0);
+            this.dzlContainer.Controls.Add(this.gzztLabel, 1, 2);
+            this.dzlContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dzlContainer.Location = new System.Drawing.Point(3, 19);
+            this.dzlContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.dzlContainer.Name = "dzlContainer";
+            this.dzlContainer.RowCount = 4;
+            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
+            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.dzlContainer.Size = new System.Drawing.Size(315, 68);
+            this.dzlContainer.TabIndex = 1;
+            // 
+            // fzdl
+            // 
+            this.fzdl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fzdl.Location = new System.Drawing.Point(140, 0);
+            this.fzdl.Margin = new System.Windows.Forms.Padding(0);
+            this.fzdl.Name = "fzdl";
+            this.fzdl.Size = new System.Drawing.Size(170, 23);
+            this.fzdl.TabIndex = 0;
+            // 
+            // gzzt
+            // 
+            this.gzzt.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gzzt.Location = new System.Drawing.Point(140, 35);
+            this.gzzt.Margin = new System.Windows.Forms.Padding(0);
+            this.gzzt.Name = "gzzt";
+            this.gzzt.Size = new System.Drawing.Size(170, 23);
+            this.gzzt.TabIndex = 0;
+            // 
+            // fzdlLabel
+            // 
+            this.fzdlLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fzdlLabel.Location = new System.Drawing.Point(5, 0);
+            this.fzdlLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.fzdlLabel.Name = "fzdlLabel";
+            this.fzdlLabel.Size = new System.Drawing.Size(135, 25);
+            this.fzdlLabel.TabIndex = 1;
+            this.fzdlLabel.Text = "负载总电流信号编码:";
+            this.fzdlLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // gzztLabel
+            // 
+            this.gzztLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gzztLabel.Location = new System.Drawing.Point(5, 35);
+            this.gzztLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.gzztLabel.Name = "gzztLabel";
+            this.gzztLabel.Size = new System.Drawing.Size(135, 25);
+            this.gzztLabel.TabIndex = 1;
+            this.gzztLabel.Text = "电源工作状态信号编码:";
+            this.gzztLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // ssnhPanel
+            // 
+            this.ssnhPanel.Controls.Add(this.tableLayoutPanel1);
+            this.ssnhPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ssnhPanel.Location = new System.Drawing.Point(5, 190);
+            this.ssnhPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.ssnhPanel.Name = "ssnhPanel";
+            this.ssnhPanel.Size = new System.Drawing.Size(321, 90);
+            this.ssnhPanel.TabIndex = 4;
+            this.ssnhPanel.TabStop = false;
+            this.ssnhPanel.Text = "其他参数";
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 4;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.tableLayoutPanel1.Controls.Add(this.nhPeriodLabel, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.nhPeriodField, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.gjjkLabel, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.gjjkField, 2, 2);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 19);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 5F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(315, 68);
+            this.tableLayoutPanel1.TabIndex = 1;
+            // 
+            // nhPeriodLabel
+            // 
+            this.nhPeriodLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.nhPeriodLabel.Location = new System.Drawing.Point(5, 0);
+            this.nhPeriodLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.nhPeriodLabel.Name = "nhPeriodLabel";
+            this.nhPeriodLabel.Size = new System.Drawing.Size(135, 25);
+            this.nhPeriodLabel.TabIndex = 1;
+            this.nhPeriodLabel.Text = "实时能耗统计周期:";
+            this.nhPeriodLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // nhPeriodField
+            // 
+            this.nhPeriodField.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.nhPeriodField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.nhPeriodField.Location = new System.Drawing.Point(140, 0);
+            this.nhPeriodField.Margin = new System.Windows.Forms.Padding(0);
+            this.nhPeriodField.Name = "nhPeriodField";
+            this.nhPeriodField.Size = new System.Drawing.Size(170, 24);
+            this.nhPeriodField.TabIndex = 3;
+            // 
+            // gjjkLabel
+            // 
+            this.gjjkLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gjjkLabel.Location = new System.Drawing.Point(5, 30);
+            this.gjjkLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.gjjkLabel.Name = "gjjkLabel";
+            this.gjjkLabel.Size = new System.Drawing.Size(135, 25);
+            this.gjjkLabel.TabIndex = 1;
+            this.gjjkLabel.Text = "实时告警接口:";
+            this.gjjkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // gjjkField
+            // 
+            this.gjjkField.AutoSize = true;
+            this.gjjkField.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gjjkField.Location = new System.Drawing.Point(143, 33);
+            this.gjjkField.Name = "gjjkField";
+            this.gjjkField.Size = new System.Drawing.Size(164, 19);
+            this.gjjkField.TabIndex = 4;
+            this.gjjkField.Text = "(勾选表示启用接口)";
+            this.gjjkField.UseVisualStyleBackColor = true;
             // 
             // planPanel
             // 
@@ -791,239 +1104,6 @@
             this.stopButton.UseVisualStyleBackColor = false;
             this.stopButton.Click += new System.EventHandler(this.stopButton_Click);
             // 
-            // paramPanel
-            // 
-            this.paramPanel.Controls.Add(this.paramContainer);
-            this.paramPanel.Location = new System.Drawing.Point(25, 101);
-            this.paramPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.paramPanel.Name = "paramPanel";
-            this.paramPanel.Size = new System.Drawing.Size(328, 57);
-            this.paramPanel.TabIndex = 3;
-            this.paramPanel.Visible = false;
-            // 
-            // paramContainer
-            // 
-            this.paramContainer.ColumnCount = 3;
-            this.paramContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
-            this.paramContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.paramContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
-            this.paramContainer.Controls.Add(this.checkingPanel, 1, 0);
-            this.paramContainer.Controls.Add(this.paramBottomPanel, 0, 6);
-            this.paramContainer.Controls.Add(this.dzlPanel, 1, 2);
-            this.paramContainer.Controls.Add(this.ssnhPanel, 1, 4);
-            this.paramContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.paramContainer.Location = new System.Drawing.Point(0, 0);
-            this.paramContainer.Margin = new System.Windows.Forms.Padding(0);
-            this.paramContainer.Name = "paramContainer";
-            this.paramContainer.RowCount = 7;
-            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
-            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.paramContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.paramContainer.Size = new System.Drawing.Size(328, 57);
-            this.paramContainer.TabIndex = 0;
-            // 
-            // checkingPanel
-            // 
-            this.checkingPanel.Controls.Add(this.checkingContainer);
-            this.checkingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.checkingPanel.Location = new System.Drawing.Point(5, 0);
-            this.checkingPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.checkingPanel.Name = "checkingPanel";
-            this.checkingPanel.Size = new System.Drawing.Size(318, 100);
-            this.checkingPanel.TabIndex = 4;
-            this.checkingPanel.TabStop = false;
-            this.checkingPanel.Text = "自检参数";
-            // 
-            // checkingContainer
-            // 
-            this.checkingContainer.ColumnCount = 4;
-            this.checkingContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
-            this.checkingContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
-            this.checkingContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.checkingContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
-            this.checkingContainer.Controls.Add(this.scOff, 2, 0);
-            this.checkingContainer.Controls.Add(this.fsuOff, 2, 2);
-            this.checkingContainer.Controls.Add(this.scOffLabel, 1, 0);
-            this.checkingContainer.Controls.Add(this.fsuOffLabel, 1, 2);
-            this.checkingContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.checkingContainer.Location = new System.Drawing.Point(3, 19);
-            this.checkingContainer.Margin = new System.Windows.Forms.Padding(0);
-            this.checkingContainer.Name = "checkingContainer";
-            this.checkingContainer.RowCount = 4;
-            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.checkingContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.checkingContainer.Size = new System.Drawing.Size(312, 78);
-            this.checkingContainer.TabIndex = 1;
-            // 
-            // scOff
-            // 
-            this.scOff.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scOff.Location = new System.Drawing.Point(140, 0);
-            this.scOff.Margin = new System.Windows.Forms.Padding(0);
-            this.scOff.Name = "scOff";
-            this.scOff.Size = new System.Drawing.Size(167, 23);
-            this.scOff.TabIndex = 0;
-            // 
-            // fsuOff
-            // 
-            this.fsuOff.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fsuOff.Location = new System.Drawing.Point(140, 35);
-            this.fsuOff.Margin = new System.Windows.Forms.Padding(0);
-            this.fsuOff.Name = "fsuOff";
-            this.fsuOff.Size = new System.Drawing.Size(167, 23);
-            this.fsuOff.TabIndex = 0;
-            // 
-            // scOffLabel
-            // 
-            this.scOffLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scOffLabel.Location = new System.Drawing.Point(5, 0);
-            this.scOffLabel.Margin = new System.Windows.Forms.Padding(0);
-            this.scOffLabel.Name = "scOffLabel";
-            this.scOffLabel.Size = new System.Drawing.Size(135, 25);
-            this.scOffLabel.TabIndex = 1;
-            this.scOffLabel.Text = "SC通信中断告警编码:";
-            this.scOffLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // fsuOffLabel
-            // 
-            this.fsuOffLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fsuOffLabel.Location = new System.Drawing.Point(5, 35);
-            this.fsuOffLabel.Margin = new System.Windows.Forms.Padding(0);
-            this.fsuOffLabel.Name = "fsuOffLabel";
-            this.fsuOffLabel.Size = new System.Drawing.Size(135, 25);
-            this.fsuOffLabel.TabIndex = 1;
-            this.fsuOffLabel.Text = "FSU通信中断告警编码:";
-            this.fsuOffLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // paramBottomPanel
-            // 
-            this.paramContainer.SetColumnSpan(this.paramBottomPanel, 2);
-            this.paramBottomPanel.Controls.Add(this.line03);
-            this.paramBottomPanel.Controls.Add(this.paramSaveButton);
-            this.paramBottomPanel.Controls.Add(this.paramCloseButton);
-            this.paramBottomPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.paramBottomPanel.Location = new System.Drawing.Point(0, 7);
-            this.paramBottomPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.paramBottomPanel.Name = "paramBottomPanel";
-            this.paramBottomPanel.Size = new System.Drawing.Size(323, 50);
-            this.paramBottomPanel.TabIndex = 0;
-            // 
-            // line03
-            // 
-            this.line03.BackColor = System.Drawing.Color.Gray;
-            this.line03.Dock = System.Windows.Forms.DockStyle.Top;
-            this.line03.Location = new System.Drawing.Point(0, 0);
-            this.line03.Name = "line03";
-            this.line03.Size = new System.Drawing.Size(323, 1);
-            this.line03.TabIndex = 1;
-            // 
-            // paramSaveButton
-            // 
-            this.paramSaveButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.paramSaveButton.Location = new System.Drawing.Point(133, 10);
-            this.paramSaveButton.Margin = new System.Windows.Forms.Padding(0);
-            this.paramSaveButton.Name = "paramSaveButton";
-            this.paramSaveButton.Size = new System.Drawing.Size(90, 30);
-            this.paramSaveButton.TabIndex = 0;
-            this.paramSaveButton.Text = "保存(&S)";
-            this.paramSaveButton.UseVisualStyleBackColor = true;
-            this.paramSaveButton.Click += new System.EventHandler(this.paramSaveButton_Click);
-            // 
-            // paramCloseButton
-            // 
-            this.paramCloseButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.paramCloseButton.Location = new System.Drawing.Point(233, 10);
-            this.paramCloseButton.Margin = new System.Windows.Forms.Padding(0);
-            this.paramCloseButton.Name = "paramCloseButton";
-            this.paramCloseButton.Size = new System.Drawing.Size(90, 30);
-            this.paramCloseButton.TabIndex = 0;
-            this.paramCloseButton.Text = "关闭(&C)";
-            this.paramCloseButton.UseVisualStyleBackColor = true;
-            this.paramCloseButton.Click += new System.EventHandler(this.Quit_Click);
-            // 
-            // dzlPanel
-            // 
-            this.dzlPanel.Controls.Add(this.dzlContainer);
-            this.dzlPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dzlPanel.Location = new System.Drawing.Point(5, 110);
-            this.dzlPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.dzlPanel.Name = "dzlPanel";
-            this.dzlPanel.Size = new System.Drawing.Size(318, 100);
-            this.dzlPanel.TabIndex = 4;
-            this.dzlPanel.TabStop = false;
-            this.dzlPanel.Text = "开关电源带载率参数";
-            // 
-            // dzlContainer
-            // 
-            this.dzlContainer.ColumnCount = 4;
-            this.dzlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
-            this.dzlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
-            this.dzlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.dzlContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
-            this.dzlContainer.Controls.Add(this.fzdl, 2, 0);
-            this.dzlContainer.Controls.Add(this.gzzt, 2, 2);
-            this.dzlContainer.Controls.Add(this.fzdlLabel, 1, 0);
-            this.dzlContainer.Controls.Add(this.gzztLabel, 1, 2);
-            this.dzlContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dzlContainer.Location = new System.Drawing.Point(3, 19);
-            this.dzlContainer.Margin = new System.Windows.Forms.Padding(0);
-            this.dzlContainer.Name = "dzlContainer";
-            this.dzlContainer.RowCount = 4;
-            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.dzlContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.dzlContainer.Size = new System.Drawing.Size(312, 78);
-            this.dzlContainer.TabIndex = 1;
-            // 
-            // fzdl
-            // 
-            this.fzdl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fzdl.Location = new System.Drawing.Point(140, 0);
-            this.fzdl.Margin = new System.Windows.Forms.Padding(0);
-            this.fzdl.Name = "fzdl";
-            this.fzdl.Size = new System.Drawing.Size(167, 23);
-            this.fzdl.TabIndex = 0;
-            // 
-            // gzzt
-            // 
-            this.gzzt.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gzzt.Location = new System.Drawing.Point(140, 35);
-            this.gzzt.Margin = new System.Windows.Forms.Padding(0);
-            this.gzzt.Name = "gzzt";
-            this.gzzt.Size = new System.Drawing.Size(167, 23);
-            this.gzzt.TabIndex = 0;
-            // 
-            // fzdlLabel
-            // 
-            this.fzdlLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fzdlLabel.Location = new System.Drawing.Point(5, 0);
-            this.fzdlLabel.Margin = new System.Windows.Forms.Padding(0);
-            this.fzdlLabel.Name = "fzdlLabel";
-            this.fzdlLabel.Size = new System.Drawing.Size(135, 25);
-            this.fzdlLabel.TabIndex = 1;
-            this.fzdlLabel.Text = "负载总电流信号编码:";
-            this.fzdlLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // gzztLabel
-            // 
-            this.gzztLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gzztLabel.Location = new System.Drawing.Point(5, 35);
-            this.gzztLabel.Margin = new System.Windows.Forms.Padding(0);
-            this.gzztLabel.Name = "gzztLabel";
-            this.gzztLabel.Size = new System.Drawing.Size(135, 25);
-            this.gzztLabel.TabIndex = 1;
-            this.gzztLabel.Text = "电源工作状态信号编码:";
-            this.gzztLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // databasePanel
             // 
             this.databasePanel.Controls.Add(this.databaseLayoutPanel);
@@ -1306,59 +1386,6 @@
             this.globalTimer.Interval = 5000;
             this.globalTimer.Tick += new System.EventHandler(this.globalTimer_Tick);
             // 
-            // ssnhPanel
-            // 
-            this.ssnhPanel.Controls.Add(this.tableLayoutPanel1);
-            this.ssnhPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ssnhPanel.Location = new System.Drawing.Point(5, 220);
-            this.ssnhPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.ssnhPanel.Name = "ssnhPanel";
-            this.ssnhPanel.Size = new System.Drawing.Size(318, 70);
-            this.ssnhPanel.TabIndex = 4;
-            this.ssnhPanel.TabStop = false;
-            this.ssnhPanel.Text = "能耗参数";
-            // 
-            // tableLayoutPanel1
-            // 
-            this.tableLayoutPanel1.ColumnCount = 4;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 5F));
-            this.tableLayoutPanel1.Controls.Add(this.label1, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.nhPeriodField, 2, 1);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 19);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(312, 48);
-            this.tableLayoutPanel1.TabIndex = 1;
-            // 
-            // label1
-            // 
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Location = new System.Drawing.Point(5, 11);
-            this.label1.Margin = new System.Windows.Forms.Padding(0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(135, 25);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "实时能耗统计周期:";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // nhPeriodField
-            // 
-            this.nhPeriodField.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.nhPeriodField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.nhPeriodField.Location = new System.Drawing.Point(140, 11);
-            this.nhPeriodField.Margin = new System.Windows.Forms.Padding(0);
-            this.nhPeriodField.Name = "nhPeriodField";
-            this.nhPeriodField.Size = new System.Drawing.Size(167, 24);
-            this.nhPeriodField.TabIndex = 3;
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -1382,6 +1409,18 @@
             this.topMenuStrip.PerformLayout();
             this.viewLayoutPanel.ResumeLayout(false);
             this.conditonContainer.ResumeLayout(false);
+            this.paramPanel.ResumeLayout(false);
+            this.paramContainer.ResumeLayout(false);
+            this.checkingPanel.ResumeLayout(false);
+            this.checkingContainer.ResumeLayout(false);
+            this.checkingContainer.PerformLayout();
+            this.paramBottomPanel.ResumeLayout(false);
+            this.dzlPanel.ResumeLayout(false);
+            this.dzlContainer.ResumeLayout(false);
+            this.dzlContainer.PerformLayout();
+            this.ssnhPanel.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.planPanel.ResumeLayout(false);
             this.planLayoutPanel.ResumeLayout(false);
             this.planLayoutPanel.PerformLayout();
@@ -1393,15 +1432,6 @@
             this.opServiceContainer.ResumeLayout(false);
             this.reServicePanel.ResumeLayout(false);
             this.reServiceContainer.ResumeLayout(false);
-            this.paramPanel.ResumeLayout(false);
-            this.paramContainer.ResumeLayout(false);
-            this.checkingPanel.ResumeLayout(false);
-            this.checkingContainer.ResumeLayout(false);
-            this.checkingContainer.PerformLayout();
-            this.paramBottomPanel.ResumeLayout(false);
-            this.dzlPanel.ResumeLayout(false);
-            this.dzlContainer.ResumeLayout(false);
-            this.dzlContainer.PerformLayout();
             this.databasePanel.ResumeLayout(false);
             this.databaseLayoutPanel.ResumeLayout(false);
             this.databaseLayoutPanel.PerformLayout();
@@ -1409,8 +1439,6 @@
             this.dbBottomPanel.ResumeLayout(false);
             this.bottomStatusStrip.ResumeLayout(false);
             this.bottomStatusStrip.PerformLayout();
-            this.ssnhPanel.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1508,7 +1536,9 @@
         private System.Windows.Forms.Button exButton;
         private System.Windows.Forms.GroupBox ssnhPanel;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label nhPeriodLabel;
         private System.Windows.Forms.ComboBox nhPeriodField;
+        private System.Windows.Forms.Label gjjkLabel;
+        private System.Windows.Forms.CheckBox gjjkField;
     }
 }

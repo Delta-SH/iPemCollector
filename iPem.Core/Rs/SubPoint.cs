@@ -14,7 +14,7 @@ namespace iPem.Core {
         /// <summary>
         /// 站点类型
         /// </summary>
-        public StationType StationType { get; set; }
+        public string StationTypeId { get; set; }
 
         /// <summary>
         /// 告警级别
@@ -27,11 +27,6 @@ namespace iPem.Core {
         public double AlarmLimit { get; set; }
 
         /// <summary>
-        /// 告警回差
-        /// </summary>
-        public double AlarmReturnDiff { get; set; }
-
-        /// <summary>
         /// 告警延时（秒）
         /// </summary>
         public int AlarmDelay { get; set; }
@@ -40,14 +35,6 @@ namespace iPem.Core {
         /// 告警恢复延时（秒）
         /// </summary>
         public int AlarmRecoveryDelay { get; set; }
-
-        /// <summary>
-        /// 触发模式
-        /// </summary>
-        /// <remarks>
-        /// >、<、=、！= (针对遥信)
-        /// </remarks>
-        public int TriggerTypeId { get; set; }
 
         /// <summary>
         /// 存储周期（秒）
@@ -68,5 +55,10 @@ namespace iPem.Core {
         /// 统计周期(分钟，5的倍数)
         /// </summary>
         public int StaticPeriod { get; set; }
+
+        /// <summary>
+        /// 存储参考时间
+        /// </summary>
+        public string StorageRefTime { get; set; }
     }
 }

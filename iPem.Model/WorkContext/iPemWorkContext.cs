@@ -18,19 +18,27 @@ namespace iPem.Model {
 
         public static List<EnumMethods> AreaTypes { get; set; }
 
-        public static List<Point> Points { get; set; }
+        public static Dictionary<string, Point> Points { get; set; }
 
-        public static List<SubPoint> SubPoints { get; set; }
-
-        public static List<WcProtocol> Protocols { get; set; }
+        public static Dictionary<string, SubPoint> SubPoints { get; set; }
 
         public static List<WcDevice> Devices { get; set; }
 
-        public static List<WcFsu> Fsus { get; set; }
+        /// <summary>
+        /// Key = DeviceId
+        /// </summary>
+        public static Dictionary<string, WcDevice> DeviceSet1 { get; set; }
 
-        public static List<WcRoom> Rooms { get; set; }
+        /// <summary>
+        /// Key = FSUCode + DeviceCode
+        /// </summary>
+        public static Dictionary<string, WcDevice> DeviceSet2 { get; set; }
 
-        public static List<WcStation> Stations { get; set; }
+        public static List<Fsu> Fsus { get; set; }
+
+        public static List<Room> Rooms { get; set; }
+
+        public static List<Station> Stations { get; set; }
 
         public static List<WcArea> Areas { get; set; }
     }

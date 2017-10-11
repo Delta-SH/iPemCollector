@@ -38,7 +38,7 @@ namespace iPem.Data {
                     entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
                     entity.Code = SqlTypeConverter.DBNullStringHandler(rdr["Code"]);
                     entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
-                    entity.Type = new IdValuePair<int, string>() { Id = SqlTypeConverter.DBNullInt32Handler(rdr["NodeLevel"]), Value = "" };
+                    entity.Type = new KV<int, string>() { Key = SqlTypeConverter.DBNullInt32Handler(rdr["NodeLevel"]), Value = "" };
                     entity.ParentId = SqlTypeConverter.DBNullStringHandler(rdr["ParentId"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
@@ -55,7 +55,7 @@ namespace iPem.Data {
                     entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
                     entity.Code = SqlTypeConverter.DBNullStringHandler(rdr["Code"]);
                     entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
-                    entity.Type = new IdValuePair<int, string>() { Id = SqlTypeConverter.DBNullInt32Handler(rdr["NodeLevel"]), Value = "" };
+                    entity.Type = new KV<int, string>() { Key = SqlTypeConverter.DBNullInt32Handler(rdr["NodeLevel"]), Value = "" };
                     entity.ParentId = SqlTypeConverter.DBNullStringHandler(rdr["ParentId"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);

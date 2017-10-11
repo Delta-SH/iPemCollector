@@ -6,39 +6,55 @@ using System.Linq;
 namespace iPem.Model {
     [Serializable]
     public partial class WcArea {
-        public Area Current { get; set; }
+        private readonly Lazy<HashSet<string>> _keys;
+        private readonly Lazy<List<WcArea>> _roots;
 
-        public List<WcStation> Stations { get; set; }
+        public WcArea(Area current) {
+            this.Current = current;
+
+            //延迟加载属性
+            this._keys = new Lazy<HashSet<string>>(() => {
+                var __keys = new HashSet<string>();
+                __keys.Add(this.Current.Id);
+                foreach (var child in this.Children) {
+                    __keys.Add(child.Current.Id);
+                }
+
+                return __keys;
+            });
+            this._roots = new Lazy<List<WcArea>>(() => {
+                if (!this.HasChildren) return new List<WcArea>();
+                return this.Children.FindAll(c => c.Current.ParentId == this.Current.Id);
+            });
+        }
+
+        public Area Current { get; private set; }
 
         public List<WcArea> Parents { get; private set; }
 
         public List<WcArea> Children { get; private set; }
 
-        public List<WcArea> ChildRoot { get; private set; }
+        public HashSet<string> Keys {
+            get { return this._keys.Value; }
+        }
 
-        public HashSet<string> Keys { get; private set; }
+        public List<WcArea> ChildRoot {
+            get { return this._roots.Value; }
+        }
 
-        public virtual bool HasParents {
+        public bool HasParents {
             get { return (this.Parents.Count > 0); }
         }
 
-        public virtual bool HasChildren {
+        public bool HasChildren {
             get { return (this.Children.Count > 0); }
         }
 
         public virtual void Initializer(List<WcArea> entities) {
             this.Parents = new List<WcArea>();
             this.Children = new List<WcArea>();
-            this.ChildRoot = new List<WcArea>();
-            this.Keys = new HashSet<string>();
-
             this.SetAreaParents(entities, this, this);
             this.SetAreaChildren(entities, this, this);
-            this.ChildRoot = this.Children.FindAll(c => c.Current.ParentId == this.Current.Id);
-            this.Keys.Add(this.Current.Id);
-            foreach(var child in this.Children) {
-                this.Keys.Add(child.Current.Id);
-            }
         }
 
         public virtual string[] ToPath() {

@@ -46,6 +46,7 @@ namespace iPem.Configurator {
         INSERT OR IGNORE INTO [params]([id],[value]) VALUES(3,'006309000');
         INSERT OR IGNORE INTO [params]([id],[value]) VALUES(4,'006402000');
         INSERT OR IGNORE INTO [params]([id],[value]) VALUES(5,'0');
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(6,'0');
         
         --创建默认数据库信息
         INSERT OR IGNORE INTO [databases]([id],[name],[type],[ip],[port],[uid],[password],[db]) VALUES('D001','资源数据库',1,NULL,1433,NULL,NULL,NULL);

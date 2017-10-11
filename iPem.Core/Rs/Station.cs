@@ -42,11 +42,6 @@ namespace iPem.Core {
         public string Altitude { get; set; }
 
         /// <summary>
-        /// 市电引入方式
-        /// </summary>
-        public int CityElecLoadTypeId { get; set; }
-
-        /// <summary>
         /// 市电容量
         /// </summary>
         public string CityElecCap { get; set; }
@@ -55,49 +50,6 @@ namespace iPem.Core {
         /// 市电路数
         /// </summary>
         public int CityElectNumber { get; set; }
-
-        /// <summary>
-        /// 市电引入
-        /// </summary>
-        public string CityElecLoad { get; set; }
-
-        /// <summary>
-        /// 维护负责人
-        /// </summary>
-        public string Contact { get; set; }
-
-        /// <summary>
-        /// 线径
-        /// </summary>
-        public string LineRadiusSize { get; set; }
-
-        /// <summary>
-        /// 线缆长度
-        /// </summary>
-        public string LineLength { get; set; }
-
-        /// <summary>
-        /// 供电性质
-        /// </summary>
-        /// <remarks>
-        /// 枚举值：转供、直供
-        /// </remarks>
-        public int SuppPowerTypeId { get; set; }
-
-        /// <summary>
-        /// 转供信息
-        /// </summary>
-        public string TranInfo { get; set; }
-
-        /// <summary>
-        /// 供电合同号
-        /// </summary>
-        public string TranContNo { get; set; }
-
-        /// <summary>
-        /// 变电站电话
-        /// </summary>
-        public string TranPhone { get; set; }
 
         /// <summary>
         /// 区域编码

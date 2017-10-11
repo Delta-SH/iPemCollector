@@ -1,4 +1,5 @@
 ﻿using iPem.Core;
+using iPem.Core.Rs;
 using System;
 
 namespace iPem.Model {
@@ -14,7 +15,7 @@ namespace iPem.Model {
         /// <summary>
         /// 关联的信号信息
         /// </summary>
-        public Point Point { get; set; }
+        public Signal Signal { get; set; }
 
         /// <summary>
         /// 告警流水信息

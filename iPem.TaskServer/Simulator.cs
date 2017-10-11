@@ -18,7 +18,8 @@ using System.Windows.Forms;
 
 namespace iPem.TaskServer {
     public partial class Simulator : Form {
-        //全局变量
+
+        #region 全局变量
         private RunStatus _runStatus;
         private Registry _registry;
         private Thread _workerThread;
@@ -28,8 +29,9 @@ namespace iPem.TaskServer {
 
         //静态配置读写锁
         static ReaderWriterLockSlim _configWriterLock = new ReaderWriterLockSlim();
+        #endregion
 
-        //资源数据类
+        #region 资源数据类
         private LogicTypeRepository _logicTypeRepository;
         private DeviceTypeRepository _deviceTypeRepository;
         private RoomTypeRepository _roomTypeRepository;
@@ -37,20 +39,20 @@ namespace iPem.TaskServer {
         private EnumMethodsRepository _enumMethodsRepository;
         private PointRepository _pointRepository;
         private SubPointRepository _subPointRepository;
-        private ProtocolRepository _protocolRepository;
         private DeviceRepository _deviceRepository;
         private FsuRepository _fsuRepository;
         private RoomRepository _roomRepository;
         private StationRepository _stationRepository;
         private AreaRepository _areaRepository;
-        private RedefinePointRepository _redefinePointRepository;
+        private SignalRepository _signalRepository;
         private CombSwitElecSourRepository _combSwitElecSourRepository;
         private DivSwitElecSourRepository _divSwitElecSourRepository;
         private MaskingRepository _maskingRepository;
         private GroupRepository _groupRepository;
         private NoticeRepository _noticeRepository;
+        #endregion
 
-        //历史数据类
+        #region 历史数据类
         private A_AAlarmRepository _aalmRepository;
         private A_FAlarmRepository _falmRepository;
         private A_HAlarmRepository _halmRepository;
@@ -69,11 +71,14 @@ namespace iPem.TaskServer {
         private V_CutedRepository _cutedRepository;
         private V_ParamDiffRepository _paramDiffRepository;
         private Alarmer _alarmer;
+        private Indexer _indexer;
+        #endregion
 
-        //应用数据类
+        #region 应用数据类
         private ReservationRepository _reservationRepository;
         private NodesInReservationRepository _nodesInReservationRepository;
         private FormulaRepository _formulaRepository;
+        #endregion
 
         public Simulator() {
             InitializeComponent();
@@ -128,13 +133,12 @@ namespace iPem.TaskServer {
                 _enumMethodsRepository = new EnumMethodsRepository();
                 _pointRepository = new PointRepository();
                 _subPointRepository = new SubPointRepository();
-                _protocolRepository = new ProtocolRepository();
                 _deviceRepository = new DeviceRepository();
                 _fsuRepository = new FsuRepository();
                 _roomRepository = new RoomRepository();
                 _stationRepository = new StationRepository();
                 _areaRepository = new AreaRepository();
-                _redefinePointRepository = new RedefinePointRepository();
+                _signalRepository = new SignalRepository();
                 _combSwitElecSourRepository = new CombSwitElecSourRepository();
                 _divSwitElecSourRepository = new DivSwitElecSourRepository();
                 _maskingRepository = new MaskingRepository();
@@ -160,6 +164,7 @@ namespace iPem.TaskServer {
                 _cutedRepository = new V_CutedRepository();
                 _paramDiffRepository = new V_ParamDiffRepository();
                 _alarmer = new Alarmer();
+                _indexer = new Indexer();
 
                 //初始化应用数据类
                 _reservationRepository = new ReservationRepository();
@@ -253,7 +258,8 @@ namespace iPem.TaskServer {
                 _runStatus = RunStatus.Init;
             } catch (Exception exc) {
                 _runStatus = RunStatus.Stop;
-                Logger.Error(exc.Message, exc);
+                Logger.Warning("启动服务失败，详见错误日志。");
+                Logger.Error("启动服务失败", exc);
             }
         }
 
@@ -275,7 +281,8 @@ namespace iPem.TaskServer {
                 _registry.UpdateTasks(GlobalConfig.CurTasks);
                 Logger.Information("服务已停止");
             } catch (Exception exc) {
-                Logger.Error(exc.Message, exc);
+                Logger.Warning("停止服务失败，详见错误日志。");
+                Logger.Error("停止服务失败", exc);
             }
         }
 
@@ -294,16 +301,15 @@ namespace iPem.TaskServer {
                         Logger.Information("数据初始化...");
 
                         LoadBase();
-                        LoadRedefine();
                         LoadMaskings();
                         LoadScHeartbeats();
-                        LoadReservation();
+                        LoadReservations();
                         LoadTasks(false);
                         LoadFormulas();
-                        LoadStatic();
-                        LoadBat();
-                        LoadCut();
-                        LoadActiveAlarm();
+                        LoadStaticPolicies();
+                        LoadBatPolicies();
+                        LoadCutPolicies();
+                        LoadAlarms(true);
 
                         Logger.Information("数据初始化完成");
                         _runStatus = RunStatus.Running;
@@ -313,7 +319,7 @@ namespace iPem.TaskServer {
                 } catch (Exception err) {
                     Logger.Error(err.Message, err);
                     if (maxRepeat <= 0) {
-                        Logger.Warning("数据初始化错误,服务启动失败。");
+                        Logger.Warning("数据初始化错误,详见错误日志。");
                         _runStatus = RunStatus.Stop;
                         _allDone.Set();
                         break;
@@ -340,6 +346,8 @@ namespace iPem.TaskServer {
                     if (interval++ <= 10) continue; interval = 1;
 
                     try {
+
+                        #region 执行命令
                         var orders = _registry.GetOrders();
                         var notices = _noticeRepository.GetEntities();
                         if (notices.Count > 0) {
@@ -358,9 +366,9 @@ namespace iPem.TaskServer {
                                     if (notices.Any(n => n.Name.Contains("H_Masking"))) {
                                         orders.Add(new OrderEntity { Id = OrderId.SyncMasking, Time = DateTime.Now });
                                     }
-                                    
-                                    if (notices.Any(n => n.Name.Contains("D_RedefinePoint"))) {
-                                        orders.Add(new OrderEntity { Id = OrderId.SyncRedefine, Time = DateTime.Now });
+
+                                    if (notices.Any(n => n.Name.Contains("D_FSU"))) {
+                                        orders.Add(new OrderEntity { Id = OrderId.SyncFsu, Time = DateTime.Now });
                                     }
                                 }
                             }
@@ -369,6 +377,7 @@ namespace iPem.TaskServer {
                         }
 
                         if (orders.Count == 0) continue;
+                        #endregion
 
                         #region 重启服务
                         var reboot = orders.Find(o => o.Id == OrderId.Restart);
@@ -390,73 +399,78 @@ namespace iPem.TaskServer {
                                 try {
                                     LoadBase();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步基本配置数据错误，{0}", err.Message), err);
-                                }
-
-                                try {
-                                    LoadRedefine();
-                                } catch (Exception err) {
-                                    Logger.Error(string.Format("同步重定义数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步基本配置数据错误，详见错误日志。");
+                                    Logger.Error("同步基本配置数据错误", err);
                                 }
 
                                 try {
                                     LoadMaskings();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步告警屏蔽数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步告警屏蔽数据错误，详见错误日志。");
+                                    Logger.Error("同步告警屏蔽数据错误", err);
                                 }
 
                                 try {
                                     LoadScHeartbeats();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步SC采集组数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步SC采集组数据错误，详见错误日志。");
+                                    Logger.Error("同步SC采集组数据错误", err);
                                 }
 
                                 try {
-                                    LoadReservation();
+                                    LoadReservations();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步工程预约数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步工程预约数据错误，详见错误日志。");
+                                    Logger.Error("同步工程预约数据错误", err);
                                 }
 
                                 try {
                                     LoadTasks(true);
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步计划任务数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步计划任务数据错误，详见错误日志。");
+                                    Logger.Error("同步计划任务数据错误", err);
                                 }
 
                                 try {
                                     LoadParams();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步服务配置数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步服务配置数据错误，详见错误日志。");
+                                    Logger.Error("同步服务配置数据错误", err);
                                 }
 
                                 try {
                                     LoadFormulas();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步能耗公式数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步能耗公式数据错误，详见错误日志。");
+                                    Logger.Error("同步能耗公式数据错误", err);
                                 }
 
                                 try {
-                                    LoadStatic();
+                                    LoadStaticPolicies();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步信号测值统计策略数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步信号测值统计策略数据错误，详见错误日志。");
+                                    Logger.Error("同步信号测值统计策略数据错误", err);
                                 }
 
                                 try {
-                                    LoadBat();
+                                    LoadBatPolicies();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步电池放电统计策略数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步电池放电统计策略数据错误，详见错误日志。");
+                                    Logger.Error("同步电池放电统计策略数据错误", err);
                                 }
 
                                 try {
-                                    LoadCut();
+                                    LoadCutPolicies();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步断站、停电、发电策略数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步断站、停电、发电策略数据错误，详见错误日志。");
+                                    Logger.Error("同步断站、停电、发电策略数据错误", err);
                                 }
 
                                 try {
-                                    LoadActiveAlarm();
+                                    LoadAlarms();
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步活动告警数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步活动告警数据错误，详见错误日志。");
+                                    Logger.Error("同步活动告警数据错误", err);
                                 }
 
                                 Logger.Information("重载数据完成。");
@@ -481,55 +495,57 @@ namespace iPem.TaskServer {
                                     try {
                                         LoadBase();
                                     } catch (Exception err) {
-                                        Logger.Error(string.Format("同步基本配置数据错误，{0}", err.Message), err);
-                                    }
-
-                                    try {
-                                        LoadRedefine();
-                                    } catch (Exception err) {
-                                        Logger.Error(string.Format("同步重定义数据错误，{0}", err.Message), err);
+                                        Logger.Warning("同步基本配置数据错误，详见错误日志。");
+                                        Logger.Error("同步基本配置数据错误", err);
                                     }
 
                                     try {
                                         LoadMaskings();
                                     } catch (Exception err) {
-                                        Logger.Error(string.Format("同步告警屏蔽数据错误，{0}", err.Message), err);
+                                        Logger.Warning("同步告警屏蔽数据错误，详见错误日志。");
+                                        Logger.Error("同步告警屏蔽数据错误", err);
                                     }
 
                                     try {
                                         LoadScHeartbeats();
                                     } catch (Exception err) {
-                                        Logger.Error(string.Format("同步SC采集组数据错误，{0}", err.Message), err);
+                                        Logger.Warning("同步SC采集组数据错误，详见错误日志。");
+                                        Logger.Error("采集组数据错误", err);
                                     }
 
                                     try {
-                                        LoadReservation();
+                                        LoadReservations();
                                     } catch (Exception err) {
-                                        Logger.Error(string.Format("同步工程预约数据错误，{0}", err.Message), err);
+                                        Logger.Warning("同步工程预约数据错误，详见错误日志。");
+                                        Logger.Error("同步工程预约数据错误", err);
                                     }
 
                                     try {
                                         LoadFormulas();
                                     } catch (Exception err) {
-                                        Logger.Error(string.Format("同步能耗公式数据错误，{0}", err.Message), err);
+                                        Logger.Warning("同步能耗公式数据错误，详见错误日志。");
+                                        Logger.Error("同步能耗公式数据错误", err);
                                     }
 
                                     try {
-                                        LoadStatic();
+                                        LoadStaticPolicies();
                                     } catch (Exception err) {
-                                        Logger.Error(string.Format("同步信号测值统计策略数据错误，{0}", err.Message), err);
+                                        Logger.Warning("同步信号测值统计策略数据错误，详见错误日志。");
+                                        Logger.Error("同步信号测值统计策略数据错误", err);
                                     }
 
                                     try {
-                                        LoadBat();
+                                        LoadBatPolicies();
                                     } catch (Exception err) {
-                                        Logger.Error(string.Format("同步电池放电统计策略数据错误，{0}", err.Message), err);
+                                        Logger.Warning("同步电池放电统计策略数据错误，详见错误日志。");
+                                        Logger.Error("同步电池放电统计策略数据错误", err);
                                     }
 
                                     try {
-                                        LoadCut();
+                                        LoadCutPolicies();
                                     } catch (Exception err) {
-                                        Logger.Error(string.Format("同步断站、停电、发电策略数据错误，{0}", err.Message), err);
+                                        Logger.Warning("同步断站、停电、发电策略数据错误，详见错误日志。");
+                                        Logger.Error("同步断站、停电、发电策略数据错误", err);
                                     }
 
                                     Logger.Information("同步配置完成。");
@@ -544,10 +560,11 @@ namespace iPem.TaskServer {
                                     _configWriterLock.EnterWriteLock();
 
                                     Logger.Information("同步告警...");
-                                    LoadActiveAlarm();
+                                    LoadAlarms();
                                     Logger.Information("同步告警完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步活动告警数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步活动告警数据错误，详见错误日志。");
+                                    Logger.Error("同步活动告警数据错误", err);
                                 } finally {
                                     _configWriterLock.ExitWriteLock();
                                 }
@@ -559,10 +576,11 @@ namespace iPem.TaskServer {
                                     _configWriterLock.EnterWriteLock();
 
                                     Logger.Information("同步工程预约...");
-                                    LoadReservation();
+                                    LoadReservations();
                                     Logger.Information("同步工程预约完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步工程预约数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步工程预约数据错误，详见错误日志。");
+                                    Logger.Error("同步工程预约数据错误", err);
                                 } finally {
                                     _configWriterLock.ExitWriteLock();
                                 }
@@ -577,7 +595,8 @@ namespace iPem.TaskServer {
                                     LoadFormulas();
                                     Logger.Information("同步能耗公式完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步能耗公式数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步能耗公式数据错误，详见错误日志。");
+                                    Logger.Error("同步能耗公式数据错误", err);
                                 } finally {
                                     _configWriterLock.ExitWriteLock();
                                 }
@@ -592,22 +611,24 @@ namespace iPem.TaskServer {
                                     LoadMaskings();
                                     Logger.Information("同步告警屏蔽数据完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步告警屏蔽数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步告警屏蔽数据错误，详见错误日志。");
+                                    Logger.Error("同步告警屏蔽数据错误", err);
                                 } finally {
                                     _configWriterLock.ExitWriteLock();
                                 }
                                 #endregion
-                            } else if (order.Id == OrderId.SyncRedefine) {
-                                #region 同步重定义数据
+                            } else if (order.Id == OrderId.SyncFsu) {
+                                #region 同步FSU数据
                                 try {
                                     //获取写资源锁
                                     _configWriterLock.EnterWriteLock();
 
-                                    Logger.Information("同步重定义数据...");
-                                    LoadRedefine();
-                                    Logger.Information("同步重定义数据完成。");
+                                    Logger.Information("同步FSU数据...");
+                                    iPemWorkContext.Fsus = _fsuRepository.GetEntities();
+                                    Logger.Information("同步FSU数据完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("同步重定义数据错误，{0}", err.Message), err);
+                                    Logger.Warning("同步FSU数据错误，详见错误日志。");
+                                    Logger.Error("同步FSU数据错误", err);
                                 } finally {
                                     _configWriterLock.ExitWriteLock();
                                 }
@@ -615,85 +636,131 @@ namespace iPem.TaskServer {
                             } else if (order.Id == OrderId.ExTask001) {
                                 #region Task001
                                 try {
+                                    //获取读资源锁
+                                    _configWriterLock.EnterReadLock();
+
                                     var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
                                     if (task != null) this.ExTask001(task.Start, task.End);
                                     Logger.Information("能耗数据处理命令执行完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("能耗数据处理命令执行错误，{0}", err.Message), err);
+                                    Logger.Warning("能耗数据处理命令执行错误，详见错误日志。");
+                                    Logger.Error("能耗数据处理命令执行错误", err);
+                                } finally {
+                                    _configWriterLock.ExitReadLock();
                                 }
                                 #endregion
                             } else if (order.Id == OrderId.ExTask002) {
                                 #region Task002
                                 try {
+                                    //获取读资源锁
+                                    _configWriterLock.EnterReadLock();
+
                                     var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
                                     if (task != null) this.ExTask002(task.Start, task.End);
                                     Logger.Information("电池充放电处理命令执行完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("电池充放电处理命令执行错误，{0}", err.Message), err);
+                                    Logger.Warning("电池充放电处理命令执行错误，详见错误日志。");
+                                    Logger.Error("电池充放电处理命令执行错误", err);
+                                } finally {
+                                    _configWriterLock.ExitReadLock();
                                 }
                                 #endregion
                             } else if (order.Id == OrderId.ExTask003) {
                                 #region Task003
                                 try {
+                                    //获取读资源锁
+                                    _configWriterLock.EnterReadLock();
+
                                     var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
                                     if (task != null) this.ExTask003(task.Start, task.End);
                                     Logger.Information("信号测值统计命令执行完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("信号测值统计命令执行错误，{0}", err.Message), err);
+                                    Logger.Warning("信号测值统计命令执行错误，详见错误日志。");
+                                    Logger.Error("信号测值统计命令执行错误", err);
+                                } finally {
+                                    _configWriterLock.ExitReadLock();
                                 }
                                 #endregion
                             } else if (order.Id == OrderId.ExTask004) {
                                 #region Task004
                                 try {
+                                    //获取读资源锁
+                                    _configWriterLock.EnterReadLock();
+
                                     var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
                                     if (task != null) {
                                         var _FzdlParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.FZDL);
                                         if (_FzdlParam == null || string.IsNullOrWhiteSpace(_FzdlParam.Value))
                                             throw new Exception("尚未配置负载电流信号");
 
-                                        var _FzdlPoint = iPemWorkContext.Points.Find(p => p.Id == _FzdlParam.Value);
-                                        if (_FzdlPoint == null) throw new Exception("负载电流信号配置错误");
+                                        if(!iPemWorkContext.Points.ContainsKey(_FzdlParam.Value))
+                                            throw new Exception("负载电流信号配置错误");
+
+                                        var _FzdlPoint = iPemWorkContext.Points[_FzdlParam.Value];
 
                                         var _GzztParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.GZZT);
                                         if (_GzztParam == null || string.IsNullOrWhiteSpace(_GzztParam.Value))
                                             throw new Exception("尚未配置工作状态信号");
 
-                                        var _GzztPoint = iPemWorkContext.Points.Find(p => p.Id == _GzztParam.Value);
-                                        if (_GzztPoint == null) throw new Exception("工作状态信号配置错误");
+                                        if (!iPemWorkContext.Points.ContainsKey(_GzztParam.Value))
+                                            throw new Exception("工作状态信号配置错误");
+
+                                        var _GzztPoint = iPemWorkContext.Points[_GzztParam.Value];
 
                                         this.ExTask004(task.Start, task.End, _FzdlPoint, _GzztPoint);
                                         Logger.Information("开关电源带载率统计命令执行完成。");
                                     }
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("开关电源带载率统计命令执行错误，{0}", err.Message), err);
+                                    Logger.Warning("开关电源带载率统计命令执行错误，详见错误日志。");
+                                    Logger.Error("开关电源带载率统计命令执行错误", err);
+                                } finally {
+                                    _configWriterLock.ExitReadLock();
                                 }
                                 #endregion
                             } else if (order.Id == OrderId.ExTask005) {
                                 #region Task005
                                 try {
+                                    //获取读资源锁
+                                    _configWriterLock.EnterReadLock();
+
                                     this.ExTask005();
                                     Logger.Information("资管接口同步命令执行完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("资管接口同步命令执行错误，{0}", err.Message), err);
+                                    Logger.Warning("资管接口同步命令执行错误，详见错误日志。");
+                                    Logger.Error("资管接口同步命令执行错误", err);
+                                } finally {
+                                    _configWriterLock.ExitReadLock();
                                 }
                                 #endregion
                             } else if (order.Id == OrderId.ExTask006) {
                                 #region Task006
                                 try {
+                                    //获取读资源锁
+                                    _configWriterLock.EnterReadLock();
+
                                     this.ExTask006();
                                     Logger.Information("参数自动巡检命令执行完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("参数自动巡检命令执行错误，{0}", err.Message), err);
+                                    Logger.Warning("参数自动巡检命令执行错误，详见错误日志。");
+                                    Logger.Error("参数自动巡检命令执行错误", err);
+                                } finally {
+                                    _configWriterLock.ExitReadLock();
                                 }
                                 #endregion
                             } else if (order.Id == OrderId.ExTask007) {
                                 #region Task007
                                 try {
+                                    //获取写资源锁
+                                    _configWriterLock.EnterWriteLock();
+
                                     var task = JsonConvert.DeserializeObject<ExTask>(order.Param);
                                     if (task != null) this.ExTask007(task.Start, task.End);
                                     Logger.Information("告警同步处理命令执行完成。");
                                 } catch (Exception err) {
-                                    Logger.Error(string.Format("告警同步处理命令执行错误，{0}", err.Message), err);
+                                    Logger.Warning("告警同步处理命令执行错误，详见错误日志。");
+                                    Logger.Error("告警同步处理命令执行错误", err);
+                                } finally {
+                                    _configWriterLock.ExitWriteLock();
                                 }
                                 #endregion
                             }
@@ -702,6 +769,7 @@ namespace iPem.TaskServer {
 
                         _registry.DelOrders(orders);
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     }
                 }
@@ -726,336 +794,350 @@ namespace iPem.TaskServer {
                         //获取读资源锁
                         _configWriterLock.EnterReadLock();
 
-                        var allTAlarms = _talmRepository.GetEntities();
-                        if (allTAlarms.Count > 0) {
-                            var allTAlarmModels = from alarm in allTAlarms
-                                                  join point in iPemWorkContext.Points on alarm.PointId equals point.Id
-                                                  join device in iPemWorkContext.Devices on new { alarm.FsuId, alarm.DeviceId } equals new { FsuId = device.Current.FsuCode, DeviceId = device.Current.Code }
-                                                  select new TAlarmModel { Device = device.Current, Point = point, Alarm = alarm };
+                        var _alarmModels = new List<TAlarmModel>();
+                        foreach (var _alarm in _talmRepository.GetEntities()) {
+                            var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
+                            if(!iPemWorkContext.DeviceSet2.ContainsKey(key)) continue;
 
-                            var currentTAlarms = new List<TAlarmModel>();
+                            var _device = iPemWorkContext.DeviceSet2[key];
+                            var _signal = _device.Signals.Find(p => p.PointId == _alarm.PointId);
+                            if (_signal == null) continue;
+                            _alarmModels.Add(new TAlarmModel { Device = _device.Current, Signal = _signal, Alarm = _alarm });
+                        }
+
+                        if (_alarmModels.Count > 0) {
+                            var _validModels = new List<TAlarmModel>();
+
                             #region 处理告警触发延迟、告警恢复延迟
-                            foreach (var alarm in allTAlarmModels) {
-                                if (alarm.Alarm.AlarmFlag == EnmFlag.Begin) {
-                                    var key = CommonHelper.JoinKeys(alarm.Device.Id, alarm.Point.Id);
-                                    if (GlobalConfig.RedefinePoints.ContainsKey(key)) {
-                                        var redefine = GlobalConfig.RedefinePoints[key];
-                                        if (redefine.AlarmDelay > 0 && alarm.Alarm.AlarmTime.AddSeconds(redefine.AlarmDelay) > DateTime.Now) {
-                                            continue;
-                                        }
-                                    }
-                                } else if (alarm.Alarm.AlarmFlag == EnmFlag.End) {
-                                    var key = CommonHelper.JoinKeys(alarm.Device.Id, alarm.Point.Id);
-                                    if (GlobalConfig.RedefinePoints.ContainsKey(key)) {
-                                        var redefine = GlobalConfig.RedefinePoints[key];
-                                        if (redefine.AlarmRecoveryDelay > 0 && alarm.Alarm.AlarmTime.AddSeconds(redefine.AlarmRecoveryDelay) > DateTime.Now) {
-                                            continue;
-                                        }
-                                    }
+                            foreach (var _alarm in _alarmModels) {
+                                if (_alarm.Alarm.AlarmFlag == EnmFlag.Begin && _alarm.Signal.AlarmDelay > 0 && _alarm.Alarm.AlarmTime.AddSeconds(_alarm.Signal.AlarmDelay) > DateTime.Now) {
+                                    continue;
+                                } else if (_alarm.Alarm.AlarmFlag == EnmFlag.End && _alarm.Signal.AlarmRecoveryDelay > 0 && _alarm.Alarm.AlarmTime.AddSeconds(_alarm.Signal.AlarmRecoveryDelay) > DateTime.Now) {
+                                    continue;
                                 }
 
-                                currentTAlarms.Add(alarm);
+                                _validModels.Add(_alarm);
                             }
                             #endregion
 
-                            //为了防止服务器和FSU时间不一致，允许服务器和FSU时间有1小时的误差。
-                            var finalReservations = GlobalConfig.Reservations.FindAll(a => DateTime.Now >= a.Reservation.StartTime.AddHours(-1) && DateTime.Now <= a.Reservation.EndTime.AddHours(1));
-                            foreach (var alarm in currentTAlarms) {
+                            // 为了防止服务器和FSU时间不一致，允许服务器和FSU时间有1小时的误差。
+                            var _reservations = GlobalConfig.Reservations.FindAll(res => DateTime.Now >= res.Reservation.StartTime.AddHours(-1) && DateTime.Now <= res.Reservation.EndTime.AddHours(1));
+                            // 关闭/打开实时告警接口
+                            var _iparam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.GJJK);
+                            var _ienabled = _iparam != null && "1".Equals(_iparam.Value) ? true : false;
+                            // 处理有效告警
+                            foreach (var _alarm in _validModels) {
                                 try {
-                                    var key = CommonHelper.JoinKeys(alarm.Device.Id, alarm.Point.Id);
-                                    var almId = string.Format("{0}-{1}", alarm.Alarm.SerialNo, alarm.Device.FsuId);
-                                    if (alarm.Alarm.AlarmFlag == EnmFlag.Begin) {
+                                    var _id = string.Format("{0}-{1}", _alarm.Alarm.SerialNo, _alarm.Device.FsuId);
+                                    var _key = CommonHelper.JoinKeys(_alarm.Device.Id, _alarm.Signal.PointId);
+                                    if (_alarm.Alarm.AlarmFlag == EnmFlag.Begin) {
                                         #region 开始告警
                                         try {
-                                            var active = _aalmRepository.GetEntity(almId);
-                                            if (active == null) {
-                                                var current = new AlarmStart {
-                                                    Id = almId,
-                                                    AreaId = alarm.Device.AreaId,
-                                                    StationId = alarm.Device.StationId,
-                                                    RoomId = alarm.Device.RoomId,
-                                                    FsuId = alarm.Device.FsuId,
-                                                    FsuCode = alarm.Device.FsuCode,
-                                                    DeviceId = alarm.Device.Id,
-                                                    DeviceCode = alarm.Device.Code,
-                                                    PointId = alarm.Point.Id,
-                                                    SerialNo = alarm.Alarm.SerialNo,
-                                                    NMAlarmId = alarm.Alarm.NMAlarmId,
-                                                    AlarmTime = alarm.Alarm.AlarmTime,
-                                                    AlarmLevel = alarm.Alarm.AlarmLevel,
-                                                    AlarmFlag = alarm.Alarm.AlarmFlag,
-                                                    AlarmValue = alarm.Alarm.AlarmValue,
-                                                    AlarmDesc = alarm.Alarm.AlarmDesc,
-                                                    AlarmRemark = alarm.Alarm.AlarmRemark
+                                            var _active = _aalmRepository.GetEntity(_id);
+                                            if (_active == null) {
+
+                                                #region 初始化告警
+                                                var _current = new AlarmStart {
+                                                    Id = _id,
+                                                    AreaId = _alarm.Device.AreaId,
+                                                    StationId = _alarm.Device.StationId,
+                                                    RoomId = _alarm.Device.RoomId,
+                                                    FsuId = _alarm.Device.FsuId,
+                                                    FsuCode = _alarm.Device.FsuCode,
+                                                    DeviceId = _alarm.Device.Id,
+                                                    DeviceCode = _alarm.Device.Code,
+                                                    PointId = _alarm.Signal.PointId,
+                                                    SerialNo = _alarm.Alarm.SerialNo,
+                                                    NMAlarmId = _alarm.Alarm.NMAlarmId,
+                                                    AlarmTime = _alarm.Alarm.AlarmTime,
+                                                    AlarmLevel = _alarm.Alarm.AlarmLevel,
+                                                    AlarmFlag = _alarm.Alarm.AlarmFlag,
+                                                    AlarmValue = _alarm.Alarm.AlarmValue,
+                                                    AlarmDesc = _alarm.Alarm.AlarmDesc,
+                                                    AlarmRemark = _alarm.Alarm.AlarmRemark
                                                 };
+                                                #endregion
 
                                                 #region 工程预约
-                                                foreach (var reservation in finalReservations) {
-                                                    if (reservation.Devices.Contains(current.DeviceId)) {
-                                                        current.ReservationId = reservation.Reservation.Id;
-                                                        current.ReservationName = reservation.Reservation.Name;
-                                                        current.ReservationStart = reservation.Reservation.StartTime;
-                                                        current.ReservationEnd = reservation.Reservation.EndTime;
+                                                foreach (var _res in _reservations) {
+                                                    if (_res.Devices.Contains(_current.DeviceId)) {
+                                                        _current.ReservationId = _res.Reservation.Id;
+                                                        _current.ReservationName = _res.Reservation.Name;
+                                                        _current.ReservationStart = _res.Reservation.StartTime;
+                                                        _current.ReservationEnd = _res.Reservation.EndTime;
                                                         break;
                                                     }
                                                 }
                                                 #endregion
 
-                                                #region 主次告警、关联告警、告警过滤、告警翻转、告警屏蔽
-                                                if (GlobalConfig.RedefinePoints.ContainsKey(key)) {
-                                                    var redefine = GlobalConfig.RedefinePoints[key];
-
-                                                    #region 主次告警
-                                                    if (!string.IsNullOrWhiteSpace(redefine.InferiorAlarmStr)) {
-                                                        var dicKey = CommonHelper.JoinKeys(redefine.InferiorAlarmStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
-                                                        if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
-                                                            current.PrimaryId = GlobalConfig.AlarmKeys2[dicKey].Id;
-                                                        }
+                                                #region 主次告警
+                                                if (!string.IsNullOrWhiteSpace(_alarm.Signal.InferiorAlarmStr)) {
+                                                    var dicKey = CommonHelper.JoinKeys(_alarm.Signal.InferiorAlarmStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                                                    if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
+                                                        _current.PrimaryId = GlobalConfig.AlarmKeys2[dicKey].Id;
                                                     }
-                                                    #endregion
-
-                                                    #region 关联告警
-                                                    if (!string.IsNullOrWhiteSpace(redefine.ConnAlarmStr)) {
-                                                        var dicKey = CommonHelper.JoinKeys(redefine.ConnAlarmStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
-                                                        if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
-                                                            current.RelatedId = GlobalConfig.AlarmKeys2[dicKey].Id;
-                                                        }
-                                                    }
-                                                    #endregion
-
-                                                    #region 告警过滤
-                                                    if (!string.IsNullOrWhiteSpace(redefine.AlarmFilteringStr)) {
-                                                        var dicKey = CommonHelper.JoinKeys(redefine.AlarmFilteringStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
-                                                        if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
-                                                            current.FilterId = GlobalConfig.AlarmKeys2[dicKey].Id;
-                                                        }
-                                                    }
-                                                    #endregion
-
-                                                    #region 告警翻转
-                                                    if (!string.IsNullOrWhiteSpace(redefine.AlarmReversalStr)) {
-                                                        int reversalInterval;
-                                                        if (int.TryParse(redefine.AlarmReversalStr, out reversalInterval) && reversalInterval > 0) {
-                                                            if (GlobalConfig.ReversalKeys.ContainsKey(key)) {
-                                                                var reversalTarget = GlobalConfig.ReversalKeys[key];
-                                                                if (reversalTarget.AlarmTime.AddMinutes(reversalInterval) >= current.AlarmTime) {
-                                                                    current.ReversalId = reversalTarget.AlarmId;
-                                                                    current.ReversalCount = ++reversalTarget.ReversalCount;
-                                                                } else {
-                                                                    reversalTarget.AlarmId = current.Id;
-                                                                    reversalTarget.AlarmTime = current.AlarmTime;
-                                                                    reversalTarget.ReversalCount = 0;
-                                                                    current.ReversalId = current.Id;
-                                                                    current.ReversalCount = 0;
-                                                                }
-                                                            } else {
-                                                                GlobalConfig.ReversalKeys[key] = new ReversalModel { AlarmId = current.Id, AlarmTime = current.AlarmTime, ReversalCount = 0 };
-                                                                current.ReversalId = current.Id;
-                                                                current.ReversalCount = 0;
-                                                            }
-                                                        }
-                                                    }
-                                                    #endregion
-
-                                                    #region 告警屏蔽
-
-                                                    current.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(current.DeviceId, "masking-all"));
-                                                    if (!current.Masked) current.Masked = GlobalConfig.Maskings.Contains(key);
-
-                                                    #endregion
-
                                                 }
+                                                #endregion
+
+                                                #region 关联告警
+                                                if (!string.IsNullOrWhiteSpace(_alarm.Signal.ConnAlarmStr)) {
+                                                    var dicKey = CommonHelper.JoinKeys(_alarm.Signal.ConnAlarmStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                                                    if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
+                                                        _current.RelatedId = GlobalConfig.AlarmKeys2[dicKey].Id;
+                                                    }
+                                                }
+                                                #endregion
+
+                                                #region 告警过滤
+                                                if (!string.IsNullOrWhiteSpace(_alarm.Signal.AlarmFilteringStr)) {
+                                                    var dicKey = CommonHelper.JoinKeys(_alarm.Signal.AlarmFilteringStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                                                    if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
+                                                        _current.FilterId = GlobalConfig.AlarmKeys2[dicKey].Id;
+                                                    }
+                                                }
+                                                #endregion
+
+                                                #region 告警翻转
+                                                if (!string.IsNullOrWhiteSpace(_alarm.Signal.AlarmReversalStr)) {
+                                                    int reversalInterval;
+                                                    if (int.TryParse(_alarm.Signal.AlarmReversalStr, out reversalInterval) && reversalInterval > 0) {
+                                                        if (GlobalConfig.ReversalKeys.ContainsKey(_key)) {
+                                                            var reversalTarget = GlobalConfig.ReversalKeys[_key];
+                                                            if (reversalTarget.AlarmTime.AddMinutes(reversalInterval) >= _current.AlarmTime) {
+                                                                _current.ReversalId = reversalTarget.AlarmId;
+                                                                _current.ReversalCount = ++reversalTarget.ReversalCount;
+                                                            } else {
+                                                                reversalTarget.AlarmId = _current.Id;
+                                                                reversalTarget.AlarmTime = _current.AlarmTime;
+                                                                reversalTarget.ReversalCount = 0;
+                                                                _current.ReversalId = _current.Id;
+                                                                _current.ReversalCount = 0;
+                                                            }
+                                                        } else {
+                                                            GlobalConfig.ReversalKeys[_key] = new ReversalModel { AlarmId = _current.Id, AlarmTime = _current.AlarmTime, ReversalCount = 0 };
+                                                            _current.ReversalId = _current.Id;
+                                                            _current.ReversalCount = 0;
+                                                        }
+                                                    }
+                                                }
+                                                #endregion
+
+                                                #region 告警屏蔽
+
+                                                _current.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(_current.DeviceId, "masking-all"));
+                                                if (!_current.Masked) _current.Masked = GlobalConfig.Maskings.Contains(_key);
+
                                                 #endregion
 
                                                 #region 开始告警
-                                                _alarmer.Start(current);
-                                                GlobalConfig.AddAlarm(current);
+                                                _alarmer.Start(_current);
+                                                GlobalConfig.AddAlarm(_current);
+
+                                                //启用/关闭 实时告警接口
+                                                if (_ienabled) _alarmer.StartInterface(_current);
                                                 #endregion
 
                                                 #region 断站、停电、发电
-                                                var cuttings = new List<V_Cutting>();
+                                                var _cuttings = new List<V_Cutting>();
 
                                                 #region 断站告警
-                                                if (GlobalConfig.Offs.Contains(key)) {
-                                                    cuttings.Add(new V_Cutting {
-                                                        Id = current.Id,
+                                                if (GlobalConfig.Offs.Contains(_key)) {
+                                                    _cuttings.Add(new V_Cutting {
+                                                        Id = _current.Id,
                                                         Type = EnmCutType.Off,
-                                                        AreaId = current.AreaId,
-                                                        StationId = current.StationId,
-                                                        RoomId = current.RoomId,
-                                                        FsuId = current.FsuId,
-                                                        DeviceId = current.DeviceId,
-                                                        PointId = current.PointId,
-                                                        StartTime = current.AlarmTime
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        StartTime = _current.AlarmTime
                                                     });
                                                 }
                                                 #endregion
 
                                                 #region 停电告警
-                                                if (GlobalConfig.Cuttings.Contains(key)) {
-                                                    cuttings.Add(new V_Cutting {
-                                                        Id = current.Id,
+                                                if (GlobalConfig.Cuttings.Contains(_key)) {
+                                                    _cuttings.Add(new V_Cutting {
+                                                        Id = _current.Id,
                                                         Type = EnmCutType.Cut,
-                                                        AreaId = current.AreaId,
-                                                        StationId = current.StationId,
-                                                        RoomId = current.RoomId,
-                                                        FsuId = current.FsuId,
-                                                        DeviceId = current.DeviceId,
-                                                        PointId = current.PointId,
-                                                        StartTime = current.AlarmTime
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        StartTime = _current.AlarmTime
                                                     });
                                                 }
                                                 #endregion
 
                                                 #region 发电告警
-                                                if (GlobalConfig.Powers.Contains(key)) {
-                                                    cuttings.Add(new V_Cutting {
-                                                        Id = current.Id,
+                                                if (GlobalConfig.Powers.Contains(_key)) {
+                                                    _cuttings.Add(new V_Cutting {
+                                                        Id = _current.Id,
                                                         Type = EnmCutType.Power,
-                                                        AreaId = current.AreaId,
-                                                        StationId = current.StationId,
-                                                        RoomId = current.RoomId,
-                                                        FsuId = current.FsuId,
-                                                        DeviceId = current.DeviceId,
-                                                        PointId = current.PointId,
-                                                        StartTime = current.AlarmTime
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        StartTime = _current.AlarmTime
                                                     });
                                                 }
                                                 #endregion
 
-                                                _cuttingRepository.SaveEntities(cuttings);
+                                                if(_cuttings.Count > 0) _cuttingRepository.SaveEntities(_cuttings);
                                                 #endregion
+
                                             } else {
-                                                _alarmer.Delete(alarm.Alarm);
+                                                _alarmer.Delete(_alarm.Alarm);
                                             }
                                         } catch (Exception err) {
-                                            Logger.Error(err.Message);
-                                            Logger.Error(string.Format("开始告警发生错误,详见错误日志({0})。", JsonConvert.SerializeObject(alarm.Alarm)), err);
+                                            err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+
+                                            Logger.Warning("开始告警发生错误，详见错误日志。");
+                                            Logger.Error("开始告警发生错误", err);
                                         }
                                         #endregion
-                                    } else if (alarm.Alarm.AlarmFlag == EnmFlag.End) {
+                                    } else if (_alarm.Alarm.AlarmFlag == EnmFlag.End) {
                                         #region 结束告警
                                         try {
-                                            var active = _aalmRepository.GetEntity(almId);
-                                            if (active != null) {
-                                                var current = new AlarmEnd {
-                                                    Id = active.Id,
-                                                    AreaId = alarm.Device.AreaId,
-                                                    StationId = alarm.Device.StationId,
-                                                    RoomId = alarm.Device.RoomId,
-                                                    FsuId = alarm.Device.FsuId,
-                                                    FsuCode = alarm.Device.FsuCode,
-                                                    DeviceId = alarm.Device.Id,
-                                                    DeviceCode = alarm.Device.Code,
-                                                    PointId = alarm.Point.Id,
-                                                    SerialNo = alarm.Alarm.SerialNo,
-                                                    NMAlarmId = alarm.Alarm.NMAlarmId,
-                                                    StartTime = active.AlarmTime,
-                                                    EndTime = alarm.Alarm.AlarmTime,
-                                                    AlarmLevel = alarm.Alarm.AlarmLevel,
-                                                    AlarmFlag = alarm.Alarm.AlarmFlag,
-                                                    StartValue = active.AlarmValue,
-                                                    EndValue = alarm.Alarm.AlarmValue,
-                                                    AlarmDesc = alarm.Alarm.AlarmDesc,
-                                                    AlarmRemark = alarm.Alarm.AlarmRemark,
-                                                    Confirmed = active.Confirmed,
-                                                    Confirmer = active.Confirmer,
-                                                    ConfirmedTime = active.ConfirmedTime,
-                                                    ReservationId = active.ReservationId,
-                                                    PrimaryId = active.PrimaryId,
-                                                    RelatedId = active.RelatedId,
-                                                    FilterId = active.FilterId,
-                                                    ReversalId = active.ReversalId,
-                                                    ReversalCount = active.ReversalCount,
-                                                    Masked = active.Masked
+                                            var _active = _aalmRepository.GetEntity(_id);
+                                            if (_active != null) {
+
+                                                #region 初始化告警
+                                                var _current = new AlarmEnd {
+                                                    Id = _active.Id,
+                                                    AreaId = _alarm.Device.AreaId,
+                                                    StationId = _alarm.Device.StationId,
+                                                    RoomId = _alarm.Device.RoomId,
+                                                    FsuId = _alarm.Device.FsuId,
+                                                    FsuCode = _alarm.Device.FsuCode,
+                                                    DeviceId = _alarm.Device.Id,
+                                                    DeviceCode = _alarm.Device.Code,
+                                                    PointId = _alarm.Signal.PointId,
+                                                    SerialNo = _alarm.Alarm.SerialNo,
+                                                    NMAlarmId = _alarm.Alarm.NMAlarmId,
+                                                    StartTime = _active.AlarmTime,
+                                                    EndTime = _alarm.Alarm.AlarmTime,
+                                                    AlarmLevel = _alarm.Alarm.AlarmLevel,
+                                                    AlarmFlag = _alarm.Alarm.AlarmFlag,
+                                                    StartValue = _active.AlarmValue,
+                                                    EndValue = _alarm.Alarm.AlarmValue,
+                                                    AlarmDesc = _alarm.Alarm.AlarmDesc,
+                                                    AlarmRemark = _alarm.Alarm.AlarmRemark,
+                                                    Confirmed = _active.Confirmed,
+                                                    Confirmer = _active.Confirmer,
+                                                    ConfirmedTime = _active.ConfirmedTime,
+                                                    ReservationId = _active.ReservationId,
+                                                    PrimaryId = _active.PrimaryId,
+                                                    RelatedId = _active.RelatedId,
+                                                    FilterId = _active.FilterId,
+                                                    ReversalId = _active.ReversalId,
+                                                    ReversalCount = _active.ReversalCount,
+                                                    Masked = _active.Masked
                                                 };
-                                                
-                                                if (!string.IsNullOrWhiteSpace(current.ReservationId)) {
-                                                    var reservation = GlobalConfig.Reservations.Find(r => r.Reservation.Id == current.ReservationId);
-                                                    if (reservation != null) {
-                                                        current.ReservationName = reservation.Reservation.Name;
-                                                        current.ReservationStart = reservation.Reservation.StartTime;
-                                                        current.ReservationEnd = reservation.Reservation.EndTime;
+                                                #endregion
+
+                                                #region 工程预约(为实时告警接口写入工程名称、开始时间、结束时间等)
+                                                if (_ienabled && !string.IsNullOrWhiteSpace(_current.ReservationId)) {
+                                                    var _res = GlobalConfig.Reservations.Find(r => r.Reservation.Id == _current.ReservationId);
+                                                    if (_res != null) {
+                                                        _current.ReservationName = _res.Reservation.Name;
+                                                        _current.ReservationStart = _res.Reservation.StartTime;
+                                                        _current.ReservationEnd = _res.Reservation.EndTime;
                                                     }
                                                 }
-
-                                                #region 断站、停电、发电
-                                                var cuteds = new List<V_Cuted>();
-
-                                                #region 断站告警
-                                                if (GlobalConfig.Offs.Contains(key)) {
-                                                    cuteds.Add(new V_Cuted {
-                                                        Id = current.Id,
-                                                        Type = EnmCutType.Off,
-                                                        AreaId = current.AreaId,
-                                                        StationId = current.StationId,
-                                                        RoomId = current.RoomId,
-                                                        FsuId = current.FsuId,
-                                                        DeviceId = current.DeviceId,
-                                                        PointId = current.PointId,
-                                                        StartTime = current.StartTime,
-                                                        EndTime = current.EndTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                #region 停电告警
-                                                if (GlobalConfig.Cuttings.Contains(key)) {
-                                                    cuteds.Add(new V_Cuted {
-                                                        Id = current.Id,
-                                                        Type = EnmCutType.Cut,
-                                                        AreaId = current.AreaId,
-                                                        StationId = current.StationId,
-                                                        RoomId = current.RoomId,
-                                                        FsuId = current.FsuId,
-                                                        DeviceId = current.DeviceId,
-                                                        PointId = current.PointId,
-                                                        StartTime = current.StartTime,
-                                                        EndTime = current.EndTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                #region 发电告警
-                                                if (GlobalConfig.Powers.Contains(key)) {
-                                                    cuteds.Add(new V_Cuted {
-                                                        Id = current.Id,
-                                                        Type = EnmCutType.Power,
-                                                        AreaId = current.AreaId,
-                                                        StationId = current.StationId,
-                                                        RoomId = current.RoomId,
-                                                        FsuId = current.FsuId,
-                                                        DeviceId = current.DeviceId,
-                                                        PointId = current.PointId,
-                                                        StartTime = current.StartTime,
-                                                        EndTime = current.EndTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                _cutedRepository.SaveEntities(cuteds);
                                                 #endregion
 
                                                 #region 结束告警
-                                                _alarmer.End(current);
-                                                GlobalConfig.RemoveAlarm(current);
+                                                _alarmer.End(_current);
+                                                GlobalConfig.RemoveAlarm(_current);
+
+                                                //启用/关闭 实时告警接口
+                                                if (_ienabled) _alarmer.EndInterface(_current);
                                                 #endregion
+
+                                                #region 断站、停电、发电
+                                                var _cuteds = new List<V_Cuted>();
+
+                                                #region 断站告警
+                                                if (GlobalConfig.Offs.Contains(_key)) {
+                                                    _cuteds.Add(new V_Cuted {
+                                                        Id = _current.Id,
+                                                        Type = EnmCutType.Off,
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        StartTime = _current.StartTime,
+                                                        EndTime = _current.EndTime
+                                                    });
+                                                }
+                                                #endregion
+
+                                                #region 停电告警
+                                                if (GlobalConfig.Cuttings.Contains(_key)) {
+                                                    _cuteds.Add(new V_Cuted {
+                                                        Id = _current.Id,
+                                                        Type = EnmCutType.Cut,
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        StartTime = _current.StartTime,
+                                                        EndTime = _current.EndTime
+                                                    });
+                                                }
+                                                #endregion
+
+                                                #region 发电告警
+                                                if (GlobalConfig.Powers.Contains(_key)) {
+                                                    _cuteds.Add(new V_Cuted {
+                                                        Id = _current.Id,
+                                                        Type = EnmCutType.Power,
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        StartTime = _current.StartTime,
+                                                        EndTime = _current.EndTime
+                                                    });
+                                                }
+                                                #endregion
+
+                                                if (_cuteds.Count > 0) _cutedRepository.SaveEntities(_cuteds);
+                                                #endregion
+                                                
                                             } else {
-                                                _alarmer.Delete(alarm.Alarm);
+                                                _alarmer.Delete(_alarm.Alarm);
                                             }
                                         } catch (Exception err) {
-                                            Logger.Error(err.Message);
-                                            Logger.Error(string.Format("结束告警发生错误,详见错误日志({0})。", JsonConvert.SerializeObject(alarm.Alarm)), err);
+                                            err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+
+                                            Logger.Warning("结束告警发生错误，详见错误日志。");
+                                            Logger.Error("结束告警发生错误", err);
                                         }
                                         #endregion
                                     }
                                 } catch (Exception err) {
-                                    Logger.Error(err.Message);
-                                    Logger.Error(string.Format("处理告警发生错误,详见错误日志({0})。", JsonConvert.SerializeObject(alarm.Alarm)), err);
+                                    err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+
+                                    Logger.Warning("处理告警发生错误，详见错误日志。");
+                                    Logger.Error("处理告警发生错误", err);
                                 }
                             }
                         }
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -1075,38 +1157,37 @@ namespace iPem.TaskServer {
             Logger.Information("系统自检线程已启动。");
 
             #region 定义变量
-            WcPoint _ScOffPoint = null, _FsuOffPoint = null;
+            KV<iPem.Core.Point, SubPoint> _ScOffPoint = null;
+            //每个FSU所对应的SubPoint都不同，需要动态获取
+            iPem.Core.Point _FsuOffPoint = null;
+            //上次检索数据库索引的时间
+            DateTime _NextIndexer = DateTime.Today;
             try {
                 var _scOff = GlobalConfig.CurParams.Find(p => p.Id == ParamId.ScOff);
                 if (_scOff != null && !string.IsNullOrWhiteSpace(_scOff.Value)) {
-                    var _scPoint = iPemWorkContext.Points.Find(p => p.Id == _scOff.Value);
-                    if (_scPoint != null) {
-                        _ScOffPoint = new WcPoint { 
-                            Current = _scPoint, 
-                            SubPoint = iPemWorkContext.SubPoints.Find(p => p.PointId == _scPoint.Id)
-                        };
+                    if (!iPemWorkContext.Points.ContainsKey(_scOff.Value)) {
+                        Logger.Warning("SC通信中断告警编码配置错误");
                     } else {
-                        Logger.Error("SC通信中断告警编码配置错误");
+                        var _scPoint = iPemWorkContext.Points[_scOff.Value];
+                        var _scSubPoint = iPemWorkContext.SubPoints.Values.FirstOrDefault(p => p.PointId == _scPoint.Id);
+                        _ScOffPoint = new KV<iPem.Core.Point, SubPoint> { Key = _scPoint, Value = _scSubPoint };
                     }
                 } else {
-                    Logger.Error("SC通信中断告警编码尚未配置");
+                    Logger.Warning("SC通信中断告警编码尚未配置");
                 }
 
                 var _fsuOff = GlobalConfig.CurParams.Find(p => p.Id == ParamId.FsuOff);
                 if (_fsuOff != null && !string.IsNullOrWhiteSpace(_fsuOff.Value)) {
-                    var _fsuPoint = iPemWorkContext.Points.Find(p => p.Id == _fsuOff.Value);
-                    if (_fsuPoint != null) {
-                        _FsuOffPoint = new WcPoint {
-                            Current = _fsuPoint, 
-                            SubPoint = null 
-                        };
+                    if (!iPemWorkContext.Points.ContainsKey(_fsuOff.Value)) {
+                        Logger.Warning("FSU通信中断告警编码配置错误");
                     } else {
-                        Logger.Error("FSU通信中断告警编码配置错误");
+                        _FsuOffPoint = iPemWorkContext.Points[_fsuOff.Value];
                     }
                 } else {
-                    Logger.Error("FSU通信中断告警编码尚未配置");
+                    Logger.Warning("FSU通信中断告警编码尚未配置");
                 }
             } catch (Exception err) {
+                Logger.Warning(err.Message);
                 Logger.Error(err.Message, err);
             }
             #endregion
@@ -1116,6 +1197,7 @@ namespace iPem.TaskServer {
                 Thread.Sleep(1000);
                 if (_runStatus == RunStatus.Running) {
                     if (interval++ <= 10) continue; interval = 1;
+                    if (_ScOffPoint == null && _FsuOffPoint == null) continue;
 
                     try {
                         _configWriterLock.EnterReadLock();
@@ -1123,13 +1205,13 @@ namespace iPem.TaskServer {
                         #region SC通信中断
                         try {
                             if (_ScOffPoint != null) {
-                                foreach (var sc in GlobalConfig.ScHeartbeats) {
-                                    var key = CommonHelper.JoinKeys(sc.Current.Id, _ScOffPoint.Current.Id);
-                                    if (sc.Current.Status && GlobalConfig.AlarmKeys2.ContainsKey(key)) {
-                                        var _alarm = _aalmRepository.GetEntityInPoint(sc.Current.Id, _ScOffPoint.Current.Id);
+                                foreach (var _sc in GlobalConfig.ScHeartbeats) {
+                                    var _key = CommonHelper.JoinKeys(_sc.Current.Id, _ScOffPoint.Key.Id);
+                                    if (_sc.Current.Status && GlobalConfig.AlarmKeys2.ContainsKey(_key)) {
+                                        var _alarm = _aalmRepository.GetEntityInPoint(_sc.Current.Id, _ScOffPoint.Key.Id);
                                         if (_alarm != null) {
                                             #region 结束告警
-                                            var current = new AlarmEnd {
+                                            var _current = new AlarmEnd {
                                                 Id = _alarm.Id,
                                                 AreaId = _alarm.AreaId,
                                                 StationId = _alarm.StationId,
@@ -1161,40 +1243,41 @@ namespace iPem.TaskServer {
                                                 Masked = _alarm.Masked
                                             };
 
-                                            _alarmer.End(current);
-                                            GlobalConfig.RemoveAlarm(current);
+                                            _alarmer.End(_current);
+                                            GlobalConfig.RemoveAlarm(_current);
                                             #endregion
                                         }
-                                    } else if (!sc.Current.Status && !GlobalConfig.AlarmKeys2.ContainsKey(key)) {
+                                    } else if (!_sc.Current.Status && !GlobalConfig.AlarmKeys2.ContainsKey(_key)) {
                                         #region 开始告警
-                                        var current = new AlarmStart {
+                                        var _current = new AlarmStart {
                                             Id = null,
                                             AreaId = "-1",
                                             StationId = "-1",
                                             RoomId = "-1",
                                             FsuId = "-1",
                                             FsuCode = "-1",
-                                            DeviceId = sc.Current.Id,
-                                            DeviceCode = sc.Current.Id,
-                                            PointId = _ScOffPoint.Current.Id,
+                                            DeviceId = _sc.Current.Id,
+                                            DeviceCode = _sc.Current.Id,
+                                            PointId = _ScOffPoint.Key.Id,
                                             SerialNo = CommonHelper.GetIdAsString(),
-                                            NMAlarmId = _ScOffPoint.Current.NMAlarmId,
+                                            NMAlarmId = _ScOffPoint.Key.NMAlarmId,
                                             AlarmTime = DateTime.Now,
-                                            AlarmLevel = _ScOffPoint.SubPoint != null ? _ScOffPoint.SubPoint.AlarmLevel : EnmAlarm.Level2,
+                                            AlarmLevel = _ScOffPoint.Value != null ? _ScOffPoint.Value.AlarmLevel : EnmAlarm.Level2,
                                             AlarmFlag = EnmFlag.Begin,
                                             AlarmValue = 0,
                                             AlarmDesc = null,
                                             AlarmRemark = null
                                         };
-                                        current.Id = string.Format("00-{0}-{1}", current.SerialNo, current.DeviceId);
+                                        _current.Id = string.Format("00-{0}-{1}", _current.SerialNo, _current.DeviceId);
 
-                                        _alarmer.Start(current);
-                                        GlobalConfig.AddAlarm(current);
+                                        _alarmer.Start(_current);
+                                        GlobalConfig.AddAlarm(_current);
                                         #endregion
                                     }
                                 }
                             }
                         } catch (Exception err) {
+                            Logger.Warning(err.Message);
                             Logger.Error(err.Message, err);
                         }
                         #endregion
@@ -1202,12 +1285,12 @@ namespace iPem.TaskServer {
                         #region FSU通信中断
                         try {
                             if (_FsuOffPoint != null) {
-                                var extFsus = _fsuRepository.GetExtEntities();
-                                foreach (var ext in extFsus) {
-                                    var _alarm = _aalmRepository.GetEntityInPoint(ext.Id, _FsuOffPoint.Current.Id);
-                                    if (ext.Status && _alarm != null) {
+                                var _extFsus = _fsuRepository.GetExtEntities();
+                                foreach (var _ext in _extFsus) {
+                                    var _alarm = _aalmRepository.GetEntityInPoint(_ext.Id, _FsuOffPoint.Id);
+                                    if (_ext.Status && _alarm != null) {
                                         #region 结束告警
-                                        var current = new AlarmEnd {
+                                        var _current = new AlarmEnd {
                                             Id = _alarm.Id,
                                             AreaId = _alarm.AreaId,
                                             StationId = _alarm.StationId,
@@ -1239,48 +1322,66 @@ namespace iPem.TaskServer {
                                             Masked = _alarm.Masked
                                         };
 
-                                        _alarmer.End(current);
-                                        GlobalConfig.RemoveAlarm(current);
+                                        _alarmer.End(_current);
+                                        GlobalConfig.RemoveAlarm(_current);
                                         #endregion
-                                    } else if(!ext.Status && _alarm == null) {
+                                    } else if(!_ext.Status && _alarm == null) {
                                         #region 开始告警
-                                        var fsu = iPemWorkContext.Fsus.Find(d => d.Current.Id == ext.Id);
-                                        if (fsu != null) {
-                                            _FsuOffPoint.SubPoint = iPemWorkContext.SubPoints.Find(p => p.PointId == _FsuOffPoint.Current.Id && p.StationType.Id == fsu.Current.StationType.Id);
-                                            var current = new AlarmStart {
+                                        var _fsu = iPemWorkContext.Fsus.Find(d => d.Id == _ext.Id);
+                                        if (_fsu != null) {
+                                            var _skey = CommonHelper.JoinKeys(_FsuOffPoint.Id, _fsu.StaTypeId);
+                                            var _subPoint = iPemWorkContext.SubPoints.ContainsKey(_skey) ? iPemWorkContext.SubPoints[_skey] : null;
+                                            var _current = new AlarmStart {
                                                 Id = null,
-                                                AreaId = fsu.Current.AreaId,
-                                                StationId = fsu.Current.StationId,
-                                                RoomId = fsu.Current.RoomId,
-                                                FsuId = fsu.Current.Id,
-                                                FsuCode = fsu.Current.Code,
-                                                DeviceId = fsu.Current.Id,
-                                                DeviceCode = fsu.Current.Code,
-                                                PointId = _FsuOffPoint.Current.Id,
+                                                AreaId = _fsu.AreaId,
+                                                StationId = _fsu.StationId,
+                                                RoomId = _fsu.RoomId,
+                                                FsuId = _fsu.Id,
+                                                FsuCode = _fsu.Code,
+                                                DeviceId = _fsu.Id,
+                                                DeviceCode = _fsu.Code,
+                                                PointId = _FsuOffPoint.Id,
                                                 SerialNo = CommonHelper.GetIdAsString(),
-                                                NMAlarmId = _FsuOffPoint.Current.NMAlarmId,
+                                                NMAlarmId = _FsuOffPoint.NMAlarmId,
                                                 AlarmTime = DateTime.Now,
-                                                AlarmLevel = _FsuOffPoint.SubPoint != null ? _FsuOffPoint.SubPoint.AlarmLevel : EnmAlarm.Level2,
+                                                AlarmLevel = _subPoint != null ? _subPoint.AlarmLevel : EnmAlarm.Level2,
                                                 AlarmFlag = EnmFlag.Begin,
                                                 AlarmValue = 0,
                                                 AlarmDesc = null,
                                                 AlarmRemark = null
                                             };
-                                            current.Id = string.Format("01-{0}-{1}", current.SerialNo, current.FsuId);
+                                            _current.Id = string.Format("01-{0}-{1}", _current.SerialNo, _current.FsuId);
 
-                                            _alarmer.Start(current);
-                                            GlobalConfig.AddAlarm(current);
+                                            _alarmer.Start(_current);
+                                            GlobalConfig.AddAlarm(_current);
                                         }
                                         #endregion
                                     }
                                 }
                             }
                         } catch (Exception err) {
+                            Logger.Warning(err.Message);
                             Logger.Error(err.Message, err);
                         }
                         #endregion
 
+                        #region 检查数据库索引
+                        if (DateTime.Now > _NextIndexer) {
+                            for (var i = 0; i <= 3; i++) {
+                                try {
+                                    _indexer.Check(_NextIndexer.AddMonths(i * -1));
+                                } catch (Exception err) {
+                                    Logger.Warning(err.Message);
+                                    Logger.Error(err.Message, err);
+                                }
+                            }
+
+                            _NextIndexer = DateTime.Today.AddHours(26);
+                        }
+                        #endregion
+
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -1321,6 +1422,7 @@ namespace iPem.TaskServer {
                                         beat.Current.ChangeTime = now;
                                     }
                                 } catch (Exception err) {
+                                    Logger.Warning(err.Message);
                                     Logger.Error(err.Message, err);
                                 } finally {
                                     beat.SetCount(true);
@@ -1336,6 +1438,7 @@ namespace iPem.TaskServer {
                                         beat.Current.LastTime = now;
                                     }
                                 } catch (Exception err) {
+                                    Logger.Warning(err.Message);
                                     Logger.Error(err.Message, err);
                                 } finally {
                                     beat.SetCount();
@@ -1344,6 +1447,7 @@ namespace iPem.TaskServer {
                             }
                         }
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -1394,15 +1498,17 @@ namespace iPem.TaskServer {
                                     #endregion
                                 } else {
                                     #region 公式中有变量
-                                    var _devices = new List<WcDevice>();
+                                    List<WcDevice> _devices;
                                     if (_formula.Type == EnmSSH.Station) {
-                                        var _station = iPemWorkContext.Stations.Find(c => c.Current.Id == _formula.Id);
+                                        var _station = iPemWorkContext.Stations.Find(c => c.Id == _formula.Id);
                                         if (_station == null) throw new Exception("未找到公式所属的站点。");
-                                        _devices.AddRange(_station.Rooms.SelectMany(r => r.Devices));
+
+                                        _devices = iPemWorkContext.Devices.FindAll(d => d.Current.StationId == _station.Id);
                                     } else if (_formula.Type == EnmSSH.Room) {
-                                        var _room = iPemWorkContext.Rooms.Find(c => c.Current.Id == _formula.Id);
+                                        var _room = iPemWorkContext.Rooms.Find(c => c.Id == _formula.Id);
                                         if (_room == null) throw new Exception("未找到公式所属的机房。");
-                                        _devices.AddRange(_room.Devices);
+
+                                        _devices = iPemWorkContext.Devices.FindAll(d => d.Current.RoomId == _room.Id);
                                     } else {
                                         throw new Exception("仅支持站点、机房能耗公式。");
                                     }
@@ -1414,22 +1520,30 @@ namespace iPem.TaskServer {
                                         var _potkey = _factors[1];
                                         var _device = _devices.Find(d => d.Current.Name == _devkey);
                                         if (_device == null) throw new Exception(string.Format("未找到变量{0}中的设备。", _variable));
-                                        var _point = _device.Points.Find(p => p.Current.Name == _potkey);
-                                        if (_point == null) throw new Exception(string.Format("未找到变量{0}中的信号。", _variable));
-                                        _details.Add(new VariableDetail { Device = _device.Current, Point = _point.Current, Variable = _variable });
+                                        var _signal = _device.Signals.Find(p => p.Name == _potkey);
+                                        if (_signal == null) throw new Exception(string.Format("未找到变量{0}中的信号。", _variable));
+                                        _details.Add(new VariableDetail {
+                                            AreaId = _device.Current.AreaId,
+                                            StationId = _device.Current.StationId,
+                                            RoomId = _device.Current.RoomId,
+                                            FsuId = _device.Current.FsuId,
+                                            DeviceId = _device.Current.Id,
+                                            PointId = _signal.PointId,
+                                            Variable = _variable 
+                                        });
                                     }
 
                                     try {
                                         foreach (var _detail in _details) {
                                             var _vvalue = 0d;
                                             if (_formula.ComputeType == EnmCompute.Diff) {
-                                                var _first = _hmeasureRepository.GetFirst(_detail.Device.Id, _detail.Point.Id, _start, _end);
+                                                var _first = _hmeasureRepository.GetFirst(_detail.DeviceId, _detail.PointId, _start, _end);
                                                 if (_first != null) {
-                                                    var _last = _ameasureRepository.GetEntity(_detail.Device.Id, _detail.Point.Id);
-                                                    if (_last != null) _vvalue = _last.Value - _first.Value;
+                                                    var _last = _ameasureRepository.GetEntity(_detail.DeviceId, _detail.PointId);
+                                                    if (_last != null) _vvalue = Math.Round(_last.Value - _first.Value, 3, MidpointRounding.AwayFromZero);
                                                 }
                                             } else if (_formula.ComputeType == EnmCompute.Avg) {
-                                                _vvalue = _hmeasureRepository.GetAvg(_detail.Device.Id, _detail.Point.Id, _start, _end);
+                                                _vvalue = _hmeasureRepository.GetAvg(_detail.DeviceId, _detail.PointId, _start, _end);
                                             }
 
                                             _current = _current.Replace(_detail.Variable, _vvalue.ToString());
@@ -1452,13 +1566,14 @@ namespace iPem.TaskServer {
                                     EndTime = _end,
                                     Value = Math.Round(_value * (_formula.ComputeType == EnmCompute.Diff ? 1 : _end.Subtract(_start).TotalHours), 3, MidpointRounding.AwayFromZero)
                                 });
-                            } catch { 
-                            }
+                            } catch { }
                         }
                         #endregion
 
-                        _elecRepository.SaveActiveEntities(_result);
+                        if (_result.Count > 0) 
+                            _elecRepository.SaveActiveEntities(_result);
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -1508,6 +1623,7 @@ namespace iPem.TaskServer {
 
                         this.ExTask001(_curTask.Start, _curTask.End);
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -1564,15 +1680,17 @@ namespace iPem.TaskServer {
                         #region 公式中有变量
 
                         #region 解析公式
-                        var _devices = new List<WcDevice>();
+                        List<WcDevice> _devices;
                         if (_formula.Type == EnmSSH.Station) {
-                            var _current = iPemWorkContext.Stations.Find(c => c.Current.Id == _formula.Id);
-                            if (_current == null) throw new Exception("未找到公式所属的站点。");
-                            _devices.AddRange(_current.Rooms.SelectMany(r => r.Devices));
+                            var _station = iPemWorkContext.Stations.Find(c => c.Id == _formula.Id);
+                            if (_station == null) throw new Exception("未找到公式所属的站点。");
+
+                            _devices = iPemWorkContext.Devices.FindAll(d => d.Current.StationId == _station.Id);
                         } else if (_formula.Type == EnmSSH.Room) {
-                            var _current = iPemWorkContext.Rooms.Find(c => c.Current.Id == _formula.Id);
-                            if (_current == null) throw new Exception("未找到公式所属的机房。");
-                            _devices.AddRange(_current.Devices);
+                            var _room = iPemWorkContext.Rooms.Find(c => c.Id == _formula.Id);
+                            if (_room == null) throw new Exception("未找到公式所属的机房。");
+
+                            _devices = iPemWorkContext.Devices.FindAll(d => d.Current.RoomId == _room.Id);
                         } else {
                             throw new Exception("仅支持站点、机房能耗公式。");
                         }
@@ -1584,9 +1702,17 @@ namespace iPem.TaskServer {
                             var _potkey = _factors[1];
                             var _device = _devices.Find(d => d.Current.Name == _devkey);
                             if (_device == null) throw new Exception(string.Format("未找到变量{0}中的设备。", _variable));
-                            var _point = _device.Points.Find(p => p.Current.Name == _potkey);
-                            if (_point == null) throw new Exception(string.Format("未找到变量{0}中的信号。", _variable));
-                            _details.Add(new VariableDetail { Device = _device.Current, Point = _point.Current, Variable = _variable });
+                            var _signal = _device.Signals.Find(p => p.Name == _potkey);
+                            if (_signal == null) throw new Exception(string.Format("未找到变量{0}中的信号。", _variable));
+                            _details.Add(new VariableDetail {
+                                AreaId = _device.Current.AreaId,
+                                StationId = _device.Current.StationId,
+                                RoomId = _device.Current.RoomId,
+                                FsuId = _device.Current.FsuId,
+                                DeviceId = _device.Current.Id,
+                                PointId = _signal.PointId,
+                                Variable = _variable
+                            });
                         }
                         #endregion
 
@@ -1599,14 +1725,14 @@ namespace iPem.TaskServer {
                                 foreach (var _detail in _details) {
                                     var _vvalue = 0d;
                                     if (_formula.ComputeType == EnmCompute.Diff) {
-                                        var _first = _hmeasureRepository.GetFirst(_detail.Device.Id, _detail.Point.Id, _start, _end);
+                                        var _first = _hmeasureRepository.GetFirst(_detail.DeviceId, _detail.PointId, _start, _end);
                                         if (_first != null) {
-                                            var _last = _hmeasureRepository.GetFirst(_detail.Device.Id, _detail.Point.Id, _end, _end.AddHours(1));
-                                            if (_last == null) _last = _hmeasureRepository.GetLast(_detail.Device.Id, _detail.Point.Id, _start, _end);
-                                            if (_last != null) _vvalue = _last.Value - _first.Value;
+                                            var _last = _hmeasureRepository.GetFirst(_detail.DeviceId, _detail.PointId, _end, _end.AddHours(1));
+                                            if (_last == null) _last = _hmeasureRepository.GetLast(_detail.DeviceId, _detail.PointId, _start, _end);
+                                            if (_last != null) _vvalue = Math.Round(_last.Value - _first.Value, 3, MidpointRounding.AwayFromZero);
                                         }
                                     } else if (_formula.ComputeType == EnmCompute.Avg) {
-                                        _vvalue = _hmeasureRepository.GetAvg(_detail.Device.Id, _detail.Point.Id, _start, _end);
+                                        _vvalue = _hmeasureRepository.GetAvg(_detail.DeviceId, _detail.PointId, _start, _end);
                                     }
 
                                     _current = _current.Replace(_detail.Variable, _vvalue.ToString());
@@ -1632,8 +1758,10 @@ namespace iPem.TaskServer {
                         #endregion
                     }
                 } catch (Exception err) {
-                    Logger.Error(err.Message);
-                    Logger.Error(string.Format("能耗处理发生错误,详见错误日志({0})。", JsonConvert.SerializeObject(_formula)), err);
+                    err.Source = JsonConvert.SerializeObject(_formula);
+
+                    Logger.Warning("能耗处理发生错误，详见错误日志。");
+                    Logger.Error("能耗处理发生错误", err);
                 }
             }
             #endregion
@@ -1683,6 +1811,7 @@ namespace iPem.TaskServer {
 
                         this.ExTask002(_curTask.Start, _curTask.End);
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -1697,134 +1826,192 @@ namespace iPem.TaskServer {
         /// 电池放电处理方法
         /// </summary>
         private void ExTask002(DateTime start, DateTime end) {
-            foreach (var model in GlobalConfig.BatModels) {
-                try {
-                    var values = _hmeasureRepository.GetEntities(model.Device.Id, start, end);
-                    if (values.Count == 0) continue;
+            #region 屏蔽电池充放电统计
+            //foreach (var _model in GlobalConfig.BatModels) {
+            //    try {
+            //        var _values = _hmeasureRepository.GetEntities(_model.DeviceId, start, end);
+            //        if (_values.Count == 0) continue;
 
-                    var _values = values.FindAll(v => v.PointId == model.Point.Id);
-                    if (_values.Count == 0) continue;
+            //        var _mvalues = _values.FindAll(v => v.PointId == _model.PointId);
+            //        if (_mvalues.Count == 0) continue;
 
-                    BatDetail _current = null;
-                    var _details = new List<BatDetail>();
-                    foreach (var _value in _values) {
-                        if (_value.Value < model.Voltage) {
-                            if (_current == null) _current = new BatDetail { Device = model.Device, Point = model.Point, PackId = model.PackId, StartTime = _value.UpdateTime, StartValue = _value.Value, Values = new List<IdValuePair<DateTime, double>>() };
-                            _current.Values.Add(new IdValuePair<DateTime, double> { Id = _value.UpdateTime, Value = _value.Value });
-                        } else if (_value.Value >= model.Voltage && _current != null) {
-                            _current.EndTime = _value.UpdateTime;
-                            _current.EndValue = _value.Value;
-                            _current.Values.Add(new IdValuePair<DateTime, double> { Id = _value.UpdateTime, Value = _value.Value });
-                            _details.Add(_current);
-                            _current = null;
-                        }
-                    }
+            //        BatDetail _current = null;
+            //        var _details = new List<BatDetail>();
+            //        foreach (var _value in _mvalues) {
+            //            if (_value.Value < _model.Voltage) {
+            //                if (_current == null) 
+            //                    _current = new BatDetail {
+            //                        AreaId = _model.AreaId,
+            //                        StationId = _model.StationId,
+            //                        RoomId = _model.RoomId,
+            //                        FsuId = _model.FsuId,
+            //                        DeviceId = _model.DeviceId,
+            //                        PointId = _model.PointId,
+            //                        PackId = _model.PackId, 
+            //                        StartTime = _value.UpdateTime, 
+            //                        StartValue = _value.Value, 
+            //                        Values = new List<KV<DateTime, double>>() 
+            //                    };
+                            
+            //                _current.Values.Add(new KV<DateTime, double> { Key = _value.UpdateTime, Value = _value.Value });
+            //            } else if (_value.Value >= _model.Voltage && _current != null) {
+            //                _current.EndTime = _value.UpdateTime;
+            //                _current.EndValue = _value.Value;
+            //                _current.Values.Add(new KV<DateTime, double> { Key = _value.UpdateTime, Value = _value.Value });
+            //                _details.Add(_current);
+            //                _current = null;
+            //            }
+            //        }
 
-                    if (_current != null) {
-                        var _last = _current.Values.LastOrDefault();
-                        if (_last != null) {
-                            _current.EndTime = _last.Id;
-                            _current.EndValue = _last.Value;
-                            _details.Add(_current);
-                        }
+            //        if (_current != null) {
+            //            var _last = _current.Values.LastOrDefault();
+            //            if (_last != null) {
+            //                _current.EndTime = _last.Key;
+            //                _current.EndValue = _last.Value;
+            //                _details.Add(_current);
+            //            }
 
-                        _current = null;
-                    }
+            //            _current = null;
+            //        }
 
-                    //当放电时间大于15分钟，才认为是正常放电
-                    _details = _details.FindAll(d => d.EndTime.Subtract(d.StartTime).TotalMinutes > 15);
+            //        // 放电时间大于15分钟为正常放电
+            //        _details = _details.FindAll(d => d.EndTime.Subtract(d.StartTime).TotalMinutes >= 15);
 
-                    var __details = new List<BatDetail>();
-                    foreach (var _point in model.SubPoints) {
-                        foreach (var _detail in _details) {
-                            var __values = values.FindAll(v => v.PointId == _point.Id && v.UpdateTime >= _detail.StartTime && v.UpdateTime <= _detail.EndTime);
-                            if (__values.Count > 0) {
-                                var _first = __values.First();
-                                var _last = __values.Last();
-                                __details.Add(new BatDetail {
-                                    Device = model.Device,
-                                    Point = _point,
-                                    PackId = model.PackId,
-                                    StartTime = _first.UpdateTime,
-                                    StartValue = _first.Value,
-                                    EndTime = _last.UpdateTime,
-                                    EndValue = _last.Value,
-                                    Values = __values.Select(v => new IdValuePair<DateTime, double> { Id = v.UpdateTime, Value = v.Value }).ToList()
-                                });
-                            }
-                        }
-                    }
+            //        var __details = new List<BatDetail>();
+            //        foreach (var _point in _model.SubSignals) {
+            //            foreach (var _detail in _details) {
+            //                var __values = _values.FindAll(v => v.PointId == _point && v.UpdateTime >= _detail.StartTime && v.UpdateTime <= _detail.EndTime);
+            //                if (__values.Count > 0) {
+            //                    var _first = __values.First();
+            //                    var _last = __values.Last();
+            //                    __details.Add(new BatDetail {
+            //                        AreaId = _model.AreaId,
+            //                        StationId = _model.StationId,
+            //                        RoomId = _model.RoomId,
+            //                        FsuId = _model.FsuId,
+            //                        DeviceId = _model.DeviceId,
+            //                        PointId = _point,
+            //                        PackId = _model.PackId,
+            //                        StartTime = _first.UpdateTime,
+            //                        StartValue = _first.Value,
+            //                        EndTime = _last.UpdateTime,
+            //                        EndValue = _last.Value,
+            //                        Values = __values.Select(v => new KV<DateTime, double> { Key = v.UpdateTime, Value = v.Value }).ToList()
+            //                    });
+            //                }
+            //            }
+            //        }
 
-                    var batValues = new List<V_Bat>();
-                    var batTimes = new List<V_BatTime>();
-                    foreach (var _detail in _details) {
+            //        var batValues = new List<V_Bat>();
+            //        var batTimes = new List<V_BatTime>();
+            //        foreach (var _detail in _details) {
+            //            batTimes.Add(new V_BatTime {
+            //                AreaId = _detail.AreaId,
+            //                StationId = _detail.StationId,
+            //                RoomId = _detail.RoomId,
+            //                DeviceId = _detail.DeviceId,
+            //                PointId = _detail.PointId,
+            //                PackId = _detail.PackId,
+            //                StartTime = _detail.StartTime,
+            //                StartValue = _detail.StartValue,
+            //                EndTime = _detail.EndTime,
+            //                EndValue = _detail.EndValue
+            //            });
+
+            //            foreach (var _value in _detail.Values) {
+            //                batValues.Add(new V_Bat {
+            //                    AreaId = _detail.AreaId,
+            //                    StationId = _detail.StationId,
+            //                    RoomId = _detail.RoomId,
+            //                    DeviceId = _detail.DeviceId,
+            //                    PointId = _detail.PointId,
+            //                    PackId = _detail.PackId,
+            //                    StartTime = _detail.StartTime,
+            //                    Value = _value.Value,
+            //                    ValueTime = _value.Key
+            //                });
+            //            }
+            //        }
+
+            //        foreach (var __detail in __details) {
+            //            batTimes.Add(new V_BatTime {
+            //                AreaId = __detail.AreaId,
+            //                StationId = __detail.StationId,
+            //                RoomId = __detail.RoomId,
+            //                DeviceId = __detail.DeviceId,
+            //                PointId = __detail.PointId,
+            //                PackId = __detail.PackId,
+            //                StartTime = __detail.StartTime,
+            //                StartValue = __detail.StartValue,
+            //                EndTime = __detail.EndTime,
+            //                EndValue = __detail.EndValue
+            //            });
+
+            //            foreach (var __value in __detail.Values) {
+            //                batValues.Add(new V_Bat {
+            //                    AreaId = __detail.AreaId,
+            //                    StationId = __detail.StationId,
+            //                    RoomId = __detail.RoomId,
+            //                    DeviceId = __detail.DeviceId,
+            //                    PointId = __detail.PointId,
+            //                    PackId = __detail.PackId,
+            //                    StartTime = __detail.StartTime,
+            //                    Value = __value.Value,
+            //                    ValueTime = __value.Key
+            //                });
+            //            }
+            //        }
+
+            //        _batRepository.DeleteEntities(_model.DeviceId, _model.PointId, _model.PackId, start, end);
+            //        _batRepository.SaveEntities(batValues);
+
+            //        _batTimeRepository.DeleteEntities(_model.DeviceId, _model.PointId, _model.PackId, start, end);
+            //        _batTimeRepository.SaveEntities(batTimes);
+            //    } catch (Exception err) {
+            //        Logger.Warning("电池放电统计发生错误，详见错误日志。");
+            //        Logger.Error("电池放电统计发生错误", err);
+            //    }
+            //}
+            #endregion
+
+            #region 汇总电池充放电过程
+            try {
+                var batTimes = new List<V_BatTime>();
+                foreach (var _procedure in _batRepository.GetProcedures(start, end)) {
+                    try {
+                        //默认一次电池充放电最大不会超过3天
+                        var _details = _batRepository.GetProcedure(_procedure.DeviceId, _procedure.PointId, _procedure.StartTime, _procedure.StartTime.AddDays(3));
+                        if (_details.Count == 0) continue;
+                        var _start = _details.First(); var _end = _details.Last();
+
+                        //当一次电池充放电持续时长小于15分钟，则认为此充放电过程无效
+                        if (_end.ValueTime.Subtract(_start.ValueTime).TotalMinutes < 15) continue;
+
                         batTimes.Add(new V_BatTime {
-                            AreaId = _detail.Device.AreaId,
-                            StationId = _detail.Device.StationId,
-                            RoomId = _detail.Device.RoomId,
-                            DeviceId = _detail.Device.Id,
-                            PointId = _detail.Point.Id,
-                            PackId = _detail.PackId,
-                            StartTime = _detail.StartTime,
-                            StartValue = _detail.StartValue,
-                            EndTime = _detail.EndTime,
-                            EndValue = _detail.EndValue
+                            AreaId = _start.AreaId,
+                            StationId = _start.StationId,
+                            RoomId = _start.RoomId,
+                            DeviceId = _start.DeviceId,
+                            PointId = _start.PointId,
+                            PackId = _start.PackId,
+                            Type = _start.Type,
+                            StartTime = _start.StartTime,
+                            StartValue = _start.Value,
+                            EndTime = _end.ValueTime,
+                            EndValue = _end.Value
                         });
-
-                        foreach (var _value in _detail.Values) {
-                            batValues.Add(new V_Bat {
-                                AreaId = _detail.Device.AreaId,
-                                StationId = _detail.Device.StationId,
-                                RoomId = _detail.Device.RoomId,
-                                DeviceId = _detail.Device.Id,
-                                PointId = _detail.Point.Id,
-                                PackId = _detail.PackId,
-                                StartTime = _detail.StartTime,
-                                Value = _value.Value,
-                                ValueTime = _value.Id
-                            });
-                        }
+                    } catch (Exception err) {
+                        Logger.Warning("电池放电统计发生错误，详见错误日志。");
+                        Logger.Error("电池放电统计发生错误", err);
                     }
-
-                    foreach (var __detail in __details) {
-                        batTimes.Add(new V_BatTime {
-                            AreaId = __detail.Device.AreaId,
-                            StationId = __detail.Device.StationId,
-                            RoomId = __detail.Device.RoomId,
-                            DeviceId = __detail.Device.Id,
-                            PointId = __detail.Point.Id,
-                            PackId = __detail.PackId,
-                            StartTime = __detail.StartTime,
-                            StartValue = __detail.StartValue,
-                            EndTime = __detail.EndTime,
-                            EndValue = __detail.EndValue
-                        });
-
-                        foreach (var __value in __detail.Values) {
-                            batValues.Add(new V_Bat {
-                                AreaId = __detail.Device.AreaId,
-                                StationId = __detail.Device.StationId,
-                                RoomId = __detail.Device.RoomId,
-                                DeviceId = __detail.Device.Id,
-                                PointId = __detail.Point.Id,
-                                PackId = __detail.PackId,
-                                StartTime = __detail.StartTime,
-                                Value = __value.Value,
-                                ValueTime = __value.Id
-                            });
-                        }
-                    }
-
-                    _batRepository.DeleteEntities(model.Device.Id, model.Point.Id, model.PackId, start, end);
-                    _batRepository.SaveEntities(batValues);
-
-                    _batTimeRepository.DeleteEntities(model.Device.Id, model.Point.Id, model.PackId, start, end);
-                    _batTimeRepository.SaveEntities(batTimes);
-                } catch (Exception err) {
-                    Logger.Error(err.Message);
-                    Logger.Error("电池放电统计发生错误,详见错误日志。", err);
                 }
+
+                if (batTimes.Count > 0) _batTimeRepository.SaveEntities(batTimes);
+            } catch (Exception err) {
+                Logger.Warning("电池放电统计发生错误，详见错误日志。");
+                Logger.Error("电池放电统计发生错误", err);
             }
+            #endregion
         }
 
         /// <summary>
@@ -1868,6 +2055,7 @@ namespace iPem.TaskServer {
 
                         this.ExTask003(_curTask.Start, _curTask.End);
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -1885,51 +2073,54 @@ namespace iPem.TaskServer {
             foreach (var model in GlobalConfig.StaticModels) {
                 if (model.Interval <= 0) continue;
 
+                var _values = _hmeasureRepository.GetEntities(model.DeviceId, model.PointId, start, end);
+                if (_values.Count == 0) continue;
+
                 var _result = new List<V_Static>();
                 var _start = start;
                 var _end = start.AddMinutes(model.Interval);
                 while (end >= _end) {
                     try {
-                        var _values = _hmeasureRepository.GetEntities(model.Device.Id, model.Point.Id, _start, _end);
-                        if (_values.Count > 0) {
+                        var __values = _values.FindAll(v => v.UpdateTime >= _start && v.UpdateTime <= _end);
+                        if (__values.Count > 0) {
                             var _target = new V_Static {
-                                AreaId = model.Device.AreaId,
-                                StationId = model.Device.StationId,
-                                RoomId = model.Device.RoomId,
-                                DeviceId = model.Device.Id,
-                                PointId = model.Point.Id,
+                                AreaId = model.AreaId,
+                                StationId = model.StationId,
+                                RoomId = model.RoomId,
+                                DeviceId = model.DeviceId,
+                                PointId = model.PointId,
                                 StartTime = _start,
                                 EndTime = _end,
                                 MaxValue = double.MinValue,
                                 MinValue = double.MaxValue,
-                                AvgValue = _values.Average(v => v.Value),
-                                Total = _values.Count
+                                AvgValue = __values.Average(v => v.Value),
+                                Total = __values.Count
                             };
 
-                            foreach (var _v in _values) {
-                                if (_v.Value > _target.MaxValue) {
-                                    _target.MaxValue = _v.Value;
-                                    _target.MaxTime = _v.UpdateTime;
+                            foreach (var __value in __values) {
+                                if (__value.Value > _target.MaxValue) {
+                                    _target.MaxValue = __value.Value;
+                                    _target.MaxTime = __value.UpdateTime;
                                 }
 
-                                if (_v.Value < _target.MinValue) {
-                                    _target.MinValue = _v.Value;
-                                    _target.MinTime = _v.UpdateTime;
+                                if (__value.Value < _target.MinValue) {
+                                    _target.MinValue = __value.Value;
+                                    _target.MinTime = __value.UpdateTime;
                                 }
                             }
 
                             _result.Add(_target);
                         }
                     } catch (Exception err) {
-                        Logger.Error(err.Message);
-                        Logger.Error("信号测值统计发生错误,详见错误日志。", err);
+                        Logger.Warning("信号测值统计发生错误，详见错误日志。");
+                        Logger.Error("信号测值统计发生错误", err);
                     } finally {
                         _start = _end;
                         _end = _end.AddMinutes(model.Interval);
                     }
                 }
 
-                _staticRepository.DeleteEntities(model.Device.Id, model.Point.Id, start, end);
+                _staticRepository.DeleteEntities(model.DeviceId, model.PointId, start, end);
                 _staticRepository.SaveEntities(_result);
             }
         }
@@ -1966,11 +2157,12 @@ namespace iPem.TaskServer {
                 return;
             }
 
-            var _FzdlPoint = iPemWorkContext.Points.Find(p => p.Id == _FzdlParam.Value);
-            if (_FzdlPoint == null) {
+            if (!iPemWorkContext.Points.ContainsKey(_FzdlParam.Value)) {
                 Logger.Warning(string.Format("{0}负载电流信号配置错误，线程退出。", _curTask.Name));
                 return;
             }
+
+            var _FzdlPoint = iPemWorkContext.Points[_FzdlParam.Value];
 
             var _GzztParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.GZZT);
             if (_GzztParam == null || string.IsNullOrWhiteSpace(_GzztParam.Value)) {
@@ -1978,11 +2170,12 @@ namespace iPem.TaskServer {
                 return;
             }
 
-            var _GzztPoint = iPemWorkContext.Points.Find(p => p.Id == _GzztParam.Value);
-            if (_GzztPoint == null) {
+            if (!iPemWorkContext.Points.ContainsKey(_GzztParam.Value)) {
                 Logger.Warning(string.Format("{0}工作状态信号配置错误，线程退出。", _curTask.Name));
                 return;
             }
+
+            var _GzztPoint = iPemWorkContext.Points[_GzztParam.Value];
             #endregion
 
             while (_runStatus != RunStatus.Stop) {
@@ -2001,6 +2194,7 @@ namespace iPem.TaskServer {
 
                         this.ExTask004(_curTask.Start, _curTask.End, _FzdlPoint, _GzztPoint);
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -2024,17 +2218,19 @@ namespace iPem.TaskServer {
             #region 组合开关电源
             foreach (var _device in _comDevices) {
                 try {
-                    var _current = iPemWorkContext.Devices.Find(d => d.Current.Id == _device.Id);
-                    if (_current == null) continue;
-                    var _ztPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.DI && p.Current.Id == fzdlPoint.Id);
+                    if (!iPemWorkContext.DeviceSet1.ContainsKey(_device.Id)) continue;
+                    var _current = iPemWorkContext.DeviceSet1[_device.Id];
+                    var _ztPoint = _current.Signals.Find(p => p.Type == EnmPoint.DI && p.PointId == fzdlPoint.Id);
                     if (_ztPoint == null) continue;
-                    var _fzPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.AI && p.Current.Id == gzztPoint.Id);
+                    var _fzPoint = _current.Signals.Find(p => p.Type == EnmPoint.AI && p.PointId == gzztPoint.Id);
                     if (_fzPoint == null) continue;
                     var _fzCap = _device.SingRModuleRatedOPCap * _device.ExisRModuleCount;
                     if (_fzCap == 0) continue;
 
                     var _result = new List<V_Load>();
-                    var _ztFlag = CommonHelper.GetPointFlag(_ztPoint.Current, "浮充");
+                    var _ztFlag = CommonHelper.GetUnitState(_ztPoint.UnitState, "浮充");
+                    var _ztValues = _hmeasureRepository.GetEntities(_device.Id, _ztPoint.PointId, start, end);
+                    var _fzValues = _hmeasureRepository.GetEntities(_device.Id, _fzPoint.PointId, start, end);
                     foreach (var _date in _dates) {
                         var _load = new V_Load {
                             AreaId = _device.AreaId,
@@ -2046,17 +2242,16 @@ namespace iPem.TaskServer {
                             Value = 0,
                         };
 
-                        var _ztValues = _hmeasureRepository.GetEntities(_device.Id, _ztPoint.Current.Id, _load.StartTime, _load.EndTime);
-                        var _intervals = new List<IdValuePair<DateTime, DateTime>>();
-
                         DateTime? _start = null;
-                        foreach (var _value in _ztValues.OrderBy(v => v.UpdateTime)) {
-                            if (_value.Value == _ztFlag && !_start.HasValue) {
-                                _start = _value.UpdateTime;
-                            } else if (_value.Value != _ztFlag && _start.HasValue) {
-                                _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                    Id = _start.Value,
-                                    Value = _value.UpdateTime
+                        var __ztValues = _ztValues.FindAll(v => v.UpdateTime >= _load.StartTime && v.UpdateTime <= _load.EndTime);
+                        var _intervals = new List<KV<DateTime, DateTime>>();
+                        foreach (var __value in __ztValues) {
+                            if (__value.Value == _ztFlag && !_start.HasValue) {
+                                _start = __value.UpdateTime;
+                            } else if (__value.Value != _ztFlag && _start.HasValue) {
+                                _intervals.Add(new KV<DateTime, DateTime> {
+                                    Key = _start.Value,
+                                    Value = __value.UpdateTime
                                 });
 
                                 _start = null;
@@ -2064,8 +2259,8 @@ namespace iPem.TaskServer {
                         }
 
                         if (_start.HasValue) {
-                            _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                Id = _start.Value,
+                            _intervals.Add(new KV<DateTime, DateTime> {
+                                Key = _start.Value,
                                 Value = _load.EndTime
                             });
 
@@ -2073,9 +2268,9 @@ namespace iPem.TaskServer {
                         }
 
                         if (_intervals.Count > 0) {
-                            var _fzValues = _hmeasureRepository.GetEntities(_device.Id, _fzPoint.Current.Id, _load.StartTime, _load.EndTime);
+                            var __fzValues = _fzValues.FindAll(v => v.UpdateTime >= _load.StartTime && v.UpdateTime <= _load.EndTime);
                             foreach (var _interval in _intervals) {
-                                var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
+                                var _fzMatch = __fzValues.FindAll(f => f.UpdateTime >= _interval.Key && f.UpdateTime <= _interval.Value);
                                 var _fzMax = _fzMatch.Max(f => f.Value);
                                 if (_fzMax > _load.Value) _load.Value = _fzMax;
                             }
@@ -2088,8 +2283,8 @@ namespace iPem.TaskServer {
                     _loadRepository.DeleteEntities(_device.Id, start, end);
                     _loadRepository.SaveEntities(_result);
                 } catch (Exception err) {
-                    Logger.Error(err.Message);
-                    Logger.Error("组合开关电源带载率统计发生错误,详见错误日志。", err);
+                    Logger.Warning("组合开关电源带载率统计发生错误，详见错误日志。");
+                    Logger.Error("组合开关电源带载率统计发生错误", err);
                 }
             }
             #endregion
@@ -2097,17 +2292,19 @@ namespace iPem.TaskServer {
             #region 分立开关电源
             foreach (var _device in _divDevices) {
                 try {
-                    var _current = iPemWorkContext.Devices.Find(d => d.Current.Id == _device.Id);
-                    if (_current == null) continue;
-                    var _ztPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.DI && p.Current.Id == fzdlPoint.Id);
+                    if (!iPemWorkContext.DeviceSet1.ContainsKey(_device.Id)) continue;
+                    var _current = iPemWorkContext.DeviceSet1[_device.Id];
+                    var _ztPoint = _current.Signals.Find(p => p.Type == EnmPoint.DI && p.PointId == fzdlPoint.Id);
                     if (_ztPoint == null) continue;
-                    var _fzPoint = _current.Points.Find(p => p.Current.Type == EnmPoint.AI && p.Current.Id == gzztPoint.Id);
+                    var _fzPoint = _current.Signals.Find(p => p.Type == EnmPoint.AI && p.PointId == gzztPoint.Id);
                     if (_fzPoint == null) continue;
                     var _fzCap = _device.SingRModuleRatedOPCap * _device.ExisRModuleCount;
                     if (_fzCap == 0) continue;
 
                     var _result = new List<V_Load>();
-                    var _ztFlag = CommonHelper.GetPointFlag(_ztPoint.Current, "浮充");
+                    var _ztFlag = CommonHelper.GetUnitState(_ztPoint.UnitState, "浮充");
+                    var _ztValues = _hmeasureRepository.GetEntities(_device.Id, _ztPoint.PointId, start, end);
+                    var _fzValues = _hmeasureRepository.GetEntities(_device.Id, _fzPoint.PointId, start, end);
                     foreach (var _date in _dates) {
                         var _load = new V_Load {
                             AreaId = _device.AreaId,
@@ -2119,17 +2316,16 @@ namespace iPem.TaskServer {
                             Value = 0,
                         };
 
-                        var _ztValues = _hmeasureRepository.GetEntities(_device.Id, _ztPoint.Current.Id, _load.StartTime, _load.EndTime);
-                        var _intervals = new List<IdValuePair<DateTime, DateTime>>();
-
                         DateTime? _start = null;
-                        foreach (var _value in _ztValues.OrderBy(v => v.UpdateTime)) {
-                            if (_value.Value == _ztFlag && !_start.HasValue) {
-                                _start = _value.UpdateTime;
-                            } else if (_value.Value != _ztFlag && _start.HasValue) {
-                                _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                    Id = _start.Value,
-                                    Value = _value.UpdateTime
+                        var __ztValues = _ztValues.FindAll(v => v.UpdateTime >= _load.StartTime && v.UpdateTime <= _load.EndTime);
+                        var _intervals = new List<KV<DateTime, DateTime>>();
+                        foreach (var __value in __ztValues) {
+                            if (__value.Value == _ztFlag && !_start.HasValue) {
+                                _start = __value.UpdateTime;
+                            } else if (__value.Value != _ztFlag && _start.HasValue) {
+                                _intervals.Add(new KV<DateTime, DateTime> {
+                                    Key = _start.Value,
+                                    Value = __value.UpdateTime
                                 });
 
                                 _start = null;
@@ -2137,8 +2333,8 @@ namespace iPem.TaskServer {
                         }
 
                         if (_start.HasValue) {
-                            _intervals.Add(new IdValuePair<DateTime, DateTime> {
-                                Id = _start.Value,
+                            _intervals.Add(new KV<DateTime, DateTime> {
+                                Key = _start.Value,
                                 Value = _load.EndTime
                             });
 
@@ -2146,9 +2342,9 @@ namespace iPem.TaskServer {
                         }
 
                         if (_intervals.Count > 0) {
-                            var _fzValues = _hmeasureRepository.GetEntities(_device.Id, _fzPoint.Current.Id, _load.StartTime, _load.EndTime);
+                            var __fzValues = _fzValues.FindAll(v => v.UpdateTime >= _load.StartTime && v.UpdateTime <= _load.EndTime);
                             foreach (var _interval in _intervals) {
-                                var _fzMatch = _fzValues.FindAll(f => f.UpdateTime >= _interval.Id && f.UpdateTime <= _interval.Value);
+                                var _fzMatch = __fzValues.FindAll(f => f.UpdateTime >= _interval.Key && f.UpdateTime <= _interval.Value);
                                 var _fzMax = _fzMatch.Max(f => f.Value);
                                 if (_fzMax > _load.Value) _load.Value = _fzMax;
                             }
@@ -2161,8 +2357,8 @@ namespace iPem.TaskServer {
                     _loadRepository.DeleteEntities(_device.Id, start, end);
                     _loadRepository.SaveEntities(_result);
                 } catch (Exception err) {
-                    Logger.Error(err.Message);
-                    Logger.Error("分立开关电源带载率统计发生错误,详见错误日志。", err);
+                    Logger.Warning("分立开关电源带载率统计发生错误，详见错误日志。");
+                    Logger.Error("分立开关电源带载率统计发生错误", err);
                 }
             }
             #endregion
@@ -2209,6 +2405,7 @@ namespace iPem.TaskServer {
 
                         this.ExTask005();
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -2239,8 +2436,8 @@ namespace iPem.TaskServer {
 
                 _iDeviceRepository.SaveEntities(_iDevices, DateTime.Now);
             } catch (Exception err) {
-                Logger.Error(err.Message);
-                Logger.Error("资管接口同步设备发生错误,详见错误日志。", err);
+                Logger.Warning("资管接口同步设备发生错误，详见错误日志。");
+                Logger.Error("资管接口同步设备发生错误", err);
             }
             #endregion
 
@@ -2259,8 +2456,8 @@ namespace iPem.TaskServer {
 
                 _iStationRepository.SaveEntities(_iStations, DateTime.Now);
             } catch (Exception err) {
-                Logger.Error(err.Message);
-                Logger.Error("资管接口同步站点发生错误,详见错误日志。", err);
+                Logger.Warning("资管接口同步站点发生错误，详见错误日志。");
+                Logger.Error("资管接口同步站点发生错误", err);
             }
             #endregion
 
@@ -2271,7 +2468,7 @@ namespace iPem.TaskServer {
                     _iAreas.Add(new H_IArea {
                         Id = _area.Id,
                         Name = _area.Name,
-                        TypeId = _area.Type.Id.ToString(),
+                        TypeId = _area.Type.Key.ToString(),
                         TypeName = _area.Type.Value,
                         ParentId = _area.ParentId
                     });
@@ -2279,8 +2476,8 @@ namespace iPem.TaskServer {
 
                 _iAreaRepository.SaveEntities(_iAreas, DateTime.Now);
             } catch (Exception err) {
-                Logger.Error(err.Message);
-                Logger.Error("资管接口同步区域发生错误,详见错误日志。", err);
+                Logger.Warning("资管接口同步区域发生错误，详见错误日志。");
+                Logger.Error("资管接口同步区域发生错误", err);
             }
             #endregion
 
@@ -2327,6 +2524,7 @@ namespace iPem.TaskServer {
 
                         this.ExTask006();
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
                         _configWriterLock.ExitReadLock();
@@ -2341,39 +2539,49 @@ namespace iPem.TaskServer {
         /// 参数自动巡检处理方法
         /// </summary>
         private void ExTask006() {
-            var diffs = new List<V_ParamDiff>();
-            foreach (var param in _redefinePointRepository.GetEntities()) {
-                var device = iPemWorkContext.Devices.Find(d => d.Current.Id == param.DeviceId);
-                if (device == null) continue;
+            var _diffs = new List<V_ParamDiff>();
+            foreach (var _signal in _signalRepository.GetEntities()) {
+                if (!iPemWorkContext.DeviceSet1.ContainsKey(_signal.DeviceId)) continue;
+                if (!iPemWorkContext.Points.ContainsKey(_signal.PointId)) continue;
 
-                var point = device.Points.Find(p => p.Current.Id == param.PointId);
-                if (point == null) continue;
-                if (point.SubPoint == null) continue;
+                var _device = iPemWorkContext.DeviceSet1[_signal.DeviceId];
+                var _point = iPemWorkContext.Points[_signal.PointId];
+                var _skey = CommonHelper.JoinKeys(_point.Id, _device.Current.StationType.Id);
+                if (!iPemWorkContext.SubPoints.ContainsKey(_skey)) continue;
+                var _subpoint = iPemWorkContext.SubPoints[_skey];
 
-                var diff = new V_ParamDiff();
-                if (param.AlarmLimit != point.SubPoint.AlarmLimit) diff.Threshold = string.Format("{0}&{1}", param.AlarmLimit, point.SubPoint.AlarmLimit);
-                if (param.AlarmLevel != (int)point.SubPoint.AlarmLevel) diff.AlarmLevel = string.Format("{0}&{1}", param.AlarmLevel, (int)point.SubPoint.AlarmLevel);
-                if (param.NMAlarmId != point.Current.NMAlarmId) diff.NMAlarmID = string.Format("{0}&{1}", param.NMAlarmId, point.Current.NMAlarmId);
-                if (param.AbsoluteThreshold != point.SubPoint.AbsoluteThreshold) diff.AbsoluteVal = string.Format("{0}&{1}", param.AbsoluteThreshold, point.SubPoint.AbsoluteThreshold);
-                if (param.PerThreshold != point.SubPoint.PerThreshold) diff.RelativeVal = string.Format("{0}&{1}", param.PerThreshold, point.SubPoint.PerThreshold);
-                if (param.SavedPeriod != point.SubPoint.SavedPeriod) diff.StorageInterval = string.Format("{0}&{1}", param.SavedPeriod, point.SubPoint.SavedPeriod);
+                var _diff = new V_ParamDiff { DeviceId = _device.Current.Id, PointId = _point.Id };
+                if (string.IsNullOrWhiteSpace(_signal.NMAlarmId)) _signal.NMAlarmId = null;
+                if (string.IsNullOrWhiteSpace(_point.NMAlarmId)) _point.NMAlarmId = null;
+                if (string.IsNullOrWhiteSpace(_signal.StorageRefTime)) _signal.StorageRefTime = null;
+                if (string.IsNullOrWhiteSpace(_subpoint.StorageRefTime)) _subpoint.StorageRefTime = null;
 
-                diff.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(device.Current.Id, "masking-all"));
-                if (!diff.Masked) diff.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(device.Current.Id, point.Current.Id));
+                if (_signal.AlarmLimit != _subpoint.AlarmLimit) _diff.Threshold = string.Format("{0}&{1}", _signal.AlarmLimit, _subpoint.AlarmLimit);
+                if (_signal.AlarmLevel != (int)_subpoint.AlarmLevel) _diff.AlarmLevel = string.Format("{0}&{1}", _signal.AlarmLevel, (int)_subpoint.AlarmLevel);
+                if (_signal.NMAlarmId != _point.NMAlarmId) _diff.NMAlarmID = string.Format("{0}&{1}", _signal.NMAlarmId ?? "", _point.NMAlarmId ?? "");
+                if (_signal.AbsoluteThreshold != _subpoint.AbsoluteThreshold) _diff.AbsoluteVal = string.Format("{0}&{1}", _signal.AbsoluteThreshold, _subpoint.AbsoluteThreshold);
+                if (_signal.PerThreshold != _subpoint.PerThreshold) _diff.RelativeVal = string.Format("{0}&{1}", _signal.PerThreshold, _subpoint.PerThreshold);
+                if (_signal.SavedPeriod != _subpoint.SavedPeriod) _diff.StorageInterval = string.Format("{0}&{1}", _signal.SavedPeriod, _subpoint.SavedPeriod);
+                if (_signal.StorageRefTime != _subpoint.StorageRefTime) _diff.StorageRefTime = string.Format("{0}&{1}", _signal.StorageRefTime ?? "", _subpoint.StorageRefTime ?? "");
 
-                if (string.IsNullOrWhiteSpace(diff.Threshold)
-                    && string.IsNullOrWhiteSpace(diff.AlarmLevel)
-                    && string.IsNullOrWhiteSpace(diff.NMAlarmID)
-                    && string.IsNullOrWhiteSpace(diff.AbsoluteVal)
-                    && string.IsNullOrWhiteSpace(diff.RelativeVal)
-                    && string.IsNullOrWhiteSpace(diff.StorageInterval)
-                    && !diff.Masked
+                _diff.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(_device.Current.Id, "masking-all"));
+                if (!_diff.Masked) _diff.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(_device.Current.Id, _point.Id));
+
+                if (string.IsNullOrWhiteSpace(_diff.Threshold)
+                    && string.IsNullOrWhiteSpace(_diff.AlarmLevel)
+                    && string.IsNullOrWhiteSpace(_diff.NMAlarmID)
+                    && string.IsNullOrWhiteSpace(_diff.AbsoluteVal)
+                    && string.IsNullOrWhiteSpace(_diff.RelativeVal)
+                    && string.IsNullOrWhiteSpace(_diff.StorageInterval)
+                    && string.IsNullOrWhiteSpace(_diff.StorageRefTime)
+                    && !_diff.Masked
                     ) continue;
 
-                diffs.Add(diff);
+                _diffs.Add(_diff);
             }
 
-            if (diffs.Count > 0) _paramDiffRepository.SaveEntities(diffs, DateTime.Now);
+            if (_diffs.Count > 0) 
+                _paramDiffRepository.SaveEntities(_diffs, DateTime.Now);
         }
 
         /// <summary>
@@ -2412,14 +2620,15 @@ namespace iPem.TaskServer {
                     }
 
                     try {
-                        //获取读资源锁
-                        _configWriterLock.EnterReadLock();
+                        //获取写资源锁
+                        _configWriterLock.EnterWriteLock();
 
                         this.ExTask007(_curTask.Start, _curTask.End);
                     } catch (Exception err) {
+                        Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
                     } finally {
-                        _configWriterLock.ExitReadLock();
+                        _configWriterLock.ExitWriteLock();
                         GlobalConfig.SetTaskPloy(_curTask);
                         Logger.Information(string.Format("{0}执行完成，下次执行时间：{1}。", _curTask.Name, CommonHelper.ToDateTimeString(_curTask.Next)));
                     }
@@ -2431,71 +2640,65 @@ namespace iPem.TaskServer {
         /// 告警同步处理方法
         /// </summary>
         private void ExTask007(DateTime start, DateTime end) {
-            try {
-                //获取写资源锁
-                _configWriterLock.EnterWriteLock();
 
-                #region 同步告警变量
-                LoadActiveAlarm();
-                #endregion
+            #region 同步告警变量
+            LoadAlarms();
+            #endregion
 
-                var alarms = _falmRepository.GetEntities(start, end);
-                if (alarms.Count > 0) {
-                    var hisKeys = new HashSet<string>(_halmRepository.GetEntities(start, end).Select(a => a.Id));
+            var alarms = _falmRepository.GetEntities(start, end);
+            if (alarms.Count > 0) {
+                var hisKeys = new HashSet<string>(_halmRepository.GetEntities(start, end).Select(a => a.Id));
 
-                    #region 告警分类
-                    var starts = new List<A_FAlarm>();
-                    var ends = new List<A_FAlarm>();
-                    var finished = new List<IdValuePair<A_FAlarm, A_FAlarm>>();
-                    foreach (var alarm in alarms) {
-                        var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
-                        if (alarm.AlarmFlag == EnmFlag.Begin) {
-                            starts.Add(alarm);
-                        } else if (alarm.AlarmFlag == EnmFlag.End) {
-                            var existed = starts.Find(s => string.Format("{0}-{1}", s.SerialNo, s.FsuId).Equals(key));
-                            if (existed != null) {
-                                finished.Add(new IdValuePair<A_FAlarm, A_FAlarm>(existed, alarm));
-                                starts.Remove(existed);
-                            } else {
-                                ends.Add(alarm);
-                            }
+                #region 告警分类
+                var starts = new List<A_FAlarm>();
+                var ends = new List<A_FAlarm>();
+                var finished = new List<KV<A_FAlarm, A_FAlarm>>();
+                foreach (var alarm in alarms) {
+                    var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
+                    if (alarm.AlarmFlag == EnmFlag.Begin) {
+                        starts.Add(alarm);
+                    } else if (alarm.AlarmFlag == EnmFlag.End) {
+                        var existed = starts.Find(s => string.Format("{0}-{1}", s.SerialNo, s.FsuId).Equals(key));
+                        if (existed != null) {
+                            finished.Add(new KV<A_FAlarm, A_FAlarm>(existed, alarm));
+                            starts.Remove(existed);
+                        } else {
+                            ends.Add(alarm);
                         }
                     }
-                    #endregion
-
-                    #region 仅有开始告警
-                    foreach (var alarm in starts) {
-                        var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
-                        if (GlobalConfig.AlarmKeys1.ContainsKey(key)) continue;
-                        if (hisKeys.Contains(key)) continue;
-                        _talmRepository.SaveEntities(alarm);
-                    }
-                    #endregion
-
-                    #region 仅有结束告警
-
-                    foreach (var alarm in ends) {
-                        var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
-                        if (!GlobalConfig.AlarmKeys1.ContainsKey(key)) continue;
-                        _talmRepository.SaveEntities(alarm);
-                    }
-
-                    #endregion
-
-                    #region 既有开始又有结束
-
-                    foreach (var alarm in finished) {
-                        var key = string.Format("{0}-{1}", alarm.Id.SerialNo, alarm.Id.FsuId);
-                        if (hisKeys.Contains(key)) continue;
-                        _talmRepository.SaveEntities(alarm.Id, alarm.Value);
-                    }
-
-                    #endregion
-
-                    _falmRepository.Delete(alarms);
                 }
-            } finally {
-                _configWriterLock.ExitWriteLock();
+                #endregion
+
+                #region 仅有开始告警
+                foreach (var alarm in starts) {
+                    var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
+                    if (GlobalConfig.AlarmKeys1.ContainsKey(key)) continue;
+                    if (hisKeys.Contains(key)) continue;
+                    _talmRepository.SaveEntities(alarm);
+                }
+                #endregion
+
+                #region 仅有结束告警
+
+                foreach (var alarm in ends) {
+                    var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
+                    if (!GlobalConfig.AlarmKeys1.ContainsKey(key)) continue;
+                    _talmRepository.SaveEntities(alarm);
+                }
+
+                #endregion
+
+                #region 既有开始又有结束
+
+                foreach (var alarm in finished) {
+                    var key = string.Format("{0}-{1}", alarm.Key.SerialNo, alarm.Key.FsuId);
+                    if (hisKeys.Contains(key)) continue;
+                    _talmRepository.SaveEntities(alarm.Key, alarm.Value);
+                }
+
+                #endregion
+
+                _falmRepository.Delete(alarms);
             }
         }
 
@@ -2520,114 +2723,33 @@ namespace iPem.TaskServer {
             iPemWorkContext.RoomTypes = _roomTypeRepository.GetEntities();
             iPemWorkContext.StationTypes = _stationTypeRepository.GetEntities();
             iPemWorkContext.AreaTypes = _enumMethodsRepository.GetEntities(EnmMethodType.Area, "类型");
-            iPemWorkContext.Points = _pointRepository.GetEntities();
-            iPemWorkContext.SubPoints = _subPointRepository.GetEntities();
-            iPemWorkContext.Protocols = new List<WcProtocol>();
+            iPemWorkContext.Points = _pointRepository.GetEntities().ToDictionary(k => k.Id, v => v);
+            iPemWorkContext.SubPoints = _subPointRepository.GetEntities().ToDictionary(k => CommonHelper.JoinKeys(k.PointId, k.StationTypeId), v => v);
+            iPemWorkContext.Fsus = _fsuRepository.GetEntities();
+            iPemWorkContext.Rooms = _roomRepository.GetEntities();
+            iPemWorkContext.Stations = _stationRepository.GetEntities();
+
+            //加载设备
             iPemWorkContext.Devices = new List<WcDevice>();
-            iPemWorkContext.Fsus = new List<WcFsu>();
-            iPemWorkContext.Rooms = new List<WcRoom>();
-            iPemWorkContext.Stations = new List<WcStation>();
-            iPemWorkContext.Areas = new List<WcArea>();
-
-            //加载模版信号表
-            foreach (var _protocol in _protocolRepository.GetEntities()) {
-                var _points = _pointRepository.GetEntitiesByProtocol(_protocol.Id);
-                iPemWorkContext.Protocols.Add(new WcProtocol {
-                    Current = _protocol,
-                    Points = _points
-                });
-            }
-
-            //加载设备表
-            var _subPointKeys = new Dictionary<string, List<SubPoint>>();
             foreach (var _device in _deviceRepository.GetEntities()) {
-                var _protocol = iPemWorkContext.Protocols.Find(p => p.Current.Id == _device.ProtocolId);
-                if (_protocol == null) continue;
-
-                if (!_subPointKeys.ContainsKey(_device.StationType.Id)) {
-                    _subPointKeys[_device.StationType.Id] = _subPointRepository.GetEntitiesInStaType(_device.StationType.Id);
-                }
-
-                var _subPoints = _subPointKeys[_device.StationType.Id];
-                var _wcPoints = (from _point in _protocol.Points
-                                 join _subPoint in _subPoints on _point.Id equals _subPoint.PointId into lt
-                                 from def in lt.DefaultIfEmpty()
-                                 select new WcPoint { 
-                                     Current = _point, 
-                                     SubPoint = def 
-                                 }).ToList();
-
-                iPemWorkContext.Devices.Add(new WcDevice { Current = _device, Points = _wcPoints });
+                var _current = new WcDevice(_device) { Signals = _signalRepository.GetEntities(_device.Id) };
+                iPemWorkContext.Devices.Add(_current);
             }
 
-            //加载FSU表
-            var _fsus = _fsuRepository.GetEntities();
-            var _devsInFsu = iPemWorkContext.Devices.GroupBy(d => d.Current.FsuId);
-            iPemWorkContext.Fsus.AddRange(
-                from _fsu in _fsus
-                join _dev in _devsInFsu on _fsu.Id equals _dev.Key into lt
-                from def in lt.DefaultIfEmpty()
-                select new WcFsu { 
-                    Current = _fsu, 
-                    Devices = def != null ? def.ToList() : new List<WcDevice>() 
-                }
-            );
+            //加载设备Key
+            iPemWorkContext.DeviceSet1 = new Dictionary<string, WcDevice>();
+            iPemWorkContext.DeviceSet2 = new Dictionary<string, WcDevice>();
+            foreach (var _device in iPemWorkContext.Devices) {
+                iPemWorkContext.DeviceSet1[_device.Current.Id] = iPemWorkContext.DeviceSet2[CommonHelper.JoinKeys(_device.Current.FsuCode, _device.Current.Code)] = _device;
+            }
 
-            //加载机房表
-            var _rooms = _roomRepository.GetEntities();
-            var _devsInRoom = iPemWorkContext.Devices.GroupBy(d => d.Current.RoomId);
-            var _fsusInRoom = iPemWorkContext.Fsus.GroupBy(f => f.Current.RoomId);
-            iPemWorkContext.Rooms.AddRange(
-                from _room in _rooms
-                join _dev in _devsInRoom on _room.Id equals _dev.Key into lt1
-                from def1 in lt1.DefaultIfEmpty()
-                join _fsu in _fsusInRoom on _room.Id equals _fsu.Key into lt2
-                from def2 in lt2.DefaultIfEmpty()
-                select new WcRoom {
-                    Current = _room,
-                    Devices = def1 != null ? def1.ToList() : new List<WcDevice>(),
-                    Fsus = def2 != null ? def2.ToList() : new List<WcFsu>()
-                }
-            );
-
-            //加载站点表
-            var _stations = _stationRepository.GetEntities();
-            var _roomsInSta = iPemWorkContext.Rooms.GroupBy(r => r.Current.StationId);
-            iPemWorkContext.Stations.AddRange(
-                from _station in _stations
-                join _room in _roomsInSta on _station.Id equals _room.Key into lt
-                from def in lt.DefaultIfEmpty()
-                select new WcStation {
-                    Current = _station,
-                    Rooms = def != null ? def.ToList() : new List<WcRoom>()
-                }
-            );
-
-            //加载区域表
-            var _areas = _areaRepository.GetEntities();
-            var _stasInArea = iPemWorkContext.Stations.GroupBy(s => s.Current.AreaId);
-            iPemWorkContext.Areas.AddRange(
-                from _area in _areas
-                join _sta in _stasInArea on _area.Id equals _sta.Key into lt
-                from def in lt.DefaultIfEmpty()
-                select new WcArea {
-                    Current = _area,
-                    Stations = def != null ? def.ToList() : new List<WcStation>()
-                }
-            );
-
+            //加载区域
+            iPemWorkContext.Areas = new List<WcArea>();
+            foreach (var _area in _areaRepository.GetEntities()) {
+                iPemWorkContext.Areas.Add(new WcArea(_area));
+            }
             foreach (var current in iPemWorkContext.Areas) {
                 current.Initializer(iPemWorkContext.Areas);
-            }
-        }
-
-        /// <summary>
-        /// 加载重定义数据
-        /// </summary>
-        private void LoadRedefine() {
-            GlobalConfig.RedefinePoints = new Dictionary<string, RedefinePoint>();
-            foreach (var _redefine in _redefinePointRepository.GetEntities()) {
-                (GlobalConfig.RedefinePoints)[CommonHelper.JoinKeys(_redefine.DeviceId, _redefine.PointId)] = _redefine;
             }
         }
 
@@ -2668,7 +2790,7 @@ namespace iPem.TaskServer {
         /// <summary>
         /// 加载工程预约数据
         /// </summary>
-        private void LoadReservation() {
+        private void LoadReservations() {
             GlobalConfig.Reservations = new List<ReservationModel>();
             var resNodes = _nodesInReservationRepository.GetEntities();
             foreach (var reservation in _reservationRepository.GetEntities()) {
@@ -2707,13 +2829,51 @@ namespace iPem.TaskServer {
         }
 
         /// <summary>
-        /// 加载活动告警数据
+        /// 加载告警数据
         /// </summary>
-        private void LoadActiveAlarm() {
+        private void LoadAlarms(bool clean = false) {
             GlobalConfig.InitAlarm();
             foreach (var alarm in _aalmRepository.GetEntities()) {
                 GlobalConfig.AddAlarm(alarm);
             }
+
+            if (!clean) return;
+
+            #region 清理流水告警
+            var talarms = new List<A_TAlarm>();
+            foreach (var _alarm in _talmRepository.GetEntities()) {
+                var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
+                if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) {
+                    talarms.Add(_alarm);
+                }
+            }
+
+            try {
+                if (talarms.Count > 0) 
+                    _talmRepository.Delete(talarms);
+            } catch (Exception err) {
+                Logger.Warning("清理流水告警错误，详见错误日志。");
+                Logger.Error("清理流水告警错误", err);
+            }
+            #endregion
+
+            #region 清理同步告警
+            var falarms = new List<A_FAlarm>();
+            foreach (var _alarm in _falmRepository.GetEntities()) {
+                var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
+                if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) {
+                    falarms.Add(_alarm);
+                }
+            }
+
+            try {
+                if (falarms.Count > 0)
+                    _falmRepository.Delete(falarms);
+            } catch (Exception err) {
+                Logger.Warning("清理同步告警错误，详见错误日志。");
+                Logger.Error("清理同步告警错误", err);
+            }
+            #endregion
         }
 
         /// <summary>
@@ -2734,7 +2894,7 @@ namespace iPem.TaskServer {
         }
 
         /// <summary>
-        /// 加载服务基本数据
+        /// 加载服务参数数据
         /// </summary>
         private void LoadParams() {
             GlobalConfig.CurParams = _registry.GetParams();
@@ -2743,18 +2903,20 @@ namespace iPem.TaskServer {
         /// <summary>
         /// 加载信号测值统计策略数据
         /// </summary>
-        private void LoadStatic() {
+        private void LoadStaticPolicies() {
             GlobalConfig.StaticModels = new List<StaticModel>();
-
-            var pattern = @"\{统计曲线:\d+\}";
             foreach (var _device in iPemWorkContext.Devices) {
-                foreach (var _point in _device.Points) {
-                    if (string.IsNullOrWhiteSpace(_point.Current.ExtSet1)) continue;
-                    foreach (Match match in Regex.Matches(_point.Current.ExtSet1, pattern)) {
-                        int interval;
-                        if (int.TryParse(match.Value.Replace("{统计曲线:", "").Replace("}", ""), out interval)) {
-                            GlobalConfig.StaticModels.Add(new StaticModel { Device = _device.Current, Point = _point.Current, Interval = interval });
-                        }
+                foreach (var _signal in _device.Signals) {
+                    if (_signal.StaticPeriod > 0) {
+                        GlobalConfig.StaticModels.Add(new StaticModel {
+                            AreaId = _device.Current.AreaId,
+                            StationId = _device.Current.StationId,
+                            RoomId = _device.Current.RoomId,
+                            FsuId = _device.Current.FsuId,
+                            DeviceId = _device.Current.Id,
+                            PointId = _signal.PointId,
+                            Interval = _signal.StaticPeriod
+                        });
                     }
                 }
             }
@@ -2763,57 +2925,64 @@ namespace iPem.TaskServer {
         /// <summary>
         /// 加载电池放电统计策略数据
         /// </summary>
-        private void LoadBat() {
-            GlobalConfig.BatModels = new List<BatModel>();
+        private void LoadBatPolicies() {
+            #region 屏蔽电池充放电统计
+            //GlobalConfig.BatModels = new List<BatModel>();
+            //var pattern = @"\{电池放电:\d+&\d+(\.\d+)?\}";
+            //var models = new List<BatParam>();
+            //foreach (var _device in iPemWorkContext.Devices) {
+            //    foreach (var _signal in _device.Signals) {
+            //        if (string.IsNullOrWhiteSpace(_signal.Extend)) continue;
+            //        foreach (Match match in Regex.Matches(_signal.Extend, pattern)) {
+            //            var _tactics = match.Value.Replace("{电池放电:", "").Replace("}", "").Split('&');
+            //            if (_tactics.Length != 2) continue;
 
-            var pattern = @"\{电池放电:\d+&\d+(\.\d+)?\}";
-            var models = new List<BatParam>();
-            foreach (var _value in GlobalConfig.RedefinePoints.Values) {
-                if (string.IsNullOrWhiteSpace(_value.Extend)) continue;
-                foreach (Match match in Regex.Matches(_value.Extend, pattern)) {
-                    var _tactics = match.Value.Replace("{电池放电:", "").Replace("}", "").Split('&');
-                    if (_tactics.Length != 2) continue;
+            //            int _pack;
+            //            if (!int.TryParse(_tactics[0], out _pack)) continue;
 
-                    int _pack;
-                    if (!int.TryParse(_tactics[0], out _pack)) continue;
+            //            double _voltage;
+            //            if (!double.TryParse(_tactics[1], out _voltage)) continue;
 
-                    double _voltage;
-                    if (!double.TryParse(_tactics[1], out _voltage)) continue;
+            //            models.Add(new BatParam { DeviceId = _signal.DeviceId, PointId = _signal.PointId, PackId = _pack, Voltage = _voltage });
+            //        }
+            //    }
+            //}
 
-                    models.Add(new BatParam { DeviceId = _value.DeviceId, PointId = _value.PointId, PackId = _pack, Voltage = _voltage });
-                }
-            }
+            //if (models.Count > 0) {
+            //    var _packGroup = models.GroupBy(m => new { m.DeviceId, m.PackId });
+            //    foreach (var _pack in _packGroup) {
+            //        var _master = _pack.FirstOrDefault(g => g.Voltage > 0);
+            //        if (_master == null) continue;
 
-            if (models.Count > 0) {
-                var _packGroup = models.GroupBy(m => new { m.DeviceId, m.PackId });
-                foreach (var _pack in _packGroup) {
-                    var _master = _pack.FirstOrDefault(g => g.Voltage > 0);
-                    if (_master == null) continue;
+            //        if(!iPemWorkContext.DeviceSet1.ContainsKey(_pack.Key.DeviceId))
+            //            continue;
 
-                    var _device = iPemWorkContext.Devices.Find(d => d.Current.Id == _pack.Key.DeviceId);
-                    if (_device == null) continue;
+            //        var _device = iPemWorkContext.DeviceSet1[_pack.Key.DeviceId];
+            //        var _signal = _device.Signals.Find(p => p.PointId == _master.PointId);
+            //        if (_signal == null) continue;
 
-                    var _point = _device.Points.Find(p => p.Current.Id == _master.PointId);
-                    if (_point == null) continue;
-
-                    var _subIds = _pack.Where(p => p != _master).Select(g => g.PointId).ToArray();
-                    var _subPoints = _device.Points.FindAll(p => _subIds.Contains(p.Current.Id));
-
-                    GlobalConfig.BatModels.Add(new BatModel {
-                        Device = _device.Current,
-                        Point = _point.Current,
-                        PackId = _master.PackId,
-                        Voltage = _master.Voltage,
-                        SubPoints = _subPoints.Select(g => g.Current).ToList()
-                    });
-                }
-            }
+            //        var _subIds = _pack.Where(p => p != _master).Select(g => g.PointId).ToArray();
+            //        var _subPoints = _device.Signals.FindAll(p => _subIds.Contains(p.PointId));
+            //        GlobalConfig.BatModels.Add(new BatModel {
+            //            AreaId = _device.Current.AreaId,
+            //            StationId = _device.Current.StationId,
+            //            RoomId = _device.Current.RoomId,
+            //            FsuId = _device.Current.FsuId,
+            //            DeviceId = _device.Current.Id,
+            //            PointId = _signal.PointId,
+            //            PackId = _master.PackId,
+            //            Voltage = _master.Voltage,
+            //            SubSignals = _subPoints.Select(g => g.PointId).ToList()
+            //        });
+            //    }
+            //}
+            #endregion
         }
 
         /// <summary>
         /// 加载断站、停电、发电策略数据
         /// </summary>
-        private void LoadCut() {
+        private void LoadCutPolicies() {
             GlobalConfig.Offs = new HashSet<string>();
             GlobalConfig.Cuttings = new HashSet<string>();
             GlobalConfig.Powers = new HashSet<string>();
@@ -2821,17 +2990,19 @@ namespace iPem.TaskServer {
             var pattern1 = @"\{站点断站\}";
             var pattern2 = @"\{站点停电\}";
             var pattern3 = @"\{站点发电\}";
-            foreach (var value in GlobalConfig.RedefinePoints.Values) {
-                if (string.IsNullOrWhiteSpace(value.Extend)) continue;
+            foreach (var _device in iPemWorkContext.Devices) {
+                foreach (var _signal in _device.Signals) {
+                    if (string.IsNullOrWhiteSpace(_signal.Extend)) continue;
 
-                if (Regex.IsMatch(value.Extend, pattern1))
-                    GlobalConfig.Offs.Add(CommonHelper.JoinKeys(value.DeviceId, value.PointId));
+                    if (Regex.IsMatch(_signal.Extend, pattern1))
+                        GlobalConfig.Offs.Add(CommonHelper.JoinKeys(_signal.DeviceId, _signal.PointId));
 
-                if (Regex.IsMatch(value.Extend, pattern2))
-                    GlobalConfig.Cuttings.Add(CommonHelper.JoinKeys(value.DeviceId, value.PointId));
+                    if (Regex.IsMatch(_signal.Extend, pattern2))
+                        GlobalConfig.Cuttings.Add(CommonHelper.JoinKeys(_signal.DeviceId, _signal.PointId));
 
-                if (Regex.IsMatch(value.Extend, pattern3))
-                    GlobalConfig.Powers.Add(CommonHelper.JoinKeys(value.DeviceId, value.PointId));
+                    if (Regex.IsMatch(_signal.Extend, pattern3))
+                        GlobalConfig.Powers.Add(CommonHelper.JoinKeys(_signal.DeviceId, _signal.PointId));
+                }
             }
         }
 

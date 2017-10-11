@@ -25,25 +25,12 @@ namespace iPem.Data {
                     Directory.CreateDirectory(fullPath);
 
                 if (log != null) {
-                    var runFile = new FileInfo(runName);
-                    if (runFile.Exists) {
-                        using (var sw = runFile.AppendText()) {
-                            sw.WriteLine(String.Format("{0} {1}", log.Time.ToString("MM/dd HH:mm:ss"), log.Message));
-                            sw.Close();
-                        }
-                    } else {
-                        using (var sw = runFile.CreateText()) {
-                            sw.WriteLine(String.Format("{0} {1}", log.Time.ToString("MM/dd HH:mm:ss"), log.Message));
-                            sw.Close();
-                        }
-                    }
-
                     if (log.Type == EventType.Error) {
                         var text = new StringBuilder();
-                        text.AppendLine(String.Format("事件时间: {0}", log.Time.ToString("yyyy/MM/dd HH:mm:ss")));
-                        text.AppendLine(String.Format("事件级别: {0}", log.Type));
-                        text.AppendLine("事件内容:");
-                        text.AppendLine(log.Message);
+                        text.AppendLine(String.Format("日志名称: {0}", log.Message));
+                        text.AppendLine(String.Format("日志时间: {0}", log.Time.ToString("yyyy/MM/dd HH:mm:ss")));
+                        text.AppendLine(String.Format("日志级别: {0}", log.Type));
+                        text.Append("日志详情: ");
                         text.AppendLine(log.FullMessage);
                         text.AppendLine("=======================================================================================");
 
@@ -56,6 +43,19 @@ namespace iPem.Data {
                         } else {
                             using (var sw = sysFile.CreateText()) {
                                 sw.WriteLine(text.ToString());
+                                sw.Close();
+                            }
+                        }
+                    } else {
+                        var runFile = new FileInfo(runName);
+                        if (runFile.Exists) {
+                            using (var sw = runFile.AppendText()) {
+                                sw.WriteLine(String.Format("{0} {1}", log.Time.ToString("MM/dd HH:mm:ss"), log.Message));
+                                sw.Close();
+                            }
+                        } else {
+                            using (var sw = runFile.CreateText()) {
+                                sw.WriteLine(String.Format("{0} {1}", log.Time.ToString("MM/dd HH:mm:ss"), log.Message));
                                 sw.Close();
                             }
                         }
@@ -102,16 +102,16 @@ namespace iPem.Data {
             }
         }
 
-        public static void Error(string message, Exception exception = null) {
-            Write(EventType.Error, message, exception == null ? "" : exception.StackTrace);
+        public static void Error(string message, Exception exception) {
+            Write(EventType.Error, message, string.Format("{0}{1}{2}", exception.ToString(), Environment.NewLine, exception.Source ?? ""));
         }
 
-        public static void Warning(string message, Exception exception = null) {
-            Write(EventType.Warning, message, exception == null ? "" : exception.StackTrace);
+        public static void Warning(string message) {
+            Write(EventType.Warning, message, "");
         }
 
-        public static void Information(string message, Exception exception = null) {
-            Write(EventType.Info, message, exception == null ? "" : exception.StackTrace);
+        public static void Information(string message) {
+            Write(EventType.Info, message, "");
         }
     }
 }

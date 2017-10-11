@@ -27,7 +27,7 @@ namespace iPem.Data {
 
         #region Methods
 
-        public List<Point> GetEntitiesByDevice(string device) {
+        public List<Point> GetEntities(string device) {
             SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar,100) };
             parms[0].Value = device;
 
@@ -45,49 +45,11 @@ namespace iPem.Data {
                     entity.NMAlarmId = SqlTypeConverter.DBNullStringHandler(rdr["NMAlarmId"]);
                     entity.DeviceType = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
                     entity.LogicType = new LogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeName"]) };
-                    entity.AlarmComment = SqlTypeConverter.DBNullStringHandler(rdr["AlarmComment"]);
-                    entity.NormalComment = SqlTypeConverter.DBNullStringHandler(rdr["NormalComment"]);
                     entity.DeviceEffect = SqlTypeConverter.DBNullStringHandler(rdr["DeviceEffect"]);
                     entity.BusiEffect = SqlTypeConverter.DBNullStringHandler(rdr["BusiEffect"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Interpret = SqlTypeConverter.DBNullStringHandler(rdr["Interpret"]);
-                    entity.ExtSet1 = SqlTypeConverter.DBNullStringHandler(rdr["ExtSet1"]);
-                    entity.ExtSet2 = SqlTypeConverter.DBNullStringHandler(rdr["ExtSet2"]);
-                    entity.Description = SqlTypeConverter.DBNullStringHandler(rdr["Description"]);
-                    entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
-                    entities.Add(entity);
-                }
-            }
-            return entities;
-        }
-
-        public List<Point> GetEntitiesByProtocol(string protocol) {
-            SqlParameter[] parms = { new SqlParameter("@ProtocolId", SqlDbType.VarChar, 100) };
-            parms[0].Value = protocol;
-
-            var entities = new List<Point>();
-            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Rs.Sql_Point_Repository_GetEntitiesByProtcol, parms)) {
-                while(rdr.Read()) {
-                    var entity = new Point();
-                    entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
-                    entity.Code = SqlTypeConverter.DBNullStringHandler(rdr["Code"]);
-                    entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
-                    entity.Type = SqlTypeConverter.DBNullEnmPointHandler(rdr["Type"]);
-                    entity.UnitState = SqlTypeConverter.DBNullStringHandler(rdr["UnitState"]);
-                    entity.Number = SqlTypeConverter.DBNullStringHandler(rdr["Number"]);
-                    entity.AlarmId = SqlTypeConverter.DBNullStringHandler(rdr["AlarmId"]);
-                    entity.NMAlarmId = SqlTypeConverter.DBNullStringHandler(rdr["NMAlarmId"]);
-                    entity.DeviceType = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
-                    entity.LogicType = new LogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeName"]) };
-                    entity.AlarmComment = SqlTypeConverter.DBNullStringHandler(rdr["AlarmComment"]);
-                    entity.NormalComment = SqlTypeConverter.DBNullStringHandler(rdr["NormalComment"]);
-                    entity.DeviceEffect = SqlTypeConverter.DBNullStringHandler(rdr["DeviceEffect"]);
-                    entity.BusiEffect = SqlTypeConverter.DBNullStringHandler(rdr["BusiEffect"]);
-                    entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
-                    entity.Interpret = SqlTypeConverter.DBNullStringHandler(rdr["Interpret"]);
-                    entity.ExtSet1 = SqlTypeConverter.DBNullStringHandler(rdr["ExtSet1"]);
-                    entity.ExtSet2 = SqlTypeConverter.DBNullStringHandler(rdr["ExtSet2"]);
-                    entity.Description = SqlTypeConverter.DBNullStringHandler(rdr["Description"]);
+                    entity.ExtSet = SqlTypeConverter.DBNullStringHandler(rdr["ExtSet"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
                     entities.Add(entity);
                 }
@@ -110,15 +72,11 @@ namespace iPem.Data {
                     entity.NMAlarmId = SqlTypeConverter.DBNullStringHandler(rdr["NMAlarmId"]);
                     entity.DeviceType = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
                     entity.LogicType = new LogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["LogicTypeName"]) };
-                    entity.AlarmComment = SqlTypeConverter.DBNullStringHandler(rdr["AlarmComment"]);
-                    entity.NormalComment = SqlTypeConverter.DBNullStringHandler(rdr["NormalComment"]);
                     entity.DeviceEffect = SqlTypeConverter.DBNullStringHandler(rdr["DeviceEffect"]);
                     entity.BusiEffect = SqlTypeConverter.DBNullStringHandler(rdr["BusiEffect"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
                     entity.Interpret = SqlTypeConverter.DBNullStringHandler(rdr["Interpret"]);
-                    entity.ExtSet1 = SqlTypeConverter.DBNullStringHandler(rdr["ExtSet1"]);
-                    entity.ExtSet2 = SqlTypeConverter.DBNullStringHandler(rdr["ExtSet2"]);
-                    entity.Description = SqlTypeConverter.DBNullStringHandler(rdr["Description"]);
+                    entity.ExtSet = SqlTypeConverter.DBNullStringHandler(rdr["ExtSet"]);
                     entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
                     entities.Add(entity);
                 }

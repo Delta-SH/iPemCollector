@@ -37,6 +37,12 @@ namespace iPem.Core {
         public int PackId { get; set; }
 
         /// <summary>
+        /// 0: 充电
+        /// 1: 放电
+        /// </summary>
+        public int Type { get; set; }
+
+        /// <summary>
         /// 开始时间
         /// </summary>
         public DateTime StartTime { get; set; }

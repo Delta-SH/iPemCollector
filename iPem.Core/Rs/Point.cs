@@ -57,16 +57,6 @@ namespace iPem.Core {
         public LogicType LogicType { get; set; }
 
         /// <summary>
-        /// 告警时描述
-        /// </summary>
-        public string AlarmComment { get; set; }
-
-        /// <summary>
-        /// 正常时描述
-        /// </summary>
-        public string NormalComment { get; set; }
-
-        /// <summary>
         /// 告警对设备的影响
         /// </summary>
         public string DeviceEffect { get; set; }
@@ -87,19 +77,9 @@ namespace iPem.Core {
         public string Interpret { get; set; }
 
         /// <summary>
-        /// 扩展设置1
+        /// 扩展设置
         /// </summary>
-        public string ExtSet1 { get; set; }
-
-        /// <summary>
-        /// 扩展设置2
-        /// </summary>
-        public string ExtSet2 { get; set; }
-
-        /// <summary>
-        /// 备注
-        /// </summary>
-        public string Description { get; set; }
+        public string ExtSet { get; set; }
 
         /// <summary>
         /// 状态

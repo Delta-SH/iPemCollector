@@ -1,4 +1,4 @@
-echo off
+@echo off
 echo ****************************
 echo °²×°PECS-II Data Service
 echo ****************************

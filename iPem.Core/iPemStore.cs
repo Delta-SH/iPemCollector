@@ -23,7 +23,7 @@ namespace iPem.Core {
         /// Gets or sets the application version
         /// </summary>
         public static string Version {
-            get { return "V1.0.0 Build170725"; }
+            get { return "V1.1.0 Build170925"; }
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace iPem.Core {
         /// Gets or sets the copyright
         /// </summary>
         public static string Copyright {
-            get { return "All Rights Reserved ©2017"; }
+            get { return "All Rights Reserved ©2011-2017"; }
         }
     }
 }

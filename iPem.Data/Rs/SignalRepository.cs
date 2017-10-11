@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 
 namespace iPem.Data {
-    public partial class RedefinePointRepository {
+    public partial class SignalRepository {
 
         #region Fields
 
@@ -19,7 +19,7 @@ namespace iPem.Data {
         /// <summary>
         /// Ctor
         /// </summary>
-        public RedefinePointRepository() {
+        public SignalRepository() {
             this._databaseConnectionString = SqlHelper.ConnectionStringRsTransaction;
         }
 
@@ -27,64 +27,71 @@ namespace iPem.Data {
 
         #region Methods
 
-        public RedefinePoint GetEntity(string device,string point) {
-            SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar, 100),
-                                     new SqlParameter("@PointId", SqlDbType.VarChar, 100) };
-
+        public List<Signal> GetEntities(string device) {
+            SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar, 100) };
             parms[0].Value = SqlTypeConverter.DBNullStringChecker(device);
-            parms[1].Value = SqlTypeConverter.DBNullStringChecker(point);
 
-            RedefinePoint entity = null;
-            using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Rs.Sql_RedefinePoint_Repository_GetEntity, parms)) {
-                if(rdr.Read()) {
-                    entity = new RedefinePoint();
+            var entities = new List<Signal>();
+            using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Rs.Sql_Signal_Repository_GetEntitiesInDevice, parms)) {
+                while (rdr.Read()) {
+                    var entity = new Signal();
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
+                    entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
+                    entity.Type = SqlTypeConverter.DBNullEnmPointHandler(rdr["Type"]);
+                    entity.UnitState = SqlTypeConverter.DBNullStringHandler(rdr["UnitState"]);
+                    entity.AlarmId = SqlTypeConverter.DBNullStringHandler(rdr["AlarmId"]);
                     entity.NMAlarmId = SqlTypeConverter.DBNullStringHandler(rdr["NMAlarmId"]);
                     entity.AlarmLevel = SqlTypeConverter.DBNullInt32Handler(rdr["AlarmLevel"]);
+                    entity.DeviceEffect = SqlTypeConverter.DBNullStringHandler(rdr["DeviceEffect"]);
+                    entity.BusiEffect = SqlTypeConverter.DBNullStringHandler(rdr["BusiEffect"]);
                     entity.AlarmLimit = SqlTypeConverter.DBNullDoubleHandler(rdr["AlarmLimit"]);
-                    entity.AlarmReturnDiff = SqlTypeConverter.DBNullDoubleHandler(rdr["AlarmReturnDiff"]);
                     entity.AlarmDelay = SqlTypeConverter.DBNullInt32Handler(rdr["AlarmDelay"]);
                     entity.AlarmRecoveryDelay = SqlTypeConverter.DBNullInt32Handler(rdr["AlarmRecoveryDelay"]);
-                    entity.TriggerTypeID = SqlTypeConverter.DBNullInt32Handler(rdr["TriggerTypeID"]);
                     entity.SavedPeriod = SqlTypeConverter.DBNullInt32Handler(rdr["SavedPeriod"]);
                     entity.AbsoluteThreshold = SqlTypeConverter.DBNullDoubleHandler(rdr["AbsoluteThreshold"]);
                     entity.PerThreshold = SqlTypeConverter.DBNullDoubleHandler(rdr["PerThreshold"]);
                     entity.StaticPeriod = SqlTypeConverter.DBNullInt32Handler(rdr["StaticPeriod"]);
+                    entity.StorageRefTime = SqlTypeConverter.DBNullStringHandler(rdr["StorageRefTime"]);
                     entity.InferiorAlarmStr = SqlTypeConverter.DBNullStringHandler(rdr["InferiorAlarmStr"]);
                     entity.ConnAlarmStr = SqlTypeConverter.DBNullStringHandler(rdr["ConnAlarmStr"]);
                     entity.AlarmFilteringStr = SqlTypeConverter.DBNullStringHandler(rdr["AlarmFilteringStr"]);
                     entity.AlarmReversalStr = SqlTypeConverter.DBNullStringHandler(rdr["AlarmReversalStr"]);
                     entity.Extend = SqlTypeConverter.DBNullStringHandler(rdr["Extend"]);
+                    entities.Add(entity);
                 }
             }
-            return entity;
+            return entities;
         }
 
-        public List<RedefinePoint> GetEntities() {
-            var entities = new List<RedefinePoint>();
-            using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Rs.Sql_RedefinePoint_Repository_GetEntities, null)) {
+        public List<Signal> GetEntities() {
+            var entities = new List<Signal>();
+            using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Rs.Sql_Signal_Repository_GetEntities, null)) {
                 while(rdr.Read()) {
-                    var entity = new RedefinePoint();
+                    var entity = new Signal();
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
+                    entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
+                    entity.Type = SqlTypeConverter.DBNullEnmPointHandler(rdr["Type"]);
+                    entity.UnitState = SqlTypeConverter.DBNullStringHandler(rdr["UnitState"]);
+                    entity.AlarmId = SqlTypeConverter.DBNullStringHandler(rdr["AlarmId"]);
                     entity.NMAlarmId = SqlTypeConverter.DBNullStringHandler(rdr["NMAlarmId"]);
                     entity.AlarmLevel = SqlTypeConverter.DBNullInt32Handler(rdr["AlarmLevel"]);
+                    entity.DeviceEffect = SqlTypeConverter.DBNullStringHandler(rdr["DeviceEffect"]);
+                    entity.BusiEffect = SqlTypeConverter.DBNullStringHandler(rdr["BusiEffect"]);
                     entity.AlarmLimit = SqlTypeConverter.DBNullDoubleHandler(rdr["AlarmLimit"]);
-                    entity.AlarmReturnDiff = SqlTypeConverter.DBNullDoubleHandler(rdr["AlarmReturnDiff"]);
                     entity.AlarmDelay = SqlTypeConverter.DBNullInt32Handler(rdr["AlarmDelay"]);
                     entity.AlarmRecoveryDelay = SqlTypeConverter.DBNullInt32Handler(rdr["AlarmRecoveryDelay"]);
-                    entity.TriggerTypeID = SqlTypeConverter.DBNullInt32Handler(rdr["TriggerTypeID"]);
                     entity.SavedPeriod = SqlTypeConverter.DBNullInt32Handler(rdr["SavedPeriod"]);
                     entity.AbsoluteThreshold = SqlTypeConverter.DBNullDoubleHandler(rdr["AbsoluteThreshold"]);
                     entity.PerThreshold = SqlTypeConverter.DBNullDoubleHandler(rdr["PerThreshold"]);
                     entity.StaticPeriod = SqlTypeConverter.DBNullInt32Handler(rdr["StaticPeriod"]);
+                    entity.StorageRefTime = SqlTypeConverter.DBNullStringHandler(rdr["StorageRefTime"]);
                     entity.InferiorAlarmStr = SqlTypeConverter.DBNullStringHandler(rdr["InferiorAlarmStr"]);
                     entity.ConnAlarmStr = SqlTypeConverter.DBNullStringHandler(rdr["ConnAlarmStr"]);
                     entity.AlarmFilteringStr = SqlTypeConverter.DBNullStringHandler(rdr["AlarmFilteringStr"]);
                     entity.AlarmReversalStr = SqlTypeConverter.DBNullStringHandler(rdr["AlarmReversalStr"]);
                     entity.Extend = SqlTypeConverter.DBNullStringHandler(rdr["Extend"]);
-                    entity.UpdateTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["UpdateTime"]);
                     entities.Add(entity);
                 }
             }

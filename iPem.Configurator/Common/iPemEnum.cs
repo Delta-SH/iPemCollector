@@ -10,7 +10,7 @@ namespace iPem.Configurator {
         SyncReservation,
         SyncFormula,
         SyncMasking,
-        SyncRedefine,
+        SyncFsu,
         ExTask001,
         ExTask002,
         ExTask003,
@@ -41,7 +41,11 @@ namespace iPem.Configurator {
         /// <summary>
         /// 实时能耗统计时段
         /// </summary>
-        SSNH
+        SSNH,
+        /// <summary>
+        /// 实时告警接口
+        /// </summary>
+        GJJK
     }
 
     public enum PeriodType {

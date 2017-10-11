@@ -2,34 +2,33 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// ID Value Pair
+    /// KeyValue Pair
     /// </summary>
     [Serializable]
-    public class IdValuePair<T1, T2> {
+    public class KV<K, V> {
         /// <summary>
         /// Class Constructor
         /// </summary>
-        public IdValuePair() {
-        }
+        public KV() { }
 
         /// <summary>
         /// Class Constructor
         /// </summary>
-        /// <param name="id">Id</param>
-        /// <param name="value">Value</param>
-        public IdValuePair(T1 id, T2 value) {
-            this.Id = id;
+        /// <param name="key">key</param>
+        /// <param name="value">value</param>
+        public KV(K key, V value) {
+            this.Key = key;
             this.Value = value;
         }
 
         /// <summary>
-        /// ID
+        /// Key
         /// </summary>
-        public T1 Id { get; set; }
+        public K Key { get; set; }
 
         /// <summary>
         /// Value
         /// </summary>
-        public T2 Value { get; set; }
+        public V Value { get; set; }
     }
 }

@@ -76,8 +76,7 @@
     <Compile Include="Rs\Fsu.cs" />
     <Compile Include="Rs\LogicType.cs" />
     <Compile Include="Rs\Point.cs" />
-    <Compile Include="Rs\Protocol.cs" />
-    <Compile Include="Rs\RedefinePoint.cs" />
+    <Compile Include="Rs\Signal.cs" />
     <Compile Include="Rs\Room.cs" />
     <Compile Include="Rs\RoomType.cs" />
     <Compile Include="Rs\Station.cs" />
@@ -89,7 +88,7 @@
     <Compile Include="Sc\Formula.cs" />
     <Compile Include="Sc\NodesInReservation.cs" />
     <Compile Include="Sc\Project.cs" />
-    <Compile Include="IdValuePair.cs" />
+    <Compile Include="KV.cs" />
     <Compile Include="iPemEnum.cs" />
     <Compile Include="iPemStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

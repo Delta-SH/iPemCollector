@@ -81,6 +81,29 @@ namespace iPem.Data {
             return entities;
         }
 
+        public void Delete(List<A_TAlarm> entities) {
+            SqlParameter[] parms = { new SqlParameter("@FsuId", SqlDbType.VarChar, 100), 
+                                     new SqlParameter("@SerialNo", SqlDbType.VarChar, 100), 
+                                     new SqlParameter("@AlarmFlag", SqlDbType.Int) };
+
+            using (var conn = new SqlConnection(this._databaseConnectionString)) {
+                conn.Open();
+                var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
+                try {
+                    foreach (var entity in entities) {
+                        parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.FsuId);
+                        parms[1].Value = SqlTypeConverter.DBNullStringChecker(entity.SerialNo);
+                        parms[2].Value = (int)entity.AlarmFlag;
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_Alarm_Repository_Delete, parms);
+                    }
+                    trans.Commit();
+                } catch {
+                    trans.Rollback();
+                    throw;
+                }
+            }
+        }
+
         public void SaveEntities(params A_FAlarm[] entities) {
             SqlParameter[] parms = { new SqlParameter("@FsuId",SqlDbType.VarChar,100),
                                      new SqlParameter("@DeviceId",SqlDbType.VarChar,100),

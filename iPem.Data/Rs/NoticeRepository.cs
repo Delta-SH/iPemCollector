@@ -34,10 +34,7 @@ namespace iPem.Data {
                     var entity = new Notice();
                     entity.Id = SqlTypeConverter.DBNullInt32Handler(rdr["Id"]);
                     entity.SysType = SqlTypeConverter.DBNullInt32Handler(rdr["SysType"]);
-                    entity.GroupID = SqlTypeConverter.DBNullStringHandler(rdr["GroupID"]);
                     entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
-                    entity.DtType = SqlTypeConverter.DBNullInt32Handler(rdr["DtType"]);
-                    entity.OpType = SqlTypeConverter.DBNullInt32Handler(rdr["OpType"]);
                     entity.Time = SqlTypeConverter.DBNullDateTimeHandler(rdr["Time"]);
                     entity.Desc = SqlTypeConverter.DBNullStringHandler(rdr["Desc"]);
                     entities.Add(entity);

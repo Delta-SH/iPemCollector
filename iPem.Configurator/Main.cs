@@ -122,6 +122,8 @@ namespace iPem.Configurator {
                     gzzt.Text = _gzzt != null ? _gzzt.Value : "";
                     var _ssnh = parms.Find(p => p.Id == ParamId.SSNH);
                     nhPeriodField.SelectedValue = _ssnh != null ? int.Parse(_ssnh.Value) : (int)PeriodType.Day;
+                    var _gjjk = parms.Find(p => p.Id == ParamId.GJJK);
+                    gjjkField.Checked = _gjjk != null ? int.Parse(_gjjk.Value) == 1 : false;
                 } else if (tag.Type == NodeType.Database) {
                     databasePanel.Dock = DockStyle.Fill;
                     databasePanel.Visible = true;
@@ -409,7 +411,8 @@ namespace iPem.Configurator {
                 var _fzdl = new ParamEntity { Id = ParamId.FZDL, Value = fzdl.Text.Trim(), Time = DateTime.Now };
                 var _gzzt = new ParamEntity { Id = ParamId.GZZT, Value = gzzt.Text.Trim(), Time = DateTime.Now };
                 var _ssnh = new ParamEntity { Id = ParamId.SSNH, Value = nhPeriodField.SelectedValue.ToString(), Time = DateTime.Now };
-                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _ssnh });
+                var _gjjk = new ParamEntity { Id = ParamId.GJJK, Value = gjjkField.Checked ? "1" : "0", Time = DateTime.Now };
+                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _ssnh, _gjjk });
                 MessageBox.Show("保存成功", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);

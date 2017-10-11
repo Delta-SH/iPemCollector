@@ -24,7 +24,7 @@ namespace iPem.Core {
         /// <summary>
         /// 区域类型
         /// </summary>
-        public IdValuePair<int, string> Type { get; set; }
+        public KV<int, string> Type { get; set; }
 
         /// <summary>
         /// 父级区域编码

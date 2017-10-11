@@ -17,24 +17,9 @@ namespace iPem.Core.Rs {
         public int SysType { get; set; }
 
         /// <summary>
-        /// 采集组编号
-        /// </summary>
-        public string GroupID { get; set; }
-
-        /// <summary>
         /// 需要同步的表名称
         /// </summary>
         public string Name { get; set; }
-
-        /// <summary>
-        /// 表的类型
-        /// </summary>
-        public int DtType { get; set; }
-
-        /// <summary>
-        /// 操作类型
-        /// </summary>
-        public int OpType { get; set; }
 
         /// <summary>
         /// 同步时间
