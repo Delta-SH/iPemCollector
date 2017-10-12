@@ -3,7 +3,7 @@
 namespace iPem.Data.Common {
     public static class SqlCommands_Cs {
         /// <summary>
-        /// Alarm Repository
+        /// 开始、结束告警
         /// </summary>
         public const string Sql_Alarm_Repository_Start = @"
         DELETE FROM [dbo].[A_AAlarm] WHERE [Id] = @Id;
@@ -57,8 +57,9 @@ namespace iPem.Data.Common {
         DELETE FROM [dbo].[A_IAlarm] WHERE [FsuId] = @FsuId AND [SerialNo] = @SerialNo AND [AlarmFlag] = @AlarmFlag;
         INSERT INTO [dbo].[A_IAlarm]([AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[ReservationName],[ReservationStart],[ReservationEnd],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[Masked],[CreatedTime]) VALUES(@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@EndTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@EndValue,@AlarmRemark,@Confirmed,@Confirmer,@ConfirmedTime,@ReservationId,@ReservationName,@ReservationStart,@ReservationEnd,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@Masked,GETDATE());";
         public const string Sql_Alarm_Repository_Delete = @"DELETE FROM [dbo].[A_TAlarm] WHERE [FsuId] = @FsuId AND [SerialNo] = @SerialNo AND [AlarmFlag] = @AlarmFlag;";
+        
         /// <summary>
-        /// Indexer
+        /// 创建数据表索引
         /// </summary>
         public const string Sql_Indexer_Check = @"
         --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -175,16 +176,18 @@ namespace iPem.Data.Common {
 	        [PointId] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
         END";
+        
         /// <summary>
-        /// A_AAlarm Repository
+        /// 活动告警表
         /// </summary>
         public const string Sql_A_AAlarm_Repository_GetEntity = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [Id] = @Id;";
         public const string Sql_A_AAlarm_Repository_GetEntityInPoint = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [DeviceId] = @DeviceId AND [PointId]=@PointId;";
         public const string Sql_A_AAlarm_Repository_GetEntitiesInDevice = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [DeviceId] = @DeviceId ORDER BY [AlarmTime];";
         public const string Sql_A_AAlarm_Repository_GetEntitiesInSpan = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [AlarmTime] BETWEEN @Start AND @End ORDER BY [AlarmTime];";
         public const string Sql_A_AAlarm_Repository_GetEntities = @"SELECT * FROM [dbo].[A_AAlarm] ORDER BY [AlarmTime];";
+        
         /// <summary>
-        /// A_HAlarm Repository
+        /// 历史告警表
         /// </summary>
         public const string Sql_A_HAlarm_Repository_GetEntities = @"
         DECLARE @tpDate DATETIME, 
@@ -223,7 +226,7 @@ namespace iPem.Data.Common {
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
-        /// A_TAlarm Repository
+        /// 告警流水表
         /// </summary>
         public const string Sql_A_TAlarm_Repository_GetEntities1 = @"SELECT * FROM [dbo].[A_TAlarm] ORDER BY [AlarmTime];";        
         public const string Sql_A_TAlarm_Repository_GetEntities2 = @"SELECT * FROM [dbo].[A_TAlarm] WHERE [AlarmTime] BETWEEN @Start AND @End ORDER BY [AlarmTime];";
@@ -235,7 +238,7 @@ namespace iPem.Data.Common {
         END";
 
         /// <summary>
-        /// A_FAlarm Repository
+        /// 告警同步表
         /// </summary>
         public const string Sql_A_FAlarm_Repository_GetEntities1 = @"SELECT * FROM [dbo].[A_FAlarm] ORDER BY [AlarmTime];";
         public const string Sql_A_FAlarm_Repository_GetEntities2 = @"SELECT * FROM [dbo].[A_FAlarm] WHERE [AlarmTime] BETWEEN @Start AND @End ORDER BY [AlarmTime];";
@@ -243,13 +246,13 @@ namespace iPem.Data.Common {
         public const string Sql_A_FAlarm_Repository_Delete2 = @"DELETE FROM [dbo].[A_FAlarm] WHERE [AlarmTime] BETWEEN @Start AND @End;";
 
         /// <summary>
-        /// H_FsuEvent Repository
+        /// FSU日志表
         /// </summary>
         public const string Sql_H_FsuEvent_Repository_GetEntities1 = @"SELECT * FROM [dbo].[H_FsuEvent] WHERE [EventTime] BETWEEN @Start AND @End ORDER BY [EventTime] DESC;";
         public const string Sql_H_FsuEvent_Repository_GetEntities2 = @"SELECT * FROM [dbo].[H_FsuEvent] WHERE [EventTime] BETWEEN @Start AND @End AND [EventType] = @EventType ORDER BY [EventTime] DESC;";
 
         /// <summary>
-        /// H_IArea Repository
+        /// 资管接口区域表
         /// </summary>
         public const string Sql_H_IArea_Repository_SaveEntities = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IArea{0}]') AND type in (N'U'))
@@ -272,7 +275,7 @@ namespace iPem.Data.Common {
         DROP TABLE [dbo].[H_IArea{0}];";
 
         /// <summary>
-        /// H_IDevice Repository
+        /// 资管接口设备表
         /// </summary>
         public const string Sql_H_IDevice_Repository_SaveEntities = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IDevice{0}]') AND type in (N'U'))
@@ -295,7 +298,7 @@ namespace iPem.Data.Common {
         DROP TABLE [dbo].[H_IDevice{0}];";
 
         /// <summary>
-        /// H_IStation Repository
+        /// 资管接口站点表
         /// </summary>
         public const string Sql_H_IStation_Repository_SaveEntities = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[H_IStation{0}]') AND type in (N'U'))
@@ -318,14 +321,14 @@ namespace iPem.Data.Common {
         DROP TABLE [dbo].[H_IStation{0}];";
 
         /// <summary>
-        /// V_AMeasure Repository
+        /// 实时性能表
         /// </summary>
         public const string Sql_V_AMeasure_Repository_GetEntity = @"SELECT * FROM [dbo].[V_AMeasure] WHERE [DeviceId]=@DeviceId AND [PointId]=@PointId;";
         public const string Sql_V_AMeasure_Repository_GetEntities = @"SELECT * FROM [dbo].[V_AMeasure];";
         public const string Sql_V_AMeasure_Repository_GetEntitiesInDevice = @"SELECT * FROM [dbo].[V_AMeasure] WHERE [DeviceId]=@DeviceId;";
 
         /// <summary>
-        /// V_Bat Repository
+        /// 电池充放电表
         /// </summary>
         public const string Sql_V_Bat_Repository_GetEntities = @"
         DECLARE @tpDate DATETIME, 
@@ -464,14 +467,15 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''' AND [PackId]='+ CAST(@PackId AS NVARCHAR) + N' AND [ValueTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [ValueTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND '''+ CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''' AND [PackId]='+ CAST(@PackId AS NVARCHAR) + N';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
+
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
-        /// V_BatTime Repository
+        /// 电池放电过程表
         /// </summary>
         public const string Sql_V_BatTime_Repository_SaveEntities = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_BatTime{0}') AND type in (N'U'))
@@ -504,14 +508,15 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''' AND [PackId]='+ CAST(@PackId AS NVARCHAR) + N' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';                
+		        DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''' AND [PackId]='+ CAST(@PackId AS NVARCHAR) + N';';                
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
+
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
-        /// V_Cuted Repository
+        /// 站点停电历史表
         /// </summary>
         public const string Sql_V_Cuted_Repository_GetEntities = @"
         DECLARE @tpDate DATETIME, 
@@ -541,10 +546,10 @@ namespace iPem.Data.Common {
         IF(@tableCnt>0)
         BEGIN
 	        SET @SQL = N';WITH Values AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM Values ORDER BY [StartTime];'
+		    (
+			    ' + @SQL + N'
+		    )
+		    SELECT * FROM Values ORDER BY [StartTime];'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -567,7 +572,7 @@ namespace iPem.Data.Common {
                 ';
                 END
         			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [Type] = '+ @Type + N' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [Type] = ' + CAST(@Type AS NVARCHAR);
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -575,11 +580,11 @@ namespace iPem.Data.Common {
 
         IF(@tableCnt>0)
         BEGIN
-	        SET @SQL = N';WITH Values AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM Values ORDER BY [StartTime];'
+	        SET @SQL = N';WITH C AS
+	        (
+		        ' + @SQL + N'
+	        )
+	        SELECT * FROM C ORDER BY [StartTime];'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -597,7 +602,7 @@ namespace iPem.Data.Common {
 	            [PointId] [varchar](100) NOT NULL,
 	            [StartTime] [datetime] NOT NULL,
 	            [EndTime] [datetime] NOT NULL,
-             CONSTRAINT [PK_V_Cut{0}] PRIMARY KEY CLUSTERED 
+             CONSTRAINT [PK_V_Cuted{0}] PRIMARY KEY CLUSTERED 
             (
 	            [Id] ASC,
 	            [Type] ASC
@@ -609,7 +614,7 @@ namespace iPem.Data.Common {
         INSERT INTO [dbo].[V_Cuted{0}]([Id],[Type],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[StartTime],[EndTime]) VALUES(@Id,@Type,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,,@StartTime,@EndTime);";
 
         /// <summary>
-        /// V_Cutting Repository
+        /// 站点停电实时表
         /// </summary>
         public const string Sql_V_Cutting_Repository_GetEntity = @"SELECT * FROM [dbo].[V_Cutting] WHERE [Id]=@Id AND [Type]=@Type;";
         public const string Sql_V_Cutting_Repository_GetEntities = @"SELECT * FROM [dbo].[V_Cutting];";
@@ -618,7 +623,7 @@ namespace iPem.Data.Common {
         INSERT INTO [dbo].[V_Cutting]([Id],[Type],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[StartTime]) VALUES(@Id,@Type,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,,@StartTime);";
 
         /// <summary>
-        /// V_Elec Repository
+        /// 能耗统计表
         /// </summary>
         public const string Sql_V_Elec_Repository_SaveActiveEntities = @"
         UPDATE [dbo].[V_Elec] SET [ComputeType] = @ComputeType,[StartTime] = @StartTime,[EndTime] = @EndTime,[Value] = @Value WHERE [Id] = @Id AND [Type] = @Type AND [FormulaType] = @FormulaType;
@@ -659,7 +664,7 @@ namespace iPem.Data.Common {
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
-        /// V_Load Repository
+        /// 带载率统计表
         /// </summary>
         public const string Sql_V_Load_Repository_SaveEntities = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Load{0}') AND type in (N'U'))
@@ -687,10 +692,11 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId] = ''' + @DeviceId + ''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
+
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
@@ -728,14 +734,15 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''' AND [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';';
+		        DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''';';
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
+
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
-        /// V_HMeasure Repository
+        /// 历史性能表
         /// </summary>
         public const string Sql_V_HMeasure_Repository_GetEntities = @"
         DECLARE @tpDate DATETIME, 
@@ -765,10 +772,10 @@ namespace iPem.Data.Common {
         IF(@tableCnt>0)
         BEGIN
 	        SET @SQL = N';WITH HisValue AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM HisValue ORDER BY [UpdateTime];'
+		    (
+			    ' + @SQL + N'
+		    )
+		    SELECT * FROM HisValue ORDER BY [UpdateTime];'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -791,7 +798,7 @@ namespace iPem.Data.Common {
                 ';
                 END
         			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId] = ''' + @DeviceId + N'''';
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -800,10 +807,10 @@ namespace iPem.Data.Common {
         IF(@tableCnt>0)
         BEGIN
 	        SET @SQL = N';WITH HisValue AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM HisValue ORDER BY [UpdateTime];'
+	        (
+		        ' + @SQL + N'
+	        )
+	        SELECT * FROM HisValue ORDER BY [UpdateTime];'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -826,7 +833,7 @@ namespace iPem.Data.Common {
                 ';
                 END
         			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N'''';
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -835,10 +842,10 @@ namespace iPem.Data.Common {
         IF(@tableCnt>0)
         BEGIN
 	        SET @SQL = N';WITH HisValue AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT * FROM HisValue ORDER BY [UpdateTime];'
+		    (
+			    ' + @SQL + N'
+		    )
+		    SELECT * FROM HisValue ORDER BY [UpdateTime];'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -860,8 +867,8 @@ namespace iPem.Data.Common {
                 UNION ALL 
                 ';
                 END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N'''';        		
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -870,10 +877,10 @@ namespace iPem.Data.Common {
         IF(@tableCnt>0)
         BEGIN
 	        SET @SQL = N';WITH HisValue AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT TOP 1 * FROM HisValue ORDER BY [UpdateTime];'
+		    (
+			    ' + @SQL + N'
+		    )
+		    SELECT TOP 1 * FROM HisValue ORDER BY [UpdateTime];'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -895,8 +902,8 @@ namespace iPem.Data.Common {
                 UNION ALL 
                 ';
                 END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N'''';        		        		
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -905,10 +912,10 @@ namespace iPem.Data.Common {
         IF(@tableCnt>0)
         BEGIN
 	        SET @SQL = N';WITH HisValue AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT TOP 1 * FROM HisValue ORDER BY [UpdateTime] DESC;'
+		    (
+			    ' + @SQL + N'
+		    )
+		    SELECT TOP 1 * FROM HisValue ORDER BY [UpdateTime] DESC;'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -930,8 +937,8 @@ namespace iPem.Data.Common {
                 UNION ALL 
                 ';
                 END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N'''';        		        		        		
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -965,8 +972,8 @@ namespace iPem.Data.Common {
                 UNION ALL 
                 ';
                 END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N''' AND [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
+
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N'''';        		
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -984,7 +991,7 @@ namespace iPem.Data.Common {
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
-        /// V_ParamDiff Repository
+        /// 参数巡检表
         /// </summary>
         public const string Sql_V_ParamDiff_Repository_SaveEntities = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_ParamDiff{0}]') AND type in (N'U'))
