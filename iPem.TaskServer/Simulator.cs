@@ -795,14 +795,31 @@ namespace iPem.TaskServer {
                         _configWriterLock.EnterReadLock();
 
                         var _alarmModels = new List<TAlarmModel>();
-                        foreach (var _alarm in _talmRepository.GetEntities()) {
-                            var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
-                            if(!iPemWorkContext.DeviceSet2.ContainsKey(key)) continue;
+                        var _alarms = _talmRepository.GetEntities();
+                        var _skips = new List<A_TAlarm>();
+                        foreach (var _alarm in _alarms) {
+                            try {
+                                if (_skips.Contains(_alarm)) continue;
 
-                            var _device = iPemWorkContext.DeviceSet2[key];
-                            var _signal = _device.Signals.Find(p => p.PointId == _alarm.PointId);
-                            if (_signal == null) continue;
-                            _alarmModels.Add(new TAlarmModel { Device = _device.Current, Signal = _signal, Alarm = _alarm });
+                                var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
+                                if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) continue;
+
+                                var _device = iPemWorkContext.DeviceSet2[key];
+                                var _signal = _device.Signals.Find(p => p.PointId == _alarm.PointId);
+                                if (_signal == null) continue;
+
+                                //当告警延迟时间未到，而告警已经结束，则直接删除此告警流水
+                                if (_alarm.AlarmFlag == EnmFlag.Begin && _signal.AlarmDelay > 0) {
+                                    var _endalarm = _alarms.Find(a => a.FsuId == _alarm.FsuId && a.SerialNo == _alarm.SerialNo && a.AlarmFlag == EnmFlag.End);
+                                    if (_endalarm != null && _alarm.AlarmTime.AddSeconds(_signal.AlarmDelay) >= _endalarm.AlarmTime) {
+                                        _talmRepository.Delete(new List<A_TAlarm> { _alarm, _endalarm });
+                                        _skips.Add(_endalarm);
+                                        continue;
+                                    }
+                                }
+
+                                _alarmModels.Add(new TAlarmModel { Device = _device.Current, Signal = _signal, Alarm = _alarm });
+                            } catch { }
                         }
 
                         if (_alarmModels.Count > 0) {
@@ -1980,7 +1997,7 @@ namespace iPem.TaskServer {
                 foreach (var _procedure in _batRepository.GetProcedures(start, end)) {
                     try {
                         //默认一次电池充放电最大不会超过3天
-                        var _details = _batRepository.GetProcedure(_procedure.DeviceId, _procedure.PointId, _procedure.StartTime, _procedure.StartTime.AddDays(3));
+                        var _details = _batRepository.GetProcedure(_procedure.DeviceId, _procedure.PointId, _procedure.StartTime, _procedure.StartTime.AddDays(3), _procedure.Type);
                         if (_details.Count == 0) continue;
                         var _start = _details.First(); var _end = _details.Last();
 

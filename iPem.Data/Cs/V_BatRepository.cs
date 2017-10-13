@@ -44,7 +44,7 @@ namespace iPem.Data {
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.PackId = SqlTypeConverter.DBNullInt32Handler(rdr["PackId"]);
-                    entity.Type = SqlTypeConverter.DBNullInt32Handler(rdr["Type"]);
+                    entity.Type = SqlTypeConverter.DBNullBatStatusHandler(rdr["Type"]);
                     entity.StartTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["StartTime"]);
                     entity.Value = SqlTypeConverter.DBNullDoubleHandler(rdr["Value"]);
                     entity.ValueTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["ValueTime"]);
@@ -71,7 +71,7 @@ namespace iPem.Data {
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.PackId = SqlTypeConverter.DBNullInt32Handler(rdr["PackId"]);
-                    entity.Type = SqlTypeConverter.DBNullInt32Handler(rdr["Type"]);
+                    entity.Type = SqlTypeConverter.DBNullBatStatusHandler(rdr["Type"]);
                     entity.StartTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["StartTime"]);
                     entity.Value = SqlTypeConverter.DBNullDoubleHandler(rdr["Value"]);
                     entity.ValueTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["ValueTime"]);
@@ -81,16 +81,18 @@ namespace iPem.Data {
             return entities;
         }
 
-        public List<V_Bat> GetProcedure(string device, string point, DateTime start, DateTime end) {
+        public List<V_Bat> GetProcedure(string device, string point, DateTime start, DateTime end, EnmBatStatus type) {
             SqlParameter[] parms = { new SqlParameter("@Device", SqlDbType.VarChar, 100),
                                      new SqlParameter("@Point", SqlDbType.VarChar, 100),
                                      new SqlParameter("@Start", SqlDbType.DateTime),
-                                     new SqlParameter("@End", SqlDbType.DateTime) };
+                                     new SqlParameter("@End", SqlDbType.DateTime),
+                                     new SqlParameter("@Type", SqlDbType.Int) };
 
             parms[0].Value = SqlTypeConverter.DBNullStringChecker(device);
             parms[1].Value = SqlTypeConverter.DBNullStringChecker(point);
             parms[2].Value = SqlTypeConverter.DBNullDateTimeChecker(start);
             parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(end);
+            parms[4].Value = (int)type;
 
             var entities = new List<V_Bat>();
             using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_V_Bat_Repository_GetProcedure, parms)) {
@@ -102,7 +104,7 @@ namespace iPem.Data {
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
                     entity.PackId = SqlTypeConverter.DBNullInt32Handler(rdr["PackId"]);
-                    entity.Type = SqlTypeConverter.DBNullInt32Handler(rdr["Type"]);
+                    entity.Type = SqlTypeConverter.DBNullBatStatusHandler(rdr["Type"]);
                     entity.StartTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["StartTime"]);
                     entity.Value = SqlTypeConverter.DBNullDoubleHandler(rdr["Value"]);
                     entity.ValueTime = SqlTypeConverter.DBNullDateTimeHandler(rdr["ValueTime"]);
@@ -135,7 +137,7 @@ namespace iPem.Data {
                         parms[3].Value = SqlTypeConverter.DBNullStringChecker(entity.DeviceId);
                         parms[4].Value = SqlTypeConverter.DBNullStringChecker(entity.PointId);
                         parms[5].Value = SqlTypeConverter.DBNullInt32Checker(entity.PackId);
-                        parms[6].Value = SqlTypeConverter.DBNullInt32Checker(entity.Type);
+                        parms[6].Value = (int)entity.Type;
                         parms[7].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
                         parms[8].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
                         parms[9].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.ValueTime);

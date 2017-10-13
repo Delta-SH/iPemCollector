@@ -301,4 +301,26 @@ namespace iPem.Core {
         /// </summary>
         Point
     }
+
+    /// <summary>
+    /// 电池状态
+    /// </summary>
+    public enum EnmBatStatus {
+        /// <summary>
+        /// 放电
+        /// </summary>
+        Discharge,
+        /// <summary>
+        /// 充电
+        /// </summary>
+        Charge,
+        /// <summary>
+        /// 均充
+        /// </summary>
+        Equalizing,
+        /// <summary>
+        /// 浮充
+        /// </summary>
+        Floating
+    }
 }

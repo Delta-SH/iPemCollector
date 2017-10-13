@@ -51,7 +51,7 @@ namespace iPem.Data {
                         parms[3].Value = SqlTypeConverter.DBNullStringChecker(entity.DeviceId);
                         parms[4].Value = SqlTypeConverter.DBNullStringChecker(entity.PointId);
                         parms[5].Value = SqlTypeConverter.DBNullInt32Checker(entity.PackId);
-                        parms[6].Value = SqlTypeConverter.DBNullInt32Checker(entity.Type);
+                        parms[6].Value = (int)entity.Type;
                         parms[7].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
                         parms[8].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.EndTime);
                         parms[9].Value = SqlTypeConverter.DBNullDoubleChecker(entity.StartValue);

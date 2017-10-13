@@ -37,10 +37,9 @@ namespace iPem.Core {
         public int PackId { get; set; }
 
         /// <summary>
-        /// 0: 充电
-        /// 1: 放电
+        /// 电池状态
         /// </summary>
-        public int Type { get; set; }
+        public EnmBatStatus Type { get; set; }
 
         /// <summary>
         /// 放电开始时间

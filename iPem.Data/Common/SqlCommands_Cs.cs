@@ -397,7 +397,7 @@ namespace iPem.Data.Common {
 		        ' + @SQL + N'
 	        ),G AS 
 	        (
-		        SELECT *, ROW_NUMBER() OVER(PARTITION BY [DeviceId],[PointId],[StartTime] ORDER BY [ValueTime]) AS GINDEX FROM V
+		        SELECT *, ROW_NUMBER() OVER(PARTITION BY [DeviceId],[PointId],[StartTime],[Type] ORDER BY [ValueTime]) AS GINDEX FROM V
 	        )
 	        SELECT [AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[Type],[StartTime],[Value],[ValueTime] FROM G WHERE GINDEX=1;'
         END
@@ -421,8 +421,8 @@ namespace iPem.Data.Common {
                 UNION ALL 
                 ';
                 END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [ValueTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId]=''' + @Device + N''' AND [PointId]='''+ @Point + N''' AND [StartTime] = ''' + CONVERT(NVARCHAR,@Start,120) + N'''';
+        		
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [ValueTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId]=''' + @Device + N''' AND [PointId]='''+ @Point + N''' AND [StartTime] = ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [Type]=' + CAST(@Type AS NVARCHAR);
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
