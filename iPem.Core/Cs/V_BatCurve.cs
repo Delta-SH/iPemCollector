@@ -2,10 +2,10 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 电池数据表
+    /// 电池充放电曲线表
     /// </summary>
     [Serializable]
-    public partial class V_Bat {
+    public partial class V_BatCurve {
         /// <summary>
         /// 区域编码(第三级区域)
         /// </summary>
@@ -55,5 +55,10 @@ namespace iPem.Core {
         /// 测值时间
         /// </summary>
         public DateTime ValueTime { get; set; }
+
+        /// <summary>
+        /// 充放电过程的开始时间
+        /// </summary>
+        public DateTime ProcTime { get; set; }
     }
 }

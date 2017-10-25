@@ -43,6 +43,7 @@
     <Compile Include="Cs\A_FAlarm.cs" />
     <Compile Include="Cs\H_IArea.cs" />
     <Compile Include="Cs\V_AMeasure.cs" />
+    <Compile Include="Cs\V_BatCurve.cs" />
     <Compile Include="Cs\V_Cuted.cs" />
     <Compile Include="Cs\V_Cutting.cs" />
     <Compile Include="Cs\V_ParamDiff.cs" />

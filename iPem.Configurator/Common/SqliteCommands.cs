@@ -6,7 +6,6 @@ namespace iPem.Configurator {
     /// </summary>
     public static class SqliteCommands {
         public const string Registry_Create_Tables = @"
-        --创建数据表
         CREATE TABLE IF NOT EXISTS [orders] (
             [id] int PRIMARY KEY NOT NULL,
             [param] varchar(1024),
@@ -38,29 +37,7 @@ namespace iPem.Configurator {
             [end] datetime,
             [next] datetime,
             [index] int
-        );
-
-        --创建默认参数信息
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(1,'076013000');
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(2,'076010000');
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(3,'006309000');
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(4,'006402000');
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(5,'0');
-        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(6,'0');
-        
-        --创建默认数据库信息
-        INSERT OR IGNORE INTO [databases]([id],[name],[type],[ip],[port],[uid],[password],[db]) VALUES('D001','资源数据库',1,NULL,1433,NULL,NULL,NULL);
-        INSERT OR IGNORE INTO [databases]([id],[name],[type],[ip],[port],[uid],[password],[db]) VALUES('D002','应用数据库',1,NULL,1433,NULL,NULL,NULL);
-        INSERT OR IGNORE INTO [databases]([id],[name],[type],[ip],[port],[uid],[password],[db]) VALUES('D003','历史数据库',1,NULL,1433,NULL,NULL,NULL);
-        
-        --创建默认计划任务信息
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T001','能耗数据处理任务',NULL,NULL,NULL,NULL,1);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T002','电池充放电处理任务',NULL,NULL,NULL,NULL,2);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T003','信号测值统计任务',NULL,NULL,NULL,NULL,3);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T004','开关电源带载率统计任务',NULL,NULL,NULL,NULL,4);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T005','资管接口同步任务',NULL,NULL,NULL,NULL,5);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T006','参数自动巡检任务',NULL,NULL,NULL,NULL,6);
-        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[start],[end],[next],[index]) VALUES('T007','告警同步任务',NULL,NULL,NULL,NULL,7);";
+        );";
 
         public const string Registry_Get_Order = @"
         SELECT [id],[param],[time] FROM [orders];";
@@ -74,6 +51,9 @@ namespace iPem.Configurator {
         public const string Registry_Clean_Order = @"
         DELETE FROM [orders];";
 
+        public const string Registry_Init_Param = @"
+        INSERT OR IGNORE INTO [params]([id],[value]) VALUES(@id,@value);";
+
         public const string Registry_Get_Param = @"
         SELECT [id],[value],[time] FROM [params];";
 
@@ -83,6 +63,9 @@ namespace iPem.Configurator {
 
         public const string Registry_Delete_Param = @"
         DELETE FROM [params] WHERE [id]=@id;";
+
+        public const string Registry_Init_Database = @"
+        INSERT OR IGNORE INTO [databases]([id],[name],[type],[ip],[port],[uid],[password],[db]) VALUES(@id,@name,@type,@ip,@port,@uid,@password,@db);";
         
         public const string Registry_Get_Database = @"
         SELECT [id],[name],[type],[ip],[port],[uid],[password],[db] FROM [databases];";
@@ -93,7 +76,10 @@ namespace iPem.Configurator {
 
         public const string Registry_Clean_Databases = @"
         DELETE FROM [databases];";
-        
+
+        public const string Registry_Init_Task = @"
+        INSERT OR IGNORE INTO [tasks]([id],[name],[json],[index]) VALUES(@id,@name,@json,@index);";
+
         public const string Registry_Get_Tasks = @"
         SELECT [id],[name],[json],[start],[end],[next],[index] FROM [tasks];";
 

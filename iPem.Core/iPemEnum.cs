@@ -68,7 +68,11 @@ namespace iPem.Core {
         /// <summary>
         /// 实时告警接口
         /// </summary>
-        GJJK
+        GJJK,
+        /// <summary>
+        /// 电池数据处理功能
+        /// </summary>
+        DCSJ
     }
 
     public enum PeriodType {

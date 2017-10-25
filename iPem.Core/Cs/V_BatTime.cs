@@ -2,7 +2,7 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 蓄电池后备时长表
+    /// 电池充放电过程表
     /// </summary>
     [Serializable]
     public partial class V_BatTime {
@@ -60,5 +60,10 @@ namespace iPem.Core {
         /// 结束测值
         /// </summary>
         public double EndValue { get; set; }
+
+        /// <summary>
+        /// 充放电过程的开始时间
+        /// </summary>
+        public DateTime ProcTime { get; set; }
     }
 }

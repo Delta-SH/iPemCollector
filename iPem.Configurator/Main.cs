@@ -30,6 +30,7 @@ namespace iPem.Configurator {
             try {
                 _registry = new Registry(Application.StartupPath);
                 _registry.CreateRegistry();
+                _registry.InitRegistry();
 
                 this.BindCfgNodes(cfgNodeTree);
 
@@ -124,6 +125,8 @@ namespace iPem.Configurator {
                     nhPeriodField.SelectedValue = _ssnh != null ? int.Parse(_ssnh.Value) : (int)PeriodType.Day;
                     var _gjjk = parms.Find(p => p.Id == ParamId.GJJK);
                     gjjkField.Checked = _gjjk != null ? int.Parse(_gjjk.Value) == 1 : false;
+                    var _dcsj = parms.Find(p => p.Id == ParamId.DCSJ);
+                    batField.Checked = _dcsj != null ? int.Parse(_dcsj.Value) == 1 : false;
                 } else if (tag.Type == NodeType.Database) {
                     databasePanel.Dock = DockStyle.Fill;
                     databasePanel.Visible = true;
@@ -153,7 +156,7 @@ namespace iPem.Configurator {
                     //初始化
                     planTypeField.SelectedValue = (int)PlanType.Hour;
                     planStartDateField.Value = DateTime.Parse("2017/01/01");
-                    planEndDateField.Value = DateTime.Parse("2017/12/31");
+                    planEndDateField.Value = DateTime.Parse("2020/12/31");
                     planRateField.Value = 1;
                     planStartTimeField.Value = DateTime.Parse("2017/01/01 00:00:00");
                     planEndTimeField.Value = DateTime.Parse("2017/01/01 23:59:59");
@@ -412,7 +415,8 @@ namespace iPem.Configurator {
                 var _gzzt = new ParamEntity { Id = ParamId.GZZT, Value = gzzt.Text.Trim(), Time = DateTime.Now };
                 var _ssnh = new ParamEntity { Id = ParamId.SSNH, Value = nhPeriodField.SelectedValue.ToString(), Time = DateTime.Now };
                 var _gjjk = new ParamEntity { Id = ParamId.GJJK, Value = gjjkField.Checked ? "1" : "0", Time = DateTime.Now };
-                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _ssnh, _gjjk });
+                var _dcsj = new ParamEntity { Id = ParamId.DCSJ, Value = batField.Checked ? "1" : "0", Time = DateTime.Now };
+                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _ssnh, _gjjk, _dcsj });
                 MessageBox.Show("保存成功", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
