@@ -23,7 +23,7 @@ namespace iPem.Configurator {
         /// Gets or sets the application version
         /// </summary>
         public static string Version {
-            get { return "V1.1.2 Build171020"; }
+            get { return "V1.2.0 Build171101"; }
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace iPem.Configurator {
         /// Gets or sets the copyright
         /// </summary>
         public static string Copyright {
-            get { return "All Rights Reserved ©2011-2017"; }
+            get { return "All Rights Reserved ©2011-2018"; }
         }
     }
 }

@@ -1187,6 +1187,8 @@ namespace iPem.TaskService {
             iPem.Core.Point _FsuOffPoint = null;
             //上次检索数据库索引的时间
             DateTime _NextIndexer = DateTime.Today;
+            //上次重启IIS的时间
+            DateTime _NextIISReset = DateTime.Today;
             try {
                 var _scOff = GlobalConfig.CurParams.Find(p => p.Id == ParamId.ScOff);
                 if (_scOff != null && !string.IsNullOrWhiteSpace(_scOff.Value)) {
@@ -1402,6 +1404,19 @@ namespace iPem.TaskService {
                             }
 
                             _NextIndexer = DateTime.Today.AddHours(26);
+                        }
+                        #endregion
+
+                        #region 重启IIS服务
+                        if (DateTime.Now > _NextIISReset) {
+                            try {
+                                CommonHelper.ResetIIS();
+                            } catch (Exception err) {
+                                Logger.Warning(err.Message);
+                                Logger.Error(err.Message, err);
+                            } finally {
+                                _NextIISReset = DateTime.Today.AddHours(25);
+                            }
                         }
                         #endregion
 

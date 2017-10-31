@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using Microsoft.Win32;
 using iPem.Core.Rs;
+using System.Diagnostics;
 
 namespace iPem.Core {
     public partial class CommonHelper {
@@ -189,6 +190,13 @@ namespace iPem.Core {
 
         public static long GetIdAsLong() {
             return Math.Abs(DateTime.Now.Subtract(new DateTime(2017, 6, 21)).Ticks);
+        }
+
+        public static void ResetIIS() {
+            var psi = new ProcessStartInfo();
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            psi.FileName = "iisreset.exe";
+            Process.Start(psi);
         }
     }
 }
