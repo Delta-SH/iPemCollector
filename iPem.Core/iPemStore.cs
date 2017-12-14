@@ -23,7 +23,7 @@ namespace iPem.Core {
         /// Gets or sets the application version
         /// </summary>
         public static string Version {
-            get { return "V1.2.0 Build171101"; }
+            get { return "V1.2.1 Build171128"; }
         }
 
         /// <summary>

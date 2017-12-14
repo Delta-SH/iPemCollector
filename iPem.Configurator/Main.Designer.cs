@@ -266,11 +266,10 @@
             // planPanel
             // 
             this.planPanel.Controls.Add(this.planLayoutPanel);
-            this.planPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.planPanel.Location = new System.Drawing.Point(0, 0);
+            this.planPanel.Location = new System.Drawing.Point(22, 268);
             this.planPanel.Margin = new System.Windows.Forms.Padding(0);
             this.planPanel.Name = "planPanel";
-            this.planPanel.Size = new System.Drawing.Size(399, 354);
+            this.planPanel.Size = new System.Drawing.Size(331, 66);
             this.planPanel.TabIndex = 2;
             this.planPanel.Visible = false;
             // 
@@ -314,7 +313,7 @@
             this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
             this.planLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.planLayoutPanel.Size = new System.Drawing.Size(399, 354);
+            this.planLayoutPanel.Size = new System.Drawing.Size(331, 66);
             this.planLayoutPanel.TabIndex = 0;
             // 
             // planRateField
@@ -333,7 +332,7 @@
             0,
             0});
             this.planRateField.Name = "planRateField";
-            this.planRateField.Size = new System.Drawing.Size(147, 23);
+            this.planRateField.Size = new System.Drawing.Size(113, 23);
             this.planRateField.TabIndex = 8;
             this.planRateField.Value = new decimal(new int[] {
             1,
@@ -351,7 +350,7 @@
             this.planTypeField.Location = new System.Drawing.Point(80, 0);
             this.planTypeField.Margin = new System.Windows.Forms.Padding(0);
             this.planTypeField.Name = "planTypeField";
-            this.planTypeField.Size = new System.Drawing.Size(314, 24);
+            this.planTypeField.Size = new System.Drawing.Size(246, 24);
             this.planTypeField.TabIndex = 2;
             this.planTypeField.SelectedIndexChanged += new System.EventHandler(this.planTypeField_SelectedIndexChanged);
             // 
@@ -363,10 +362,10 @@
             this.planBottomPanel.Controls.Add(this.planSaveButton);
             this.planBottomPanel.Controls.Add(this.planCloseButton);
             this.planBottomPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.planBottomPanel.Location = new System.Drawing.Point(0, 304);
+            this.planBottomPanel.Location = new System.Drawing.Point(0, 16);
             this.planBottomPanel.Margin = new System.Windows.Forms.Padding(0);
             this.planBottomPanel.Name = "planBottomPanel";
-            this.planBottomPanel.Size = new System.Drawing.Size(394, 50);
+            this.planBottomPanel.Size = new System.Drawing.Size(326, 50);
             this.planBottomPanel.TabIndex = 0;
             // 
             // line01
@@ -375,7 +374,7 @@
             this.line01.Dock = System.Windows.Forms.DockStyle.Top;
             this.line01.Location = new System.Drawing.Point(0, 0);
             this.line01.Name = "line01";
-            this.line01.Size = new System.Drawing.Size(394, 1);
+            this.line01.Size = new System.Drawing.Size(326, 1);
             this.line01.TabIndex = 1;
             // 
             // exButton
@@ -393,7 +392,7 @@
             // planSaveButton
             // 
             this.planSaveButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.planSaveButton.Location = new System.Drawing.Point(204, 10);
+            this.planSaveButton.Location = new System.Drawing.Point(136, 10);
             this.planSaveButton.Margin = new System.Windows.Forms.Padding(0);
             this.planSaveButton.Name = "planSaveButton";
             this.planSaveButton.Size = new System.Drawing.Size(90, 30);
@@ -405,7 +404,7 @@
             // planCloseButton
             // 
             this.planCloseButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.planCloseButton.Location = new System.Drawing.Point(304, 10);
+            this.planCloseButton.Location = new System.Drawing.Point(236, 10);
             this.planCloseButton.Margin = new System.Windows.Forms.Padding(0);
             this.planCloseButton.Name = "planCloseButton";
             this.planCloseButton.Size = new System.Drawing.Size(90, 30);
@@ -435,7 +434,7 @@
             this.planStartDateField.MaxDate = new System.DateTime(2999, 12, 31, 0, 0, 0, 0);
             this.planStartDateField.MinDate = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
             this.planStartDateField.Name = "planStartDateField";
-            this.planStartDateField.Size = new System.Drawing.Size(147, 23);
+            this.planStartDateField.Size = new System.Drawing.Size(113, 23);
             this.planStartDateField.TabIndex = 4;
             this.planStartDateField.Value = new System.DateTime(2017, 1, 1, 0, 0, 0, 0);
             this.planStartDateField.ValueChanged += new System.EventHandler(this.planField_ValueChanged);
@@ -445,12 +444,12 @@
             this.planEndDateField.CustomFormat = "yyyy-MM-dd";
             this.planEndDateField.Dock = System.Windows.Forms.DockStyle.Fill;
             this.planEndDateField.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.planEndDateField.Location = new System.Drawing.Point(247, 35);
+            this.planEndDateField.Location = new System.Drawing.Point(213, 35);
             this.planEndDateField.Margin = new System.Windows.Forms.Padding(0);
             this.planEndDateField.MaxDate = new System.DateTime(2999, 12, 31, 0, 0, 0, 0);
             this.planEndDateField.MinDate = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
             this.planEndDateField.Name = "planEndDateField";
-            this.planEndDateField.Size = new System.Drawing.Size(147, 23);
+            this.planEndDateField.Size = new System.Drawing.Size(113, 23);
             this.planEndDateField.TabIndex = 6;
             this.planEndDateField.Value = new System.DateTime(2020, 12, 31, 0, 0, 0, 0);
             this.planEndDateField.ValueChanged += new System.EventHandler(this.planField_ValueChanged);
@@ -469,7 +468,7 @@
             // planDateToName
             // 
             this.planDateToName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.planDateToName.Location = new System.Drawing.Point(227, 35);
+            this.planDateToName.Location = new System.Drawing.Point(193, 35);
             this.planDateToName.Margin = new System.Windows.Forms.Padding(0);
             this.planDateToName.Name = "planDateToName";
             this.planDateToName.Size = new System.Drawing.Size(20, 25);
@@ -499,7 +498,7 @@
             this.planStartTimeField.MinDate = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
             this.planStartTimeField.Name = "planStartTimeField";
             this.planStartTimeField.ShowUpDown = true;
-            this.planStartTimeField.Size = new System.Drawing.Size(147, 23);
+            this.planStartTimeField.Size = new System.Drawing.Size(113, 23);
             this.planStartTimeField.TabIndex = 11;
             this.planStartTimeField.Value = new System.DateTime(2017, 1, 1, 0, 0, 0, 0);
             this.planStartTimeField.ValueChanged += new System.EventHandler(this.planField_ValueChanged);
@@ -509,13 +508,13 @@
             this.planEndTimeField.CustomFormat = "HH:mm:ss";
             this.planEndTimeField.Dock = System.Windows.Forms.DockStyle.Fill;
             this.planEndTimeField.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.planEndTimeField.Location = new System.Drawing.Point(247, 105);
+            this.planEndTimeField.Location = new System.Drawing.Point(213, 105);
             this.planEndTimeField.Margin = new System.Windows.Forms.Padding(0);
             this.planEndTimeField.MaxDate = new System.DateTime(2999, 12, 31, 0, 0, 0, 0);
             this.planEndTimeField.MinDate = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
             this.planEndTimeField.Name = "planEndTimeField";
             this.planEndTimeField.ShowUpDown = true;
-            this.planEndTimeField.Size = new System.Drawing.Size(147, 23);
+            this.planEndTimeField.Size = new System.Drawing.Size(113, 23);
             this.planEndTimeField.TabIndex = 13;
             this.planEndTimeField.Value = new System.DateTime(2017, 1, 1, 23, 59, 59, 0);
             this.planEndTimeField.ValueChanged += new System.EventHandler(this.planField_ValueChanged);
@@ -523,7 +522,7 @@
             // planTimeToName
             // 
             this.planTimeToName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.planTimeToName.Location = new System.Drawing.Point(227, 105);
+            this.planTimeToName.Location = new System.Drawing.Point(193, 105);
             this.planTimeToName.Margin = new System.Windows.Forms.Padding(0);
             this.planTimeToName.Name = "planTimeToName";
             this.planTimeToName.Size = new System.Drawing.Size(20, 25);
@@ -537,7 +536,7 @@
             this.planCommentName.Location = new System.Drawing.Point(0, 140);
             this.planCommentName.Margin = new System.Windows.Forms.Padding(0);
             this.planCommentName.Name = "planCommentName";
-            this.planCommentName.Size = new System.Drawing.Size(80, 154);
+            this.planCommentName.Size = new System.Drawing.Size(80, 1);
             this.planCommentName.TabIndex = 14;
             this.planCommentName.Text = "计划描述:";
             // 
@@ -551,17 +550,17 @@
             this.planCommentField.Multiline = true;
             this.planCommentField.Name = "planCommentField";
             this.planCommentField.ReadOnly = true;
-            this.planCommentField.Size = new System.Drawing.Size(314, 154);
+            this.planCommentField.Size = new System.Drawing.Size(246, 1);
             this.planCommentField.TabIndex = 8;
             // 
             // planRateComment
             // 
             this.planLayoutPanel.SetColumnSpan(this.planRateComment, 2);
             this.planRateComment.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.planRateComment.Location = new System.Drawing.Point(227, 70);
+            this.planRateComment.Location = new System.Drawing.Point(193, 70);
             this.planRateComment.Margin = new System.Windows.Forms.Padding(0);
             this.planRateComment.Name = "planRateComment";
-            this.planRateComment.Size = new System.Drawing.Size(167, 25);
+            this.planRateComment.Size = new System.Drawing.Size(133, 25);
             this.planRateComment.TabIndex = 9;
             this.planRateComment.Text = "小时，执行一次。";
             this.planRateComment.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;

@@ -2029,6 +2029,9 @@ namespace iPem.TaskServer {
                 var _batTimes = new List<V_BatTime>();
                 foreach (var _procedure in _batRepository.GetProcedures(start, end)) {
                     try {
+                        if (!_procedure.PointId.StartsWith("068313") && !_procedure.PointId.StartsWith("007303"))
+                            continue;
+
                         var _details = _batRepository.GetProcDetails(_procedure.DeviceId, _procedure.PointId, _procedure.StartTime, _procedure.StartTime.AddSeconds(_maxInterval));
                         if (_details.Count == 0) continue;
                         var _start = _details.First(); 
@@ -2077,6 +2080,9 @@ namespace iPem.TaskServer {
             try {
                 foreach (var _procedure in _batTimeRepository.GetProcedures(start, end)) {
                     try {
+                        if (!_procedure.PointId.StartsWith("068313") && !_procedure.PointId.StartsWith("007303"))
+                            continue;
+
                         var _details = _batTimeRepository.GetProcDetails(_procedure.DeviceId, _procedure.PointId, _procedure.ProcTime, _procedure.ProcTime.AddSeconds(_maxInterval));
                         if (_details.Count == 0) continue;
                         var _start = _details.First().StartTime;
