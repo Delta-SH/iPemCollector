@@ -1548,7 +1548,7 @@ namespace iPem.TaskService {
                                         var _room = iPemWorkContext.Rooms.Find(c => c.Id == _formula.Id);
                                         if (_room == null) throw new Exception("未找到公式所属的机房。");
 
-                                        _devices = iPemWorkContext.Devices.FindAll(d => d.Current.RoomId == _room.Id);
+                                        _devices = iPemWorkContext.Devices.FindAll(d => d.Current.StationId == _room.StationId);
                                     } else {
                                         throw new Exception("仅支持站点、机房能耗公式。");
                                     }
@@ -1556,9 +1556,12 @@ namespace iPem.TaskService {
                                     var _details = new List<VariableDetail>();
                                     foreach (var _variable in _variables) {
                                         var _factors = _variable.Split(new string[] { ">>" }, StringSplitOptions.None);
-                                        var _devkey = _factors[0].Substring(1);
-                                        var _potkey = _factors[1];
-                                        var _device = _devices.Find(d => d.Current.Name == _devkey);
+                                        if (_factors.Length != 3) throw new Exception(string.Format("变量{0}格式错误。", _variable));
+
+                                        var _roomkey = _factors[0].Substring(1);
+                                        var _devkey = _factors[1];
+                                        var _potkey = _factors[2];
+                                        var _device = _devices.Find(d => d.Current.RoomName == _roomkey && d.Current.Name == _devkey);
                                         if (_device == null) throw new Exception(string.Format("未找到变量{0}中的设备。", _variable));
                                         var _signal = _device.Signals.Find(p => p.Name == _potkey);
                                         if (_signal == null) throw new Exception(string.Format("未找到变量{0}中的信号。", _variable));
@@ -1883,7 +1886,7 @@ namespace iPem.TaskService {
                             var _room = iPemWorkContext.Rooms.Find(c => c.Id == _formula.Id);
                             if (_room == null) throw new Exception("未找到公式所属的机房。");
 
-                            _devices = iPemWorkContext.Devices.FindAll(d => d.Current.RoomId == _room.Id);
+                            _devices = iPemWorkContext.Devices.FindAll(d => d.Current.StationId == _room.StationId);
                         } else {
                             throw new Exception("仅支持站点、机房能耗公式。");
                         }
@@ -1891,9 +1894,12 @@ namespace iPem.TaskService {
                         var _details = new List<VariableDetail>();
                         foreach (var _variable in _variables) {
                             var _factors = _variable.Split(new string[] { ">>" }, StringSplitOptions.None);
-                            var _devkey = _factors[0].Substring(1);
-                            var _potkey = _factors[1];
-                            var _device = _devices.Find(d => d.Current.Name == _devkey);
+                            if (_factors.Length != 3) throw new Exception(string.Format("变量{0}格式错误。", _variable));
+
+                            var _roomkey = _factors[0].Substring(1);
+                            var _devkey = _factors[1];
+                            var _potkey = _factors[2];
+                            var _device = _devices.Find(d => d.Current.RoomName == _roomkey && d.Current.Name == _devkey);
                             if (_device == null) throw new Exception(string.Format("未找到变量{0}中的设备。", _variable));
                             var _signal = _device.Signals.Find(p => p.Name == _potkey);
                             if (_signal == null) throw new Exception(string.Format("未找到变量{0}中的信号。", _variable));
