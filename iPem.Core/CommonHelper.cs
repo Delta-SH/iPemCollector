@@ -68,38 +68,38 @@ namespace iPem.Core {
         }
 
         public static bool ValidateFormula(string formula) {
-            if(string.IsNullOrWhiteSpace(formula)) return false;
+            if (string.IsNullOrWhiteSpace(formula)) return false;
             formula = Regex.Replace(formula, @"\s+", "");
 
-            if(Regex.IsMatch(formula, @"[\+\-\*\/]{2,}")) return false;
-            if(Regex.IsMatch(formula, @"[\+\-\*\/]{2,}")) return false;
+            if (Regex.IsMatch(formula, @"[\+\-\*\/]{2,}")) return false;
+            if (Regex.IsMatch(formula, @"[\+\-\*\/]{2,}")) return false;
 
             var stack = new Stack<char>();
-            foreach(var letter in formula) {
-                if(letter == '(') {
+            foreach (var letter in formula) {
+                if (letter == '(') {
                     stack.Push('(');
-                } else if(letter == ')') {
-                    if(stack.Count == 0) return false;
+                } else if (letter == ')') {
+                    if (stack.Count == 0) return false;
                     stack.Pop();
                 }
             }
 
-            if(stack.Count != 0) return false;
-            if(Regex.IsMatch(formula, @"\([\+\-\*\/]")) return false;
-            if(Regex.IsMatch(formula, @"[\+\-\*\/]\)")) return false;
-            if(Regex.IsMatch(formula, @"[^\+\-\*\/\(]\(")) return false;
-            if(Regex.IsMatch(formula, @"\)[^\+\-\*\/\)]")) return false;
+            if (stack.Count != 0) return false;
+            if (Regex.IsMatch(formula, @"\([\+\-\*\/]")) return false;
+            if (Regex.IsMatch(formula, @"[\+\-\*\/]\)")) return false;
+            if (Regex.IsMatch(formula, @"[^\+\-\*\/\(]\(")) return false;
+            if (Regex.IsMatch(formula, @"\)[^\+\-\*\/\)]")) return false;
 
             formula = Regex.Replace(formula, @"\(|\)", "");
             formula = Regex.Replace(formula, @"[\+\-\*\/]", GlobalSeparator);
             var variables = SplitKeys(formula);
-            foreach(var variable in variables) {
-                if(Regex.IsMatch(formula, @"^\d+(\.\d+)?$")) continue;
-                if(!Regex.IsMatch(formula, @"^@.+>>.+$")) return false;
+            foreach (var variable in variables) {
+                if (Regex.IsMatch(variable, @"^\d+(\.\d+)?$")) continue;
+                if (!Regex.IsMatch(variable, @"^@.+>>.+>>.+$")) return false;
                 var starts = Regex.Matches(variable, @"@");
-                if(starts.Count > 1) return false;
+                if (starts.Count != 1) return false;
                 var separators = Regex.Matches(variable, @">>");
-                if(separators.Count > 1) return false;
+                if (separators.Count != 2) return false;
             }
 
             return true;
@@ -113,7 +113,7 @@ namespace iPem.Core {
             var variables = SplitKeys(formula);
             var result = new List<string>();
             foreach(var variable in variables){
-                if(Regex.IsMatch(formula, @"^\d+(\.\d+)?$")) continue;
+                if (Regex.IsMatch(variable, @"^\d+(\.\d+)?$")) continue;
                 if(result.Contains(variable)) continue;
                 result.Add(variable);
             }
@@ -182,14 +182,6 @@ namespace iPem.Core {
                 if(reg != null)
                     reg.Close();
             }
-        }
-
-        public static string GetIdAsString() {
-            return GetIdAsLong().ToString();
-        }
-
-        public static long GetIdAsLong() {
-            return Math.Abs(DateTime.Now.Subtract(new DateTime(2017, 6, 21)).Ticks);
         }
 
         public static void ResetIIS() {

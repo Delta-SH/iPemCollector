@@ -103,6 +103,7 @@
     <Compile Include="Sc\FormulaRepository.cs" />
     <Compile Include="Sc\NodesInReservationRepository.cs" />
     <Compile Include="Sc\ProjectRepository.cs" />
+    <Compile Include="Serialer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\iPem.Core\iPem.Core.csproj">

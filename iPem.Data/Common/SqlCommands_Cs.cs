@@ -1189,7 +1189,7 @@ namespace iPem.Data.Common {
 		        (
 			        ' + @SQL + N'
 		        )
-		        SELECT MAX([Value]) AS [MaxValue], MIN([Value]) AS [MinValue] FROM HisValue;'
+		        SELECT ROUND(ISNULL(MAX([Value]),0),3) AS [MaxValue], ROUND(ISNULL(MIN([Value]),0),3) AS [MinValue] FROM HisValue;'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -1224,7 +1224,7 @@ namespace iPem.Data.Common {
 		        (
 			        ' + @SQL + N'
 		        )
-		        SELECT AVG([Value]) AS [AvgValue] FROM HisValue;'
+		        SELECT ROUND(ISNULL(AVG([Value]),0),3) AS [AvgValue] FROM HisValue;'
         END
 
         EXECUTE sp_executesql @SQL;";

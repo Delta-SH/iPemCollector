@@ -35,5 +35,30 @@ namespace iPem.Data.Common {
         public const string Sql_Project_Repository_GetEntity = @"SELECT * FROM [dbo].[M_Projects] WHERE [Id]=@Id;";        
         public const string Sql_Project_Repository_GetEntities = @"SELECT * FROM [dbo].[M_Projects] ORDER BY [CreatedTime];";
         public const string Sql_Project_Repository_GetEntitiesByDate = @"SELECT * FROM [dbo].[M_Projects] WHERE [StartTime]>=@starttime AND [EndTime]<=@endtime ORDER BY [Name];";
+
+        /// <summary>
+        /// SerialNo Repository
+        /// </summary>
+        public const string Sql_ASerialNo_Repository_IncrAndGet = @"
+        BEGIN TRAN
+        DECLARE @ERR BIGINT = -1;
+        IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[X_ASerialNo]') AND type in (N'U'))
+        BEGIN
+            SELECT @ERR AS [Code];
+            ROLLBACK TRAN;
+        END
+        ELSE
+        BEGIN
+        BEGIN TRY
+	        DELETE FROM [dbo].[X_ASerialNo] WHERE [Name] = @Name;
+	        INSERT INTO [dbo].[X_ASerialNo]([Name],[CreatedTime]) VALUES(@Name,GETDATE());
+	        SELECT [Code] FROM [dbo].[X_ASerialNo] WHERE [Name] = @Name;
+	        COMMIT TRAN;
+        END TRY
+        BEGIN CATCH
+	        SELECT @ERR AS [Code];
+	        ROLLBACK TRAN;
+        END CATCH
+        END";
     }
 }

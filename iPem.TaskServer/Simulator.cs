@@ -79,6 +79,7 @@ namespace iPem.TaskServer {
         private ReservationRepository _reservationRepository;
         private NodesInReservationRepository _nodesInReservationRepository;
         private FormulaRepository _formulaRepository;
+        private Serialer _serialer;
         #endregion
 
         public Simulator() {
@@ -172,6 +173,7 @@ namespace iPem.TaskServer {
                 _reservationRepository = new ReservationRepository();
                 _nodesInReservationRepository = new NodesInReservationRepository();
                 _formulaRepository = new FormulaRepository();
+                _serialer = new Serialer();
 
                 //清空同步配置命令表
                 _noticeRepository.Clear();
@@ -1286,7 +1288,7 @@ namespace iPem.TaskServer {
                                             DeviceId = _sc.Current.Id,
                                             DeviceCode = _sc.Current.Id,
                                             PointId = _ScOffPoint.Key.Id,
-                                            SerialNo = CommonHelper.GetIdAsString(),
+                                            SerialNo = _serialer.GetAlarmSerialNo(),
                                             NMAlarmId = _ScOffPoint.Key.NMAlarmId,
                                             AlarmTime = DateTime.Now,
                                             AlarmLevel = _ScOffPoint.Value != null ? _ScOffPoint.Value.AlarmLevel : EnmAlarm.Level2,
@@ -1368,7 +1370,7 @@ namespace iPem.TaskServer {
                                                 DeviceId = _fsu.Id,
                                                 DeviceCode = _fsu.Code,
                                                 PointId = _FsuOffPoint.Id,
-                                                SerialNo = CommonHelper.GetIdAsString(),
+                                                SerialNo = _serialer.GetAlarmSerialNo(),
                                                 NMAlarmId = _FsuOffPoint.NMAlarmId,
                                                 AlarmTime = DateTime.Now,
                                                 AlarmLevel = _subPoint != null ? _subPoint.AlarmLevel : EnmAlarm.Level2,
