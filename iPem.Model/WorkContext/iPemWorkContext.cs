@@ -18,8 +18,14 @@ namespace iPem.Model {
 
         public static List<EnumMethods> AreaTypes { get; set; }
 
+        /// <summary>
+        /// Key = PointId
+        /// </summary>
         public static Dictionary<string, Point> Points { get; set; }
 
+        /// <summary>
+        /// Key = PointId + StationTypeId
+        /// </summary>
         public static Dictionary<string, SubPoint> SubPoints { get; set; }
 
         public static List<WcDevice> Devices { get; set; }

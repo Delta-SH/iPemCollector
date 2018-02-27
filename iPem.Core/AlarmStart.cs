@@ -12,6 +12,11 @@ namespace iPem.Core {
         public string Id { get; set; }
 
         /// <summary>
+        /// 告警流水号
+        /// </summary>
+        public long TId { get; set; }
+
+        /// <summary>
         /// 区域编码(第三级区域)
         /// </summary>
         public string AreaId { get; set; }
@@ -32,19 +37,9 @@ namespace iPem.Core {
         public string FsuId { get; set; }
 
         /// <summary>
-        /// Fsu外部编码
-        /// </summary>
-        public string FsuCode { get; set; }
-
-        /// <summary>
         /// 设备编码
         /// </summary>
         public string DeviceId { get; set; }
-
-        /// <summary>
-        /// 设备外部编码
-        /// </summary>
-        public string DeviceCode { get; set; }
 
         /// <summary>
         /// 信号编码
@@ -52,7 +47,7 @@ namespace iPem.Core {
         public string PointId { get; set; }
 
         /// <summary>
-        /// FSU内告警唯一标识
+        /// 告警唯一标识
         /// </summary>
         public string SerialNo { get; set; }
 

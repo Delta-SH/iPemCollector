@@ -100,9 +100,7 @@ namespace iPem.Model {
                 StationId = alarm.StationId,
                 RoomId = alarm.RoomId,
                 FsuId = alarm.FsuId,
-                FsuCode = null,
                 DeviceId = alarm.DeviceId,
-                DeviceCode = null,
                 PointId = alarm.PointId,
                 SerialNo = alarm.SerialNo,
                 NMAlarmId = alarm.NMAlarmId,
@@ -120,7 +118,8 @@ namespace iPem.Model {
                 RelatedId = alarm.RelatedId,
                 FilterId = alarm.FilterId,
                 ReversalId = alarm.ReversalId,
-                ReversalCount = alarm.ReversalCount
+                ReversalCount = alarm.ReversalCount,
+                Masked = false
             });
         }
 

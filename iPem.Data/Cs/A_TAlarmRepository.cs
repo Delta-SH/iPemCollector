@@ -32,6 +32,7 @@ namespace iPem.Data {
             using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_A_TAlarm_Repository_GetEntities1, null)) {
                 while (rdr.Read()) {
                     var entity = new A_TAlarm();
+                    entity.Id = SqlTypeConverter.DBNullInt64Handler(rdr["Id"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
@@ -62,6 +63,7 @@ namespace iPem.Data {
             using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Cs.Sql_A_TAlarm_Repository_GetEntities2, parms)) {
                 while(rdr.Read()) {
                     var entity = new A_TAlarm();
+                    entity.Id = SqlTypeConverter.DBNullInt64Handler(rdr["Id"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
                     entity.DeviceId = SqlTypeConverter.DBNullStringHandler(rdr["DeviceId"]);
                     entity.PointId = SqlTypeConverter.DBNullStringHandler(rdr["PointId"]);
@@ -81,20 +83,16 @@ namespace iPem.Data {
             return entities;
         }
 
-        public void Delete(List<A_TAlarm> entities) {
-            SqlParameter[] parms = { new SqlParameter("@FsuId", SqlDbType.VarChar, 100), 
-                                     new SqlParameter("@SerialNo", SqlDbType.VarChar, 100), 
-                                     new SqlParameter("@AlarmFlag", SqlDbType.Int) };
+        public void Delete(params A_TAlarm[] entities) {
+            SqlParameter[] parms = { new SqlParameter("@Id", SqlDbType.BigInt) };
 
             using (var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();
                 var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
                 try {
                     foreach (var entity in entities) {
-                        parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.FsuId);
-                        parms[1].Value = SqlTypeConverter.DBNullStringChecker(entity.SerialNo);
-                        parms[2].Value = (int)entity.AlarmFlag;
-                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_Alarm_Repository_Delete, parms);
+                        parms[0].Value = SqlTypeConverter.DBNullInt64Checker(entity.Id);
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_A_TAlarm_Repository_Delete, parms);
                     }
                     trans.Commit();
                 } catch {
@@ -104,7 +102,7 @@ namespace iPem.Data {
             }
         }
 
-        public void SaveEntities(params A_FAlarm[] entities) {
+        public void Save(params A_TAlarm[] entities) {
             SqlParameter[] parms = { new SqlParameter("@FsuId",SqlDbType.VarChar,100),
                                      new SqlParameter("@DeviceId",SqlDbType.VarChar,100),
                                      new SqlParameter("@PointId",SqlDbType.VarChar,100),
@@ -137,7 +135,50 @@ namespace iPem.Data {
                         parms[10].Value = SqlTypeConverter.DBNullStringChecker(entity.AlarmDesc);
                         parms[11].Value = SqlTypeConverter.DBNullDoubleChecker(entity.AlarmValue);
                         parms[12].Value = SqlTypeConverter.DBNullStringChecker(entity.AlarmRemark);
-                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_A_TAlarm_Repository_SaveEntities, parms);
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_A_TAlarm_Repository_Save, parms);
+                    }
+                    trans.Commit();
+                } catch {
+                    trans.Rollback();
+                    throw;
+                }
+            }
+        }
+
+        public void Save(params A_FAlarm[] entities) {
+            SqlParameter[] parms = { new SqlParameter("@FsuId",SqlDbType.VarChar,100),
+                                     new SqlParameter("@DeviceId",SqlDbType.VarChar,100),
+                                     new SqlParameter("@PointId",SqlDbType.VarChar,100),
+                                     new SqlParameter("@SignalId", SqlDbType.VarChar,100),
+                                     new SqlParameter("@SignalNumber", SqlDbType.VarChar,10),
+                                     new SqlParameter("@SerialNo", SqlDbType.VarChar,100),
+                                     new SqlParameter("@NMAlarmId", SqlDbType.VarChar,100),
+                                     new SqlParameter("@AlarmTime",SqlDbType.DateTime),
+                                     new SqlParameter("@AlarmLevel", SqlDbType.Int),
+                                     new SqlParameter("@AlarmFlag", SqlDbType.Int),
+                                     new SqlParameter("@AlarmDesc", SqlDbType.VarChar,120),
+                                     new SqlParameter("@AlarmValue", SqlDbType.Float),
+                                     new SqlParameter("@AlarmRemark", SqlDbType.VarChar,100)};
+
+            using (var conn = new SqlConnection(this._databaseConnectionString)) {
+                conn.Open();
+                var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
+                try {
+                    foreach (var entity in entities) {
+                        parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.FsuId);
+                        parms[1].Value = SqlTypeConverter.DBNullStringChecker(entity.DeviceId);
+                        parms[2].Value = SqlTypeConverter.DBNullStringChecker(entity.PointId);
+                        parms[3].Value = SqlTypeConverter.DBNullStringChecker(entity.SignalId);
+                        parms[4].Value = SqlTypeConverter.DBNullStringChecker(entity.SignalNumber);
+                        parms[5].Value = SqlTypeConverter.DBNullStringChecker(entity.SerialNo);
+                        parms[6].Value = SqlTypeConverter.DBNullStringChecker(entity.NMAlarmId);
+                        parms[7].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.AlarmTime);
+                        parms[8].Value = (int)entity.AlarmLevel;
+                        parms[9].Value = (int)entity.AlarmFlag;
+                        parms[10].Value = SqlTypeConverter.DBNullStringChecker(entity.AlarmDesc);
+                        parms[11].Value = SqlTypeConverter.DBNullDoubleChecker(entity.AlarmValue);
+                        parms[12].Value = SqlTypeConverter.DBNullStringChecker(entity.AlarmRemark);
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_A_TAlarm_Repository_Save, parms);
                     }
                     trans.Commit();
                 } catch {

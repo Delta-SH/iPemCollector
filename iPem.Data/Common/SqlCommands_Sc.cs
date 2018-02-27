@@ -5,9 +5,9 @@ namespace iPem.Data.Common {
         /// <summary>
         /// Reservation Repository
         /// </summary>
-        public const string Sql_Reservation_Repository_GetEntities1 = @"SELECT * FROM [dbo].[M_Reservations] ORDER BY [CreatedTime];";
-        public const string Sql_Reservation_Repository_GetEntities2 = @"SELECT * FROM [dbo].[M_Reservations] WHERE NOT ([StartTime]>@endTime OR [EndTime]<@startTime) ORDER BY [CreatedTime];";
-        public const string Sql_Reservation_Repository_GetEntities3 = @"SELECT * FROM [dbo].[M_Reservations] WHERE [CreatedTime] > @CreatedTime ORDER BY [CreatedTime];";
+        public const string Sql_Reservation_Repository_GetEntities1 = @"SELECT * FROM [dbo].[M_Reservations] WHERE [Enabled] = 1 ORDER BY [StartTime];";
+        public const string Sql_Reservation_Repository_GetEntities2 = @"SELECT * FROM [dbo].[M_Reservations] WHERE [StartTime] >= @StartTime AND [Enabled] = 1 ORDER BY [StartTime];";
+        public const string Sql_Reservation_Repository_GetEntities3 = @"SELECT * FROM [dbo].[M_Reservations] WHERE NOT ([StartTime]>@EndTime OR [EndTime]<@StartTime) AND [Enabled] = 1 ORDER BY [StartTime];";
         
         /// <summary>
         /// Dictionary Repository
@@ -42,7 +42,7 @@ namespace iPem.Data.Common {
         public const string Sql_ASerialNo_Repository_IncrAndGet = @"
         BEGIN TRAN
         DECLARE @ERR BIGINT = -1;
-        IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[X_ASerialNo]') AND type in (N'U'))
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[X_ASerialNo]') AND type in (N'U'))
         BEGIN
             SELECT @ERR AS [Code];
             ROLLBACK TRAN;

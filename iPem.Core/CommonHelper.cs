@@ -5,6 +5,10 @@ using System.Linq;
 using Microsoft.Win32;
 using iPem.Core.Rs;
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
+using System.Xml;
+using System.IO;
 
 namespace iPem.Core {
     public partial class CommonHelper {
@@ -189,6 +193,51 @@ namespace iPem.Core {
             psi.WindowStyle = ProcessWindowStyle.Hidden;
             psi.FileName = "iisreset.exe";
             Process.Start(psi);
+        }
+
+        public static string GetMD5(string key) {
+            var buffers = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(key));
+
+            var md5 = new StringBuilder();
+            for (int i = 0; i < buffers.Length; i++) {
+                md5.AppendFormat("{0:x2}", buffers[i]);
+            }
+
+            return md5.ToString();
+        }
+
+        public static string GetAlarmSerialNo(long key) {
+            if (key > int.MaxValue) key = key % int.MaxValue;
+            return key.ToString().PadLeft(10, '0');
+        }
+
+        public static XmlDocument GetXmlDocument(string filePath, string fileName) {
+            filePath = String.Format(@"{0}\{1}", AppDomain.CurrentDomain.BaseDirectory, filePath);
+            fileName = String.Format(@"{0}\{1}", filePath, fileName);
+
+            if (!Directory.Exists(filePath)) Directory.CreateDirectory(filePath);
+
+            var xmlDoc = new XmlDocument();
+            if (!File.Exists(fileName)) {
+                var decl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                xmlDoc.AppendChild(decl);
+
+                var xmlRoot = xmlDoc.CreateElement("root");
+                xmlDoc.AppendChild(xmlRoot);
+            } else {
+                xmlDoc.Load(fileName);
+            }
+
+            return xmlDoc;
+        }
+
+        public static void SaveXmlDocument(string filePath, string fileName, XmlDocument xmlDoc) {
+            filePath = String.Format(@"{0}\{1}", AppDomain.CurrentDomain.BaseDirectory, filePath);
+            fileName = String.Format(@"{0}\{1}", filePath, fileName);
+
+            if (!Directory.Exists(filePath)) Directory.CreateDirectory(filePath);
+
+            xmlDoc.Save(fileName);
         }
     }
 }

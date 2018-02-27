@@ -7,6 +7,11 @@ namespace iPem.Core {
     [Serializable]
     public partial class A_FAlarm {
         /// <summary>
+        /// ID
+        /// </summary>
+        public long Id { get; set; }
+
+        /// <summary>
         /// FSU编码
         /// </summary>
         public string FsuId { get; set; }

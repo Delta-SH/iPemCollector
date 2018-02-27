@@ -7,7 +7,14 @@ namespace iPem.Core {
     [Serializable]
     public partial class A_TAlarm {
         /// <summary>
+        /// ID
+        /// </summary>
+        public long Id { get; set; }
+
+        /// <summary>
         /// FSU编码
+        /// <para>-1: 表示SC通信中断告警</para>
+        /// <para>-2: 表示FSU通信中断告警</para>
         /// </summary>
         public string FsuId { get; set; }
 

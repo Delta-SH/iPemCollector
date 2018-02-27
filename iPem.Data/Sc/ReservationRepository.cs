@@ -47,16 +47,13 @@ namespace iPem.Data {
             return entities;
         }
 
-        public List<Reservation> GetEntities(DateTime startTime, DateTime endTime) {
-            SqlParameter[] parms = { new SqlParameter("@startTime", SqlDbType.DateTime), 
-                                     new SqlParameter("@endTime", SqlDbType.DateTime) };
-
-            parms[0].Value = SqlTypeConverter.DBNullDateTimeChecker(startTime);
-            parms[1].Value = SqlTypeConverter.DBNullDateTimeChecker(endTime);
+        public List<Reservation> GetEntities(DateTime time) {
+            SqlParameter[] parms = { new SqlParameter("@StartTime", SqlDbType.DateTime) };
+            parms[0].Value = SqlTypeConverter.DBNullDateTimeChecker(time);
 
             var entities = new List<Reservation>();
-            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Sc.Sql_Reservation_Repository_GetEntities2, parms)) {
-                while(rdr.Read()) {
+            using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Sc.Sql_Reservation_Repository_GetEntities2, parms)) {
+                while (rdr.Read()) {
                     var entity = new Reservation();
                     entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
                     entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
@@ -73,13 +70,16 @@ namespace iPem.Data {
             return entities;
         }
 
-        public List<Reservation> GetEntities(DateTime time) {
-            SqlParameter[] parms = { new SqlParameter("@CreatedTime", SqlDbType.DateTime) };
-            parms[0].Value = SqlTypeConverter.DBNullDateTimeChecker(time);
+        public List<Reservation> GetEntities(DateTime startTime, DateTime endTime) {
+            SqlParameter[] parms = { new SqlParameter("@StartTime", SqlDbType.DateTime), 
+                                     new SqlParameter("@EndTime", SqlDbType.DateTime) };
+
+            parms[0].Value = SqlTypeConverter.DBNullDateTimeChecker(startTime);
+            parms[1].Value = SqlTypeConverter.DBNullDateTimeChecker(endTime);
 
             var entities = new List<Reservation>();
-            using (var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Sc.Sql_Reservation_Repository_GetEntities3, parms)) {
-                while (rdr.Read()) {
+            using(var rdr = SqlHelper.ExecuteReader(this._databaseConnectionString, CommandType.Text, SqlCommands_Sc.Sql_Reservation_Repository_GetEntities3, parms)) {
+                while(rdr.Read()) {
                     var entity = new Reservation();
                     entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
                     entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);

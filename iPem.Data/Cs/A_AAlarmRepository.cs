@@ -68,6 +68,7 @@ namespace iPem.Data {
         public A_AAlarm GetEntityInPoint(string device, string point) {
             SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar, 100),
                                      new SqlParameter("@PointId", SqlDbType.VarChar, 100) };
+
             parms[0].Value = SqlTypeConverter.DBNullStringChecker(device);
             parms[1].Value = SqlTypeConverter.DBNullStringChecker(point);
 

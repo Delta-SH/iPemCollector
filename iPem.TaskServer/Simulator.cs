@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace iPem.TaskServer {
     public partial class Simulator : Form {
@@ -26,6 +27,13 @@ namespace iPem.TaskServer {
         private List<Thread> _workerThreads;
         private EventWaitHandle _allDone;
         private DataTable _computer;
+        private XmlDocument _scXmlDoc;
+        private XmlDocument _fsuXmlDoc;
+
+        private const string SC_ALARM_CFG_DIR = "cfg";
+        private const string SC_ALARM_CFG_FILE = "sc_alarm_cfg.xml";
+        private const string FSU_ALARM_CFG_DIR = "cfg";
+        private const string FSU_ALARM_CFG_FILE = "fsu_alarm_cfg.xml";
 
         //静态配置读写锁
         static ReaderWriterLockSlim _configWriterLock = new ReaderWriterLockSlim();
@@ -794,6 +802,7 @@ namespace iPem.TaskServer {
 
             if (_runStatus != RunStatus.Running) return;
             Logger.Information("告警处理线程已启动。");
+
             var interval = 86400;
             while (_runStatus != RunStatus.Stop) {
                 Thread.Sleep(1000);
@@ -801,368 +810,488 @@ namespace iPem.TaskServer {
                     if (interval++ <= 5) continue; interval = 1;
 
                     try {
-                        //获取读资源锁
+                        // 获取读资源锁
                         _configWriterLock.EnterReadLock();
 
-                        var _alarmModels = new List<TAlarmModel>();
-                        var _alarms = _talmRepository.GetEntities();
-                        var _skips = new List<A_TAlarm>();
-                        foreach (var _alarm in _alarms) {
+                        // 告警接口标识
+                        var _iparam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.GJJK);
+                        var _ienabled = _iparam != null && "1".Equals(_iparam.Value) ? true : false;
+
+                        // 需要处理的告警
+                        var _alarmSystem = new List<TAlarmModel>();
+                        var _alarmNormal = new List<TAlarmModel>();
+                        var _alarmDelay = new List<TAlarmModel>();
+
+                        #region 告警预处理
+                        var _talarms = _talmRepository.GetEntities();
+                        foreach (var _alarm in _talarms) {
                             try {
-                                if (_skips.Contains(_alarm)) continue;
+                                if (_alarm.FsuId.Equals("-1")) {
+                                    _alarmSystem.Add(new TAlarmModel { Alarm = _alarm });
+                                } else if (_alarm.FsuId.Equals("-2")) {
+                                    _alarmSystem.Add(new TAlarmModel { Alarm = _alarm });
+                                } else {
+                                    var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
+                                    if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) continue;
 
-                                var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
-                                if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) continue;
+                                    var _device = iPemWorkContext.DeviceSet2[key];
+                                    var _signal = _device.Signals.Find(p => p.PointId == _alarm.PointId);
+                                    if (_signal == null) continue;
 
-                                var _device = iPemWorkContext.DeviceSet2[key];
-                                var _signal = _device.Signals.Find(p => p.PointId == _alarm.PointId);
-                                if (_signal == null) continue;
+                                    var _current = new TAlarmModel { Device = _device.Current, Signal = _signal, Alarm = _alarm };
 
-                                //当告警延迟时间未到，而告警已经结束，则直接删除此告警流水
-                                if (_alarm.AlarmFlag == EnmFlag.Begin && _signal.AlarmDelay > 0) {
-                                    var _endalarm = _alarms.Find(a => a.FsuId == _alarm.FsuId && a.SerialNo == _alarm.SerialNo && a.AlarmFlag == EnmFlag.End);
-                                    if (_endalarm != null && _alarm.AlarmTime.AddSeconds(_signal.AlarmDelay) >= _endalarm.AlarmTime) {
-                                        _talmRepository.Delete(new List<A_TAlarm> { _alarm, _endalarm });
-                                        _skips.Add(_endalarm);
+                                    //处理告警开始延迟\恢复延迟
+                                    if (_current.Alarm.AlarmFlag == EnmFlag.Begin && _current.Signal.AlarmDelay > 0 && _current.Alarm.AlarmTime.AddSeconds(_current.Signal.AlarmDelay) > DateTime.Now) {
+                                        _alarmDelay.Add(_current);
+                                        continue;
+                                    } else if (_current.Alarm.AlarmFlag == EnmFlag.End && _current.Signal.AlarmRecoveryDelay > 0 && _current.Alarm.AlarmTime.AddSeconds(_current.Signal.AlarmRecoveryDelay) > DateTime.Now) {
                                         continue;
                                     }
-                                }
 
-                                _alarmModels.Add(new TAlarmModel { Device = _device.Current, Signal = _signal, Alarm = _alarm });
+                                    //当告警延迟时间未到，而告警已经结束，则直接删除此告警流水
+                                    if (_alarmDelay.Count > 0 && _current.Alarm.AlarmFlag == EnmFlag.End) {
+                                        var _delayStart = _alarmDelay.Find(m => m.Device.Id == _current.Device.Id && m.Signal.PointId == _current.Signal.PointId);
+                                        if (_delayStart != null) {
+                                            _talmRepository.Delete(_delayStart.Alarm, _current.Alarm);
+                                            _alarmDelay.Remove(_delayStart);
+                                            continue;
+                                        }
+                                    }
+
+                                    _alarmNormal.Add(_current);
+                                }
                             } catch { }
                         }
+                        #endregion
 
-                        if (_alarmModels.Count > 0) {
-                            var _validModels = new List<TAlarmModel>();
+                        #region 系统告警
+                        foreach (var _alarm in _alarmSystem) {
+                            try {
+                                if (_alarm.Alarm.AlarmFlag == EnmFlag.Begin) {
+                                    #region 开始告警
+                                    try {
+                                        var _id = CommonHelper.GetMD5(string.Format("{0}-{1}-{2}", _alarm.Alarm.DeviceId, _alarm.Alarm.PointId, _alarm.Alarm.AlarmTime.Ticks));
+                                        var _active = _aalmRepository.GetEntity(_id);
+                                        if (_active == null) {
 
-                            #region 处理告警触发延迟、告警恢复延迟
-                            foreach (var _alarm in _alarmModels) {
-                                if (_alarm.Alarm.AlarmFlag == EnmFlag.Begin && _alarm.Signal.AlarmDelay > 0 && _alarm.Alarm.AlarmTime.AddSeconds(_alarm.Signal.AlarmDelay) > DateTime.Now) {
-                                    continue;
-                                } else if (_alarm.Alarm.AlarmFlag == EnmFlag.End && _alarm.Signal.AlarmRecoveryDelay > 0 && _alarm.Alarm.AlarmTime.AddSeconds(_alarm.Signal.AlarmRecoveryDelay) > DateTime.Now) {
-                                    continue;
+                                            #region 初始化告警
+                                            var _current = new AlarmStart {
+                                                Id = _id,
+                                                TId = _alarm.Alarm.Id,
+                                                AreaId = "",
+                                                StationId = "",
+                                                RoomId = "",
+                                                FsuId = _alarm.Alarm.FsuId,
+                                                DeviceId = _alarm.Alarm.DeviceId,
+                                                PointId = _alarm.Alarm.PointId,
+                                                SerialNo = CommonHelper.GetAlarmSerialNo(_alarm.Alarm.Id),
+                                                NMAlarmId = _alarm.Alarm.NMAlarmId,
+                                                AlarmTime = _alarm.Alarm.AlarmTime,
+                                                AlarmLevel = _alarm.Alarm.AlarmLevel,
+                                                AlarmFlag = _alarm.Alarm.AlarmFlag,
+                                                AlarmValue = _alarm.Alarm.AlarmValue,
+                                                AlarmDesc = _alarm.Alarm.AlarmDesc,
+                                                AlarmRemark = _alarm.Alarm.AlarmRemark
+                                            };
+                                            #endregion
+
+                                            #region 开始告警
+                                            _alarmer.Start(_current);
+                                            GlobalConfig.AddAlarm(_current);
+
+                                            //实时告警接口
+                                            if (_ienabled) _alarmer.StartInterface(_current);
+                                            #endregion
+
+                                        } else {
+                                            _talmRepository.Delete(_alarm.Alarm);
+                                        }
+                                    } catch (Exception err) {
+                                        err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+
+                                        Logger.Warning("开始告警发生错误，详见错误日志。");
+                                        Logger.Error("开始告警发生错误", err);
+                                    }
+                                    #endregion
+                                } else if (_alarm.Alarm.AlarmFlag == EnmFlag.End) {
+                                    #region 结束告警
+                                    try {
+                                        var _active = _aalmRepository.GetEntityInPoint(_alarm.Alarm.DeviceId, _alarm.Alarm.PointId);
+                                        if (_active != null && _alarm.Alarm.AlarmTime > _active.AlarmTime) {
+
+                                            #region 初始化告警
+                                            var _current = new AlarmEnd {
+                                                Id = _active.Id,
+                                                TId = _alarm.Alarm.Id,
+                                                AreaId = _active.AreaId,
+                                                StationId = _active.StationId,
+                                                RoomId = _active.RoomId,
+                                                FsuId = _active.FsuId,
+                                                DeviceId = _active.DeviceId,
+                                                PointId = _active.PointId,
+                                                SerialNo = _active.SerialNo,
+                                                NMAlarmId = _active.NMAlarmId,
+                                                StartTime = _active.AlarmTime,
+                                                EndTime = _alarm.Alarm.AlarmTime,
+                                                AlarmLevel = _active.AlarmLevel,
+                                                AlarmFlag = _alarm.Alarm.AlarmFlag,
+                                                StartValue = _active.AlarmValue,
+                                                EndValue = _alarm.Alarm.AlarmValue,
+                                                AlarmDesc = _active.AlarmDesc,
+                                                AlarmRemark = _active.AlarmRemark,
+                                                Confirmed = _active.Confirmed,
+                                                Confirmer = _active.Confirmer,
+                                                ConfirmedTime = _active.ConfirmedTime,
+                                                ReservationId = _active.ReservationId,
+                                                PrimaryId = _active.PrimaryId,
+                                                RelatedId = _active.RelatedId,
+                                                FilterId = _active.FilterId,
+                                                ReversalId = _active.ReversalId,
+                                                ReversalCount = _active.ReversalCount,
+                                                Masked = _active.Masked
+                                            };
+                                            #endregion
+
+                                            #region 结束告警
+                                            _alarmer.End(_current);
+                                            GlobalConfig.RemoveAlarm(_current);
+
+                                            //实时告警接口
+                                            if (_ienabled) _alarmer.EndInterface(_current);
+                                            #endregion
+
+                                        } else {
+                                            _talmRepository.Delete(_alarm.Alarm);
+                                        }
+                                    } catch (Exception err) {
+                                        err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+
+                                        Logger.Warning("结束告警发生错误，详见错误日志。");
+                                        Logger.Error("结束告警发生错误", err);
+                                    }
+                                    #endregion
                                 }
+                            } catch (Exception err) {
+                                err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
 
-                                _validModels.Add(_alarm);
+                                Logger.Warning("处理告警发生错误，详见错误日志。");
+                                Logger.Error("处理告警发生错误", err);
                             }
-                            #endregion
+                        }
+                        #endregion
 
-                            // 为了防止服务器和FSU时间不一致，允许服务器和FSU时间有1小时的误差。
-                            var _reservations = GlobalConfig.Reservations.FindAll(res => DateTime.Now >= res.Reservation.StartTime.AddHours(-1) && DateTime.Now <= res.Reservation.EndTime.AddHours(1));
-                            // 关闭/打开实时告警接口
-                            var _iparam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.GJJK);
-                            var _ienabled = _iparam != null && "1".Equals(_iparam.Value) ? true : false;
-                            // 处理有效告警
-                            foreach (var _alarm in _validModels) {
-                                try {
-                                    var _id = string.Format("{0}-{1}", _alarm.Alarm.SerialNo, _alarm.Device.FsuId);
-                                    var _key = CommonHelper.JoinKeys(_alarm.Device.Id, _alarm.Signal.PointId);
-                                    if (_alarm.Alarm.AlarmFlag == EnmFlag.Begin) {
-                                        #region 开始告警
-                                        try {
-                                            var _active = _aalmRepository.GetEntity(_id);
-                                            if (_active == null) {
+                        #region 正常告警
+                        foreach (var _alarm in _alarmNormal) {
+                            try {
+                                var _key = CommonHelper.JoinKeys(_alarm.Device.Id, _alarm.Signal.PointId);
+                                if (_alarm.Alarm.AlarmFlag == EnmFlag.Begin) {
+                                    #region 开始告警
+                                    try {
+                                        var _id = CommonHelper.GetMD5(string.Format("{0}-{1}-{2}", _alarm.Device.Id, _alarm.Signal.PointId, _alarm.Alarm.AlarmTime.Ticks));
+                                        var _active = _aalmRepository.GetEntity(_id);
+                                        if (_active == null) {
 
-                                                #region 初始化告警
-                                                var _current = new AlarmStart {
-                                                    Id = _id,
-                                                    AreaId = _alarm.Device.AreaId,
-                                                    StationId = _alarm.Device.StationId,
-                                                    RoomId = _alarm.Device.RoomId,
-                                                    FsuId = _alarm.Device.FsuId,
-                                                    FsuCode = _alarm.Device.FsuCode,
-                                                    DeviceId = _alarm.Device.Id,
-                                                    DeviceCode = _alarm.Device.Code,
-                                                    PointId = _alarm.Signal.PointId,
-                                                    SerialNo = _alarm.Alarm.SerialNo,
-                                                    NMAlarmId = _alarm.Alarm.NMAlarmId,
-                                                    AlarmTime = _alarm.Alarm.AlarmTime,
-                                                    AlarmLevel = _alarm.Alarm.AlarmLevel,
-                                                    AlarmFlag = _alarm.Alarm.AlarmFlag,
-                                                    AlarmValue = _alarm.Alarm.AlarmValue,
-                                                    AlarmDesc = _alarm.Alarm.AlarmDesc,
-                                                    AlarmRemark = _alarm.Alarm.AlarmRemark
-                                                };
-                                                #endregion
+                                            #region 初始化告警
+                                            var _current = new AlarmStart {
+                                                Id = _id,
+                                                TId = _alarm.Alarm.Id,
+                                                AreaId = _alarm.Device.AreaId,
+                                                StationId = _alarm.Device.StationId,
+                                                RoomId = _alarm.Device.RoomId,
+                                                FsuId = _alarm.Device.FsuId,
+                                                DeviceId = _alarm.Device.Id,
+                                                PointId = _alarm.Signal.PointId,
+                                                SerialNo = CommonHelper.GetAlarmSerialNo(_alarm.Alarm.Id),
+                                                NMAlarmId = _alarm.Alarm.NMAlarmId,
+                                                AlarmTime = _alarm.Alarm.AlarmTime,
+                                                AlarmLevel = _alarm.Alarm.AlarmLevel,
+                                                AlarmFlag = _alarm.Alarm.AlarmFlag,
+                                                AlarmValue = _alarm.Alarm.AlarmValue,
+                                                AlarmDesc = _alarm.Alarm.AlarmDesc,
+                                                AlarmRemark = _alarm.Alarm.AlarmRemark
+                                            };
+                                            #endregion
 
-                                                #region 工程预约
-                                                foreach (var _res in _reservations) {
-                                                    if (_res.Devices.Contains(_current.DeviceId)) {
-                                                        _current.ReservationId = _res.Reservation.Id;
-                                                        _current.ReservationName = _res.Reservation.Name;
-                                                        _current.ReservationStart = _res.Reservation.StartTime;
-                                                        _current.ReservationEnd = _res.Reservation.EndTime;
-                                                        break;
-                                                    }
+                                            #region 工程预约
+                                            foreach (var reservation in GlobalConfig.Reservations) {
+                                                if (_alarm.Alarm.AlarmTime >= reservation.Reservation.StartTime
+                                                    && _alarm.Alarm.AlarmTime <= reservation.Reservation.EndTime
+                                                    && reservation.Devices.Contains(_current.DeviceId)) {
+                                                    _current.ReservationId = reservation.Reservation.Id;
+                                                    _current.ReservationName = reservation.Reservation.Name;
+                                                    _current.ReservationStart = reservation.Reservation.StartTime;
+                                                    _current.ReservationEnd = reservation.Reservation.EndTime;
+                                                    break;
                                                 }
-                                                #endregion
+                                            }
+                                            #endregion
 
-                                                #region 主次告警
-                                                if (!string.IsNullOrWhiteSpace(_alarm.Signal.InferiorAlarmStr)) {
-                                                    var dicKey = CommonHelper.JoinKeys(_alarm.Signal.InferiorAlarmStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
-                                                    if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
-                                                        _current.PrimaryId = GlobalConfig.AlarmKeys2[dicKey].Id;
-                                                    }
+                                            #region 主次告警
+                                            if (!string.IsNullOrWhiteSpace(_alarm.Signal.InferiorAlarmStr)) {
+                                                var dicKey = CommonHelper.JoinKeys(_alarm.Signal.InferiorAlarmStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                                                if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
+                                                    _current.PrimaryId = GlobalConfig.AlarmKeys2[dicKey].Id;
                                                 }
-                                                #endregion
+                                            }
+                                            #endregion
 
-                                                #region 关联告警
-                                                if (!string.IsNullOrWhiteSpace(_alarm.Signal.ConnAlarmStr)) {
-                                                    var dicKey = CommonHelper.JoinKeys(_alarm.Signal.ConnAlarmStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
-                                                    if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
-                                                        _current.RelatedId = GlobalConfig.AlarmKeys2[dicKey].Id;
-                                                    }
+                                            #region 关联告警
+                                            if (!string.IsNullOrWhiteSpace(_alarm.Signal.ConnAlarmStr)) {
+                                                var dicKey = CommonHelper.JoinKeys(_alarm.Signal.ConnAlarmStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                                                if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
+                                                    _current.RelatedId = GlobalConfig.AlarmKeys2[dicKey].Id;
                                                 }
-                                                #endregion
+                                            }
+                                            #endregion
 
-                                                #region 告警过滤
-                                                if (!string.IsNullOrWhiteSpace(_alarm.Signal.AlarmFilteringStr)) {
-                                                    var dicKey = CommonHelper.JoinKeys(_alarm.Signal.AlarmFilteringStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
-                                                    if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
-                                                        _current.FilterId = GlobalConfig.AlarmKeys2[dicKey].Id;
-                                                    }
+                                            #region 告警过滤
+                                            if (!string.IsNullOrWhiteSpace(_alarm.Signal.AlarmFilteringStr)) {
+                                                var dicKey = CommonHelper.JoinKeys(_alarm.Signal.AlarmFilteringStr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                                                if (GlobalConfig.AlarmKeys2.ContainsKey(dicKey)) {
+                                                    _current.FilterId = GlobalConfig.AlarmKeys2[dicKey].Id;
                                                 }
-                                                #endregion
+                                            }
+                                            #endregion
 
-                                                #region 告警翻转
-                                                if (!string.IsNullOrWhiteSpace(_alarm.Signal.AlarmReversalStr)) {
-                                                    int reversalInterval;
-                                                    if (int.TryParse(_alarm.Signal.AlarmReversalStr, out reversalInterval) && reversalInterval > 0) {
-                                                        if (GlobalConfig.ReversalKeys.ContainsKey(_key)) {
-                                                            var reversalTarget = GlobalConfig.ReversalKeys[_key];
-                                                            if (reversalTarget.AlarmTime.AddMinutes(reversalInterval) >= _current.AlarmTime) {
-                                                                _current.ReversalId = reversalTarget.AlarmId;
-                                                                _current.ReversalCount = ++reversalTarget.ReversalCount;
-                                                            } else {
-                                                                reversalTarget.AlarmId = _current.Id;
-                                                                reversalTarget.AlarmTime = _current.AlarmTime;
-                                                                reversalTarget.ReversalCount = 0;
-                                                                _current.ReversalId = _current.Id;
-                                                                _current.ReversalCount = 0;
-                                                            }
+                                            #region 告警翻转
+                                            if (!string.IsNullOrWhiteSpace(_alarm.Signal.AlarmReversalStr)) {
+                                                int reversalInterval;
+                                                if (int.TryParse(_alarm.Signal.AlarmReversalStr, out reversalInterval) && reversalInterval > 0) {
+                                                    if (GlobalConfig.ReversalKeys.ContainsKey(_key)) {
+                                                        var reversalTarget = GlobalConfig.ReversalKeys[_key];
+                                                        if (reversalTarget.AlarmTime.AddMinutes(reversalInterval) >= _current.AlarmTime) {
+                                                            _current.ReversalId = reversalTarget.AlarmId;
+                                                            _current.ReversalCount = ++reversalTarget.ReversalCount;
                                                         } else {
-                                                            GlobalConfig.ReversalKeys[_key] = new ReversalModel { AlarmId = _current.Id, AlarmTime = _current.AlarmTime, ReversalCount = 0 };
+                                                            reversalTarget.AlarmId = _current.Id;
+                                                            reversalTarget.AlarmTime = _current.AlarmTime;
+                                                            reversalTarget.ReversalCount = 0;
                                                             _current.ReversalId = _current.Id;
                                                             _current.ReversalCount = 0;
                                                         }
+                                                    } else {
+                                                        GlobalConfig.ReversalKeys[_key] = new ReversalModel { AlarmId = _current.Id, AlarmTime = _current.AlarmTime, ReversalCount = 0 };
+                                                        _current.ReversalId = _current.Id;
+                                                        _current.ReversalCount = 0;
                                                     }
                                                 }
-                                                #endregion
-
-                                                #region 告警屏蔽
-
-                                                _current.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(_current.DeviceId, "masking-all"));
-                                                if (!_current.Masked) _current.Masked = GlobalConfig.Maskings.Contains(_key);
-
-                                                #endregion
-
-                                                #region 开始告警
-                                                _alarmer.Start(_current);
-                                                GlobalConfig.AddAlarm(_current);
-
-                                                //启用/关闭 实时告警接口
-                                                if (_ienabled) _alarmer.StartInterface(_current);
-                                                #endregion
-
-                                                #region 断站、停电、发电
-                                                var _cuttings = new List<V_Cutting>();
-
-                                                #region 断站告警
-                                                if (GlobalConfig.Offs.Contains(_key)) {
-                                                    _cuttings.Add(new V_Cutting {
-                                                        Id = _current.Id,
-                                                        Type = EnmCutType.Off,
-                                                        AreaId = _current.AreaId,
-                                                        StationId = _current.StationId,
-                                                        RoomId = _current.RoomId,
-                                                        FsuId = _current.FsuId,
-                                                        DeviceId = _current.DeviceId,
-                                                        PointId = _current.PointId,
-                                                        StartTime = _current.AlarmTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                #region 停电告警
-                                                if (GlobalConfig.Cuttings.Contains(_key)) {
-                                                    _cuttings.Add(new V_Cutting {
-                                                        Id = _current.Id,
-                                                        Type = EnmCutType.Cut,
-                                                        AreaId = _current.AreaId,
-                                                        StationId = _current.StationId,
-                                                        RoomId = _current.RoomId,
-                                                        FsuId = _current.FsuId,
-                                                        DeviceId = _current.DeviceId,
-                                                        PointId = _current.PointId,
-                                                        StartTime = _current.AlarmTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                #region 发电告警
-                                                if (GlobalConfig.Powers.Contains(_key)) {
-                                                    _cuttings.Add(new V_Cutting {
-                                                        Id = _current.Id,
-                                                        Type = EnmCutType.Power,
-                                                        AreaId = _current.AreaId,
-                                                        StationId = _current.StationId,
-                                                        RoomId = _current.RoomId,
-                                                        FsuId = _current.FsuId,
-                                                        DeviceId = _current.DeviceId,
-                                                        PointId = _current.PointId,
-                                                        StartTime = _current.AlarmTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                if(_cuttings.Count > 0) _cuttingRepository.SaveEntities(_cuttings);
-                                                #endregion
-
-                                            } else {
-                                                _alarmer.Delete(_alarm.Alarm);
                                             }
-                                        } catch (Exception err) {
-                                            err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+                                            #endregion
 
-                                            Logger.Warning("开始告警发生错误，详见错误日志。");
-                                            Logger.Error("开始告警发生错误", err);
-                                        }
-                                        #endregion
-                                    } else if (_alarm.Alarm.AlarmFlag == EnmFlag.End) {
-                                        #region 结束告警
-                                        try {
-                                            var _active = _aalmRepository.GetEntity(_id);
-                                            if (_active != null) {
+                                            #region 告警屏蔽
 
-                                                #region 初始化告警
-                                                var _current = new AlarmEnd {
-                                                    Id = _active.Id,
-                                                    AreaId = _alarm.Device.AreaId,
-                                                    StationId = _alarm.Device.StationId,
-                                                    RoomId = _alarm.Device.RoomId,
-                                                    FsuId = _alarm.Device.FsuId,
-                                                    FsuCode = _alarm.Device.FsuCode,
-                                                    DeviceId = _alarm.Device.Id,
-                                                    DeviceCode = _alarm.Device.Code,
-                                                    PointId = _alarm.Signal.PointId,
-                                                    SerialNo = _alarm.Alarm.SerialNo,
-                                                    NMAlarmId = _alarm.Alarm.NMAlarmId,
-                                                    StartTime = _active.AlarmTime,
-                                                    EndTime = _alarm.Alarm.AlarmTime,
-                                                    AlarmLevel = _alarm.Alarm.AlarmLevel,
-                                                    AlarmFlag = _alarm.Alarm.AlarmFlag,
-                                                    StartValue = _active.AlarmValue,
-                                                    EndValue = _alarm.Alarm.AlarmValue,
-                                                    AlarmDesc = _alarm.Alarm.AlarmDesc,
-                                                    AlarmRemark = _alarm.Alarm.AlarmRemark,
-                                                    Confirmed = _active.Confirmed,
-                                                    Confirmer = _active.Confirmer,
-                                                    ConfirmedTime = _active.ConfirmedTime,
-                                                    ReservationId = _active.ReservationId,
-                                                    PrimaryId = _active.PrimaryId,
-                                                    RelatedId = _active.RelatedId,
-                                                    FilterId = _active.FilterId,
-                                                    ReversalId = _active.ReversalId,
-                                                    ReversalCount = _active.ReversalCount,
-                                                    Masked = _active.Masked
-                                                };
-                                                #endregion
+                                            _current.Masked = GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(_current.DeviceId, "masking-all"));
+                                            if (!_current.Masked) _current.Masked = GlobalConfig.Maskings.Contains(_key);
 
-                                                #region 工程预约(为实时告警接口写入工程名称、开始时间、结束时间等)
-                                                if (_ienabled && !string.IsNullOrWhiteSpace(_current.ReservationId)) {
-                                                    var _res = GlobalConfig.Reservations.Find(r => r.Reservation.Id == _current.ReservationId);
-                                                    if (_res != null) {
-                                                        _current.ReservationName = _res.Reservation.Name;
-                                                        _current.ReservationStart = _res.Reservation.StartTime;
-                                                        _current.ReservationEnd = _res.Reservation.EndTime;
-                                                    }
-                                                }
-                                                #endregion
+                                            #endregion
 
-                                                #region 结束告警
-                                                _alarmer.End(_current);
-                                                GlobalConfig.RemoveAlarm(_current);
+                                            #region 开始告警
+                                            _alarmer.Start(_current);
+                                            GlobalConfig.AddAlarm(_current);
 
-                                                //启用/关闭 实时告警接口
-                                                if (_ienabled) _alarmer.EndInterface(_current);
-                                                #endregion
+                                            // 实时告警接口
+                                            if (_ienabled) _alarmer.StartInterface(_current);
+                                            #endregion
 
-                                                #region 断站、停电、发电
-                                                var _cuteds = new List<V_Cuted>();
+                                            #region 断站、停电、发电
+                                            var _cuttings = new List<V_Cutting>();
 
-                                                #region 断站告警
-                                                if (GlobalConfig.Offs.Contains(_key)) {
-                                                    _cuteds.Add(new V_Cuted {
-                                                        Id = _current.Id,
-                                                        Type = EnmCutType.Off,
-                                                        AreaId = _current.AreaId,
-                                                        StationId = _current.StationId,
-                                                        RoomId = _current.RoomId,
-                                                        FsuId = _current.FsuId,
-                                                        DeviceId = _current.DeviceId,
-                                                        PointId = _current.PointId,
-                                                        StartTime = _current.StartTime,
-                                                        EndTime = _current.EndTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                #region 停电告警
-                                                if (GlobalConfig.Cuttings.Contains(_key)) {
-                                                    _cuteds.Add(new V_Cuted {
-                                                        Id = _current.Id,
-                                                        Type = EnmCutType.Cut,
-                                                        AreaId = _current.AreaId,
-                                                        StationId = _current.StationId,
-                                                        RoomId = _current.RoomId,
-                                                        FsuId = _current.FsuId,
-                                                        DeviceId = _current.DeviceId,
-                                                        PointId = _current.PointId,
-                                                        StartTime = _current.StartTime,
-                                                        EndTime = _current.EndTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                #region 发电告警
-                                                if (GlobalConfig.Powers.Contains(_key)) {
-                                                    _cuteds.Add(new V_Cuted {
-                                                        Id = _current.Id,
-                                                        Type = EnmCutType.Power,
-                                                        AreaId = _current.AreaId,
-                                                        StationId = _current.StationId,
-                                                        RoomId = _current.RoomId,
-                                                        FsuId = _current.FsuId,
-                                                        DeviceId = _current.DeviceId,
-                                                        PointId = _current.PointId,
-                                                        StartTime = _current.StartTime,
-                                                        EndTime = _current.EndTime
-                                                    });
-                                                }
-                                                #endregion
-
-                                                if (_cuteds.Count > 0) _cutedRepository.SaveEntities(_cuteds);
-                                                #endregion
-                                                
-                                            } else {
-                                                _alarmer.Delete(_alarm.Alarm);
+                                            #region 断站告警
+                                            if (GlobalConfig.Offs.Contains(_key)) {
+                                                _cuttings.Add(new V_Cutting {
+                                                    Id = _current.Id,
+                                                    Type = EnmCutType.Off,
+                                                    AreaId = _current.AreaId,
+                                                    StationId = _current.StationId,
+                                                    RoomId = _current.RoomId,
+                                                    FsuId = _current.FsuId,
+                                                    DeviceId = _current.DeviceId,
+                                                    PointId = _current.PointId,
+                                                    StartTime = _current.AlarmTime
+                                                });
                                             }
-                                        } catch (Exception err) {
-                                            err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+                                            #endregion
 
-                                            Logger.Warning("结束告警发生错误，详见错误日志。");
-                                            Logger.Error("结束告警发生错误", err);
+                                            #region 停电告警
+                                            if (GlobalConfig.Cuttings.Contains(_key)) {
+                                                _cuttings.Add(new V_Cutting {
+                                                    Id = _current.Id,
+                                                    Type = EnmCutType.Cut,
+                                                    AreaId = _current.AreaId,
+                                                    StationId = _current.StationId,
+                                                    RoomId = _current.RoomId,
+                                                    FsuId = _current.FsuId,
+                                                    DeviceId = _current.DeviceId,
+                                                    PointId = _current.PointId,
+                                                    StartTime = _current.AlarmTime
+                                                });
+                                            }
+                                            #endregion
+
+                                            #region 发电告警
+                                            if (GlobalConfig.Powers.Contains(_key)) {
+                                                _cuttings.Add(new V_Cutting {
+                                                    Id = _current.Id,
+                                                    Type = EnmCutType.Power,
+                                                    AreaId = _current.AreaId,
+                                                    StationId = _current.StationId,
+                                                    RoomId = _current.RoomId,
+                                                    FsuId = _current.FsuId,
+                                                    DeviceId = _current.DeviceId,
+                                                    PointId = _current.PointId,
+                                                    StartTime = _current.AlarmTime
+                                                });
+                                            }
+                                            #endregion
+
+                                            if (_cuttings.Count > 0) _cuttingRepository.SaveEntities(_cuttings);
+                                            #endregion
+
+                                        } else {
+                                            _talmRepository.Delete(_alarm.Alarm);
                                         }
-                                        #endregion
+                                    } catch (Exception err) {
+                                        err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+
+                                        Logger.Warning("开始告警发生错误，详见错误日志。");
+                                        Logger.Error("开始告警发生错误", err);
                                     }
-                                } catch (Exception err) {
-                                    err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+                                    #endregion
+                                } else if (_alarm.Alarm.AlarmFlag == EnmFlag.End) {
+                                    #region 结束告警
+                                    try {
+                                        var _active = _aalmRepository.GetEntityInPoint(_alarm.Device.Id, _alarm.Signal.PointId);
+                                        if (_active != null && _alarm.Alarm.AlarmTime > _active.AlarmTime) {
 
-                                    Logger.Warning("处理告警发生错误，详见错误日志。");
-                                    Logger.Error("处理告警发生错误", err);
+                                            #region 初始化告警
+                                            var _current = new AlarmEnd {
+                                                Id = _active.Id,
+                                                TId = _alarm.Alarm.Id,
+                                                AreaId = _active.AreaId,
+                                                StationId = _active.StationId,
+                                                RoomId = _active.RoomId,
+                                                FsuId = _active.FsuId,
+                                                DeviceId = _active.DeviceId,
+                                                PointId = _active.PointId,
+                                                SerialNo = _active.SerialNo,
+                                                NMAlarmId = _active.NMAlarmId,
+                                                StartTime = _active.AlarmTime,
+                                                EndTime = _alarm.Alarm.AlarmTime,
+                                                AlarmLevel = _active.AlarmLevel,
+                                                AlarmFlag = _alarm.Alarm.AlarmFlag,
+                                                StartValue = _active.AlarmValue,
+                                                EndValue = _alarm.Alarm.AlarmValue,
+                                                AlarmDesc = _active.AlarmDesc,
+                                                AlarmRemark = _active.AlarmRemark,
+                                                Confirmed = _active.Confirmed,
+                                                Confirmer = _active.Confirmer,
+                                                ConfirmedTime = _active.ConfirmedTime,
+                                                ReservationId = _active.ReservationId,
+                                                PrimaryId = _active.PrimaryId,
+                                                RelatedId = _active.RelatedId,
+                                                FilterId = _active.FilterId,
+                                                ReversalId = _active.ReversalId,
+                                                ReversalCount = _active.ReversalCount,
+                                                Masked = _active.Masked
+                                            };
+                                            #endregion
+
+                                            #region 工程预约(为实时告警接口写入工程名称、开始时间、结束时间等)
+                                            if (_ienabled && !string.IsNullOrWhiteSpace(_current.ReservationId)) {
+                                                var _reservation = GlobalConfig.Reservations.Find(r => r.Reservation.Id == _current.ReservationId);
+                                                if (_reservation != null) {
+                                                    _current.ReservationName = _reservation.Reservation.Name;
+                                                    _current.ReservationStart = _reservation.Reservation.StartTime;
+                                                    _current.ReservationEnd = _reservation.Reservation.EndTime;
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 结束告警
+                                            _alarmer.End(_current);
+                                            GlobalConfig.RemoveAlarm(_current);
+
+                                            //启用/关闭 实时告警接口
+                                            if (_ienabled) _alarmer.EndInterface(_current);
+                                            #endregion
+
+                                            #region 断站、停电、发电
+                                            var _cuteds = new List<V_Cuted>();
+
+                                            #region 断站告警
+                                            if (GlobalConfig.Offs.Contains(_key)) {
+                                                _cuteds.Add(new V_Cuted {
+                                                    Id = _current.Id,
+                                                    Type = EnmCutType.Off,
+                                                    AreaId = _current.AreaId,
+                                                    StationId = _current.StationId,
+                                                    RoomId = _current.RoomId,
+                                                    FsuId = _current.FsuId,
+                                                    DeviceId = _current.DeviceId,
+                                                    PointId = _current.PointId,
+                                                    StartTime = _current.StartTime,
+                                                    EndTime = _current.EndTime
+                                                });
+                                            }
+                                            #endregion
+
+                                            #region 停电告警
+                                            if (GlobalConfig.Cuttings.Contains(_key)) {
+                                                _cuteds.Add(new V_Cuted {
+                                                    Id = _current.Id,
+                                                    Type = EnmCutType.Cut,
+                                                    AreaId = _current.AreaId,
+                                                    StationId = _current.StationId,
+                                                    RoomId = _current.RoomId,
+                                                    FsuId = _current.FsuId,
+                                                    DeviceId = _current.DeviceId,
+                                                    PointId = _current.PointId,
+                                                    StartTime = _current.StartTime,
+                                                    EndTime = _current.EndTime
+                                                });
+                                            }
+                                            #endregion
+
+                                            #region 发电告警
+                                            if (GlobalConfig.Powers.Contains(_key)) {
+                                                _cuteds.Add(new V_Cuted {
+                                                    Id = _current.Id,
+                                                    Type = EnmCutType.Power,
+                                                    AreaId = _current.AreaId,
+                                                    StationId = _current.StationId,
+                                                    RoomId = _current.RoomId,
+                                                    FsuId = _current.FsuId,
+                                                    DeviceId = _current.DeviceId,
+                                                    PointId = _current.PointId,
+                                                    StartTime = _current.StartTime,
+                                                    EndTime = _current.EndTime
+                                                });
+                                            }
+                                            #endregion
+
+                                            if (_cuteds.Count > 0) _cutedRepository.SaveEntities(_cuteds);
+                                            #endregion
+
+                                        } else {
+                                            _talmRepository.Delete(_alarm.Alarm);
+                                        }
+                                    } catch (Exception err) {
+                                        err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+
+                                        Logger.Warning("结束告警发生错误，详见错误日志。");
+                                        Logger.Error("结束告警发生错误", err);
+                                    }
+                                    #endregion
                                 }
+                            } catch (Exception err) {
+                                err.Source = JsonConvert.SerializeObject(_alarm.Alarm);
+
+                                Logger.Warning("处理告警发生错误，详见错误日志。");
+                                Logger.Error("处理告警发生错误", err);
                             }
                         }
+                        #endregion
+
                     } catch (Exception err) {
                         Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
@@ -1184,41 +1313,68 @@ namespace iPem.TaskServer {
             Logger.Information("系统自检线程已启动。");
 
             #region 定义变量
-            KV<iPem.Core.Point, SubPoint> _ScOffPoint = null;
-            //每个FSU所对应的SubPoint都不同，需要动态获取
-            iPem.Core.Point _FsuOffPoint = null;
+
+            //SC中断告警变量
+            var _ScOffPointId = "076013000";
+            var _ScOffSignalId = "076013";
+            var _ScOffSignalNumber = "000";
+            var _ScOffPointLevel = EnmAlarm.Level2;
+            var _ScOffPointNMAlarmId = "603-076-00-076013";
+
+            //FSU中断告警变量
+            var _FsuOffPointId = "076010000";
+            var _FsuOffSignalId = "076010";
+            var _FsuOffSignalNumber = "000";
+            var _FsuOffPointLevel = EnmAlarm.Level2;
+            var _FsuOffPointNMAlarmId = "603-076-00-076010";
+
             //上次检索数据库索引的时间
             DateTime _NextIndexer = DateTime.Today;
+
             //上次重启IIS的时间
             DateTime _NextIISReset = DateTime.Today;
-            try {
-                var _scOff = GlobalConfig.CurParams.Find(p => p.Id == ParamId.ScOff);
-                if (_scOff != null && !string.IsNullOrWhiteSpace(_scOff.Value)) {
-                    if (!iPemWorkContext.Points.ContainsKey(_scOff.Value)) {
-                        Logger.Warning("SC通信中断告警编码配置错误");
-                    } else {
-                        var _scPoint = iPemWorkContext.Points[_scOff.Value];
-                        var _scSubPoint = iPemWorkContext.SubPoints.Values.FirstOrDefault(p => p.PointId == _scPoint.Id);
-                        _ScOffPoint = new KV<iPem.Core.Point, SubPoint> { Key = _scPoint, Value = _scSubPoint };
-                    }
-                } else {
-                    Logger.Warning("SC通信中断告警编码尚未配置");
-                }
 
-                var _fsuOff = GlobalConfig.CurParams.Find(p => p.Id == ParamId.FsuOff);
-                if (_fsuOff != null && !string.IsNullOrWhiteSpace(_fsuOff.Value)) {
-                    if (!iPemWorkContext.Points.ContainsKey(_fsuOff.Value)) {
-                        Logger.Warning("FSU通信中断告警编码配置错误");
-                    } else {
-                        _FsuOffPoint = iPemWorkContext.Points[_fsuOff.Value];
+            //计算SC中断变量
+            var _scParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.ScOff);
+            if (_scParam != null && !string.IsNullOrWhiteSpace(_scParam.Value)) {
+                _ScOffPointId = _scParam.Value;
+                if (iPemWorkContext.Points.ContainsKey(_ScOffPointId)) {
+                    var _point = iPemWorkContext.Points[_ScOffPointId];
+                    _ScOffSignalId = _point.Code;
+                    _ScOffSignalNumber = _point.Number;
+                    _ScOffPointNMAlarmId = _point.NMAlarmId;
+
+                    var _scSubPoint = iPemWorkContext.SubPoints.Values.FirstOrDefault(p => p.PointId == _ScOffPointId);
+                    if (_scSubPoint != null) {
+                        _ScOffPointLevel = _scSubPoint.AlarmLevel;
                     }
-                } else {
-                    Logger.Warning("FSU通信中断告警编码尚未配置");
                 }
-            } catch (Exception err) {
-                Logger.Warning(err.Message);
-                Logger.Error(err.Message, err);
             }
+
+            //计算FSU中断变量
+            var _fsuParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.FsuOff);
+            if (_fsuParam != null && !string.IsNullOrWhiteSpace(_fsuParam.Value)) {
+                _FsuOffPointId = _fsuParam.Value;
+                if (iPemWorkContext.Points.ContainsKey(_FsuOffPointId)) {
+                    var _point = iPemWorkContext.Points[_FsuOffPointId];
+                    _FsuOffSignalId = _point.Code;
+                    _FsuOffSignalNumber = _point.Number;
+                    _FsuOffPointNMAlarmId = _point.NMAlarmId;
+
+                    var _fsuSubPoint = iPemWorkContext.SubPoints.Values.FirstOrDefault(p => p.PointId == _FsuOffPointId);
+                    if (_fsuSubPoint != null) {
+                        _FsuOffPointLevel = _fsuSubPoint.AlarmLevel;
+                    }
+                }
+            }
+
+            //加载SC\FSU告警文件对象
+            if (_scXmlDoc == null)
+                _scXmlDoc = CommonHelper.GetXmlDocument(SC_ALARM_CFG_DIR, SC_ALARM_CFG_FILE);
+
+            if(_fsuXmlDoc == null)
+                _fsuXmlDoc = CommonHelper.GetXmlDocument(FSU_ALARM_CFG_DIR, FSU_ALARM_CFG_FILE);
+
             #endregion
 
             var interval = 86400;
@@ -1226,83 +1382,69 @@ namespace iPem.TaskServer {
                 Thread.Sleep(1000);
                 if (_runStatus == RunStatus.Running) {
                     if (interval++ <= 10) continue; interval = 1;
-                    if (_ScOffPoint == null && _FsuOffPoint == null) continue;
 
                     try {
                         _configWriterLock.EnterReadLock();
 
                         #region SC通信中断
                         try {
-                            if (_ScOffPoint != null) {
-                                foreach (var _sc in GlobalConfig.ScHeartbeats) {
-                                    var _key = CommonHelper.JoinKeys(_sc.Current.Id, _ScOffPoint.Key.Id);
-                                    if (_sc.Current.Status && GlobalConfig.AlarmKeys2.ContainsKey(_key)) {
-                                        var _alarm = _aalmRepository.GetEntityInPoint(_sc.Current.Id, _ScOffPoint.Key.Id);
-                                        if (_alarm != null) {
-                                            #region 结束告警
-                                            var _current = new AlarmEnd {
-                                                Id = _alarm.Id,
-                                                AreaId = _alarm.AreaId,
-                                                StationId = _alarm.StationId,
-                                                RoomId = _alarm.RoomId,
-                                                FsuId = _alarm.FsuId,
-                                                FsuCode = _alarm.FsuId,
-                                                DeviceId = _alarm.DeviceId,
-                                                DeviceCode = _alarm.DeviceId,
-                                                PointId = _alarm.PointId,
-                                                SerialNo = _alarm.SerialNo,
-                                                NMAlarmId = _alarm.NMAlarmId,
-                                                StartTime = _alarm.AlarmTime,
-                                                EndTime = DateTime.Now,
-                                                AlarmLevel = _alarm.AlarmLevel,
-                                                AlarmFlag = EnmFlag.End,
-                                                StartValue = _alarm.AlarmValue,
-                                                EndValue = 1,
-                                                AlarmDesc = _alarm.AlarmDesc,
-                                                AlarmRemark = _alarm.AlarmRemark,
-                                                Confirmed = _alarm.Confirmed,
-                                                Confirmer = _alarm.Confirmer,
-                                                ConfirmedTime = _alarm.ConfirmedTime,
-                                                ReservationId = _alarm.ReservationId,
-                                                PrimaryId = _alarm.PrimaryId,
-                                                RelatedId = _alarm.RelatedId,
-                                                FilterId = _alarm.FilterId,
-                                                ReversalId = _alarm.ReversalId,
-                                                ReversalCount = _alarm.ReversalCount,
-                                                Masked = _alarm.Masked
-                                            };
+                            foreach (var _sc in GlobalConfig.ScHeartbeats) {
+                                var _node = (XmlElement)_scXmlDoc.SelectSingleNode(string.Format("/root/sc[@id='{0}']", _sc.Current.Id));
+                                if (!_sc.Current.Status && _node == null) {
+                                    #region 开始告警
+                                    var _now = DateTime.Now;
+                                    var _current = new A_TAlarm {
+                                        FsuId = "-1",
+                                        DeviceId = _sc.Current.Id,
+                                        PointId = _ScOffPointId,
+                                        SignalId = _ScOffSignalId,
+                                        SignalNumber = _ScOffSignalNumber,
+                                        SerialNo = CommonHelper.GetAlarmSerialNo(_now.Ticks),
+                                        NMAlarmId = _ScOffPointNMAlarmId,
+                                        AlarmTime = _now,
+                                        AlarmLevel = _ScOffPointLevel,
+                                        AlarmFlag = EnmFlag.Begin,
+                                        AlarmValue = 1,
+                                        AlarmDesc = "LSC通信前置机通信状态异常告警",
+                                        AlarmRemark = "负责B接口协议数据采集软件获硬件的通信状态的告警"
+                                    };
 
-                                            _alarmer.End(_current);
-                                            GlobalConfig.RemoveAlarm(_current);
-                                            #endregion
-                                        }
-                                    } else if (!_sc.Current.Status && !GlobalConfig.AlarmKeys2.ContainsKey(_key)) {
-                                        #region 开始告警
-                                        var _current = new AlarmStart {
-                                            Id = null,
-                                            AreaId = "-1",
-                                            StationId = "-1",
-                                            RoomId = "-1",
-                                            FsuId = "-1",
-                                            FsuCode = "-1",
-                                            DeviceId = _sc.Current.Id,
-                                            DeviceCode = _sc.Current.Id,
-                                            PointId = _ScOffPoint.Key.Id,
-                                            SerialNo = _serialer.GetAlarmSerialNo(),
-                                            NMAlarmId = _ScOffPoint.Key.NMAlarmId,
-                                            AlarmTime = DateTime.Now,
-                                            AlarmLevel = _ScOffPoint.Value != null ? _ScOffPoint.Value.AlarmLevel : EnmAlarm.Level2,
-                                            AlarmFlag = EnmFlag.Begin,
-                                            AlarmValue = 0,
-                                            AlarmDesc = null,
-                                            AlarmRemark = null
-                                        };
-                                        _current.Id = string.Format("00-{0}-{1}", _current.SerialNo, _current.DeviceId);
+                                    _talmRepository.Save(_current);
 
-                                        _alarmer.Start(_current);
-                                        GlobalConfig.AddAlarm(_current);
-                                        #endregion
-                                    }
+                                    //保存告警标记
+                                    _node = _scXmlDoc.CreateElement("sc");
+                                    _node.SetAttribute("id", _current.DeviceId);
+                                    _node.SetAttribute("point", _current.PointId);
+                                    _node.SetAttribute("level", ((int)_current.AlarmLevel).ToString());
+                                    _node.SetAttribute("time", _current.AlarmTime.Ticks.ToString());
+                                    _scXmlDoc.DocumentElement.AppendChild(_node);
+                                    CommonHelper.SaveXmlDocument(SC_ALARM_CFG_DIR, SC_ALARM_CFG_FILE, _scXmlDoc);
+                                    #endregion
+                                } else if (_sc.Current.Status && _node != null) {
+                                    #region 结束告警
+                                    var _now = DateTime.Now;
+                                    var _current = new A_TAlarm {
+                                        FsuId = "-1",
+                                        DeviceId = _sc.Current.Id,
+                                        PointId = _ScOffPointId,
+                                        SignalId = _ScOffSignalId,
+                                        SignalNumber = _ScOffSignalNumber,
+                                        SerialNo = CommonHelper.GetAlarmSerialNo(long.Parse(_node.GetAttribute("time"))),
+                                        NMAlarmId = _ScOffPointNMAlarmId,
+                                        AlarmTime = _now,
+                                        AlarmLevel = _ScOffPointLevel,
+                                        AlarmFlag = EnmFlag.End,
+                                        AlarmValue = 0,
+                                        AlarmDesc = "LSC通信前置机通信状态异常告警",
+                                        AlarmRemark = "负责B接口协议数据采集软件获硬件的通信状态的告警"
+                                    };
+
+                                    _talmRepository.Save(_current);
+
+                                    //删除告警标记
+                                    _scXmlDoc.DocumentElement.RemoveChild(_node);
+                                    CommonHelper.SaveXmlDocument(SC_ALARM_CFG_DIR, SC_ALARM_CFG_FILE, _scXmlDoc);
+                                    #endregion
                                 }
                             }
                         } catch (Exception err) {
@@ -1313,79 +1455,64 @@ namespace iPem.TaskServer {
 
                         #region FSU通信中断
                         try {
-                            if (_FsuOffPoint != null) {
-                                var _extFsus = _fsuRepository.GetExtEntities();
-                                foreach (var _ext in _extFsus) {
-                                    var _alarm = _aalmRepository.GetEntityInPoint(_ext.Id, _FsuOffPoint.Id);
-                                    if (_ext.Status && _alarm != null) {
-                                        #region 结束告警
-                                        var _current = new AlarmEnd {
-                                            Id = _alarm.Id,
-                                            AreaId = _alarm.AreaId,
-                                            StationId = _alarm.StationId,
-                                            RoomId = _alarm.RoomId,
-                                            FsuId = _alarm.FsuId,
-                                            FsuCode = _alarm.FsuId,
-                                            DeviceId = _alarm.DeviceId,
-                                            DeviceCode = _alarm.DeviceId,
-                                            PointId = _alarm.PointId,
-                                            SerialNo = _alarm.SerialNo,
-                                            NMAlarmId = _alarm.NMAlarmId,
-                                            StartTime = _alarm.AlarmTime,
-                                            EndTime = DateTime.Now,
-                                            AlarmLevel = _alarm.AlarmLevel,
-                                            AlarmFlag = EnmFlag.End,
-                                            StartValue = _alarm.AlarmValue,
-                                            EndValue = 1,
-                                            AlarmDesc = _alarm.AlarmDesc,
-                                            AlarmRemark = _alarm.AlarmRemark,
-                                            Confirmed = _alarm.Confirmed,
-                                            Confirmer = _alarm.Confirmer,
-                                            ConfirmedTime = _alarm.ConfirmedTime,
-                                            ReservationId = _alarm.ReservationId,
-                                            PrimaryId = _alarm.PrimaryId,
-                                            RelatedId = _alarm.RelatedId,
-                                            FilterId = _alarm.FilterId,
-                                            ReversalId = _alarm.ReversalId,
-                                            ReversalCount = _alarm.ReversalCount,
-                                            Masked = _alarm.Masked
-                                        };
+                            var _extFsus = _fsuRepository.GetExtEntities();
+                            foreach (var _ext in _extFsus) {
+                                var _node = (XmlElement)_fsuXmlDoc.SelectSingleNode(string.Format("/root/fsu[@id='{0}']", _ext.Id));
+                                if (!_ext.Status && _node == null) {
+                                    #region 开始告警
+                                    var _now = DateTime.Now;
+                                    var _current = new A_TAlarm {
+                                        FsuId = "-2",
+                                        DeviceId = _ext.Id,
+                                        PointId = _FsuOffPointId,
+                                        SignalId = _FsuOffSignalId,
+                                        SignalNumber = _FsuOffSignalNumber,
+                                        SerialNo = CommonHelper.GetAlarmSerialNo(_now.Ticks),
+                                        NMAlarmId = _FsuOffPointNMAlarmId,
+                                        AlarmTime = _now,
+                                        AlarmLevel = _FsuOffPointLevel,
+                                        AlarmFlag = EnmFlag.Begin,
+                                        AlarmValue = 1,
+                                        AlarmDesc = "FSU通信中断",
+                                        AlarmRemark = "FSU监控采集设备通信状态的告警"
+                                    };
 
-                                        _alarmer.End(_current);
-                                        GlobalConfig.RemoveAlarm(_current);
-                                        #endregion
-                                    } else if(!_ext.Status && _alarm == null) {
-                                        #region 开始告警
-                                        var _fsu = iPemWorkContext.Fsus.Find(d => d.Id == _ext.Id);
-                                        if (_fsu != null) {
-                                            var _skey = CommonHelper.JoinKeys(_FsuOffPoint.Id, _fsu.StaTypeId);
-                                            var _subPoint = iPemWorkContext.SubPoints.ContainsKey(_skey) ? iPemWorkContext.SubPoints[_skey] : null;
-                                            var _current = new AlarmStart {
-                                                Id = null,
-                                                AreaId = _fsu.AreaId,
-                                                StationId = _fsu.StationId,
-                                                RoomId = _fsu.RoomId,
-                                                FsuId = _fsu.Id,
-                                                FsuCode = _fsu.Code,
-                                                DeviceId = _fsu.Id,
-                                                DeviceCode = _fsu.Code,
-                                                PointId = _FsuOffPoint.Id,
-                                                SerialNo = _serialer.GetAlarmSerialNo(),
-                                                NMAlarmId = _FsuOffPoint.NMAlarmId,
-                                                AlarmTime = DateTime.Now,
-                                                AlarmLevel = _subPoint != null ? _subPoint.AlarmLevel : EnmAlarm.Level2,
-                                                AlarmFlag = EnmFlag.Begin,
-                                                AlarmValue = 0,
-                                                AlarmDesc = null,
-                                                AlarmRemark = null
-                                            };
-                                            _current.Id = string.Format("01-{0}-{1}", _current.SerialNo, _current.FsuId);
+                                    _talmRepository.Save(_current);
 
-                                            _alarmer.Start(_current);
-                                            GlobalConfig.AddAlarm(_current);
-                                        }
-                                        #endregion
-                                    }
+                                    //保存告警标记
+                                    _node = _fsuXmlDoc.CreateElement("fsu");
+                                    _node.SetAttribute("id", _current.DeviceId);
+                                    _node.SetAttribute("point", _current.PointId);
+                                    _node.SetAttribute("level", ((int)_current.AlarmLevel).ToString());
+                                    _node.SetAttribute("time", _current.AlarmTime.Ticks.ToString());
+                                    _fsuXmlDoc.DocumentElement.AppendChild(_node);
+                                    CommonHelper.SaveXmlDocument(FSU_ALARM_CFG_DIR, FSU_ALARM_CFG_FILE, _fsuXmlDoc);
+                                    #endregion
+                                } else if (_ext.Status && _node != null) {
+                                    #region 结束告警
+                                    var _now = DateTime.Now;
+                                    var _current = new A_TAlarm {
+                                        FsuId = "-2",
+                                        DeviceId = _ext.Id,
+                                        PointId = _FsuOffPointId,
+                                        SignalId = _FsuOffSignalId,
+                                        SignalNumber = _FsuOffSignalNumber,
+                                        SerialNo = CommonHelper.GetAlarmSerialNo(long.Parse(_node.GetAttribute("time"))),
+                                        NMAlarmId = _FsuOffPointNMAlarmId,
+                                        AlarmTime = _now,
+                                        AlarmLevel = _FsuOffPointLevel,
+                                        AlarmFlag = EnmFlag.End,
+                                        AlarmValue = 0,
+                                        AlarmDesc = "FSU通信中断",
+                                        AlarmRemark = "FSU监控采集设备通信状态的告警"
+                                    };
+
+                                    _talmRepository.Save(_current);
+
+                                    //删除告警标记
+                                    _fsuXmlDoc.DocumentElement.RemoveChild(_node);
+                                    CommonHelper.SaveXmlDocument(FSU_ALARM_CFG_DIR, FSU_ALARM_CFG_FILE, _fsuXmlDoc);
+                                    #endregion
                                 }
                             }
                         } catch (Exception err) {
@@ -1417,7 +1544,8 @@ namespace iPem.TaskServer {
                                 Logger.Warning(err.Message);
                                 Logger.Error(err.Message, err);
                             } finally {
-                                _NextIISReset = DateTime.Today.AddHours(25);
+                                //每月重启一次IIS
+                                _NextIISReset = DateTime.Today.AddMonths(1);
                             }
                         }
                         #endregion
@@ -1647,7 +1775,7 @@ namespace iPem.TaskServer {
                 if (_runStatus == RunStatus.Running) {
                     if (interval++ <= 60) continue; interval = 1;
 
-                    return;
+                    break;
                     #region 屏蔽电池数据处理
                     try {
                         _configWriterLock.EnterReadLock();
@@ -2031,13 +2159,16 @@ namespace iPem.TaskServer {
             var _minInterval = 15 * 60;
             var _maxInterval = 3 * 24 * 3600;
             var _curveCount = 240;
+            var _batPoint1 = "068313";
+            var _batPoint2 = "007303";
 
             #region 电池充放电过程处理
             try {
                 var _batTimes = new List<V_BatTime>();
-                foreach (var _procedure in _batRepository.GetProcedures(start, end)) {
+                var _procedures = _batRepository.GetProcedures(start, end);
+                foreach (var _procedure in _procedures) {
                     try {
-                        if (!_procedure.PointId.StartsWith("068313") && !_procedure.PointId.StartsWith("007303"))
+                        if (!_procedure.PointId.StartsWith(_batPoint1) && !_procedure.PointId.StartsWith(_batPoint2))
                             continue;
 
                         var _details = _batRepository.GetProcDetails(_procedure.DeviceId, _procedure.PointId, _procedure.StartTime, _procedure.StartTime.AddSeconds(_maxInterval));
@@ -2086,9 +2217,10 @@ namespace iPem.TaskServer {
 
             #region 电池充放电曲线处理
             try {
-                foreach (var _procedure in _batTimeRepository.GetProcedures(start, end)) {
+                var _procedures = _batTimeRepository.GetProcedures(start, end);
+                foreach (var _procedure in _procedures) {
                     try {
-                        if (!_procedure.PointId.StartsWith("068313") && !_procedure.PointId.StartsWith("007303"))
+                        if (!_procedure.PointId.StartsWith(_batPoint1) && !_procedure.PointId.StartsWith(_batPoint2))
                             continue;
 
                         var _details = _batTimeRepository.GetProcDetails(_procedure.DeviceId, _procedure.PointId, _procedure.ProcTime, _procedure.ProcTime.AddSeconds(_maxInterval));
@@ -2570,7 +2702,8 @@ namespace iPem.TaskServer {
             #region 处理接口设备数据
             try {
                 var _iDevices = new List<H_IDevice>();
-                foreach (var _device in _deviceRepository.GetEntities()) {
+                var _devices = _deviceRepository.GetEntities();
+                foreach (var _device in _devices) {
                     _iDevices.Add(new H_IDevice {
                         Id = _device.Id,
                         Name = _device.Name,
@@ -2590,7 +2723,8 @@ namespace iPem.TaskServer {
             #region 处理接口站点数据
             try {
                 var _iStations = new List<H_IStation>();
-                foreach (var _station in _stationRepository.GetEntities()) {
+                var _stations = _stationRepository.GetEntities();
+                foreach (var _station in _stations) {
                     _iStations.Add(new H_IStation {
                         Id = _station.Id,
                         Name = _station.Name,
@@ -2610,7 +2744,8 @@ namespace iPem.TaskServer {
             #region 处理接口区域数据
             try {
                 var _iAreas = new List<H_IArea>();
-                foreach (var _area in _areaRepository.GetEntities()) {
+                var _areas = _areaRepository.GetEntities();
+                foreach (var _area in _areas) {
                     _iAreas.Add(new H_IArea {
                         Id = _area.Id,
                         Name = _area.Name,
@@ -2686,7 +2821,8 @@ namespace iPem.TaskServer {
         /// </summary>
         private void ExTask006() {
             var _diffs = new List<V_ParamDiff>();
-            foreach (var _signal in _signalRepository.GetEntities()) {
+            var _signals = _signalRepository.GetEntities();
+            foreach (var _signal in _signals) {
                 if (!iPemWorkContext.DeviceSet1.ContainsKey(_signal.DeviceId)) continue;
                 if (!iPemWorkContext.Points.ContainsKey(_signal.PointId)) continue;
 
@@ -2796,20 +2932,28 @@ namespace iPem.TaskServer {
                 var hisKeys = new HashSet<string>(_halmRepository.GetEntities(start, end).Select(a => a.Id));
 
                 #region 告警分类
-                var starts = new List<A_FAlarm>();
-                var ends = new List<A_FAlarm>();
-                var finished = new List<KV<A_FAlarm, A_FAlarm>>();
+                var starts = new List<FAlarmModel>();
+                var ends = new List<FAlarmModel>();
+                var finished = new List<KV<FAlarmModel, FAlarmModel>>();
                 foreach (var alarm in alarms) {
-                    var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
+                    var key = CommonHelper.JoinKeys(alarm.FsuId, alarm.DeviceId);
+                    if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) continue;
+
+                    var device = iPemWorkContext.DeviceSet2[key];
+                    var signal = device.Signals.Find(p => p.PointId == alarm.PointId);
+                    if (signal == null) continue;
+
+                    var current = new FAlarmModel { Device = device.Current, Signal = signal, Alarm = alarm };
+
                     if (alarm.AlarmFlag == EnmFlag.Begin) {
-                        starts.Add(alarm);
+                        starts.Add(current);
                     } else if (alarm.AlarmFlag == EnmFlag.End) {
-                        var existed = starts.Find(s => string.Format("{0}-{1}", s.SerialNo, s.FsuId).Equals(key));
-                        if (existed != null) {
-                            finished.Add(new KV<A_FAlarm, A_FAlarm>(existed, alarm));
-                            starts.Remove(existed);
+                        var started = starts.Find(m => m.Device.Id == current.Device.Id && m.Signal.PointId == current.Signal.PointId);
+                        if (started != null) {
+                            finished.Add(new KV<FAlarmModel, FAlarmModel>(started, current));
+                            starts.Remove(started);
                         } else {
-                            ends.Add(alarm);
+                            ends.Add(current);
                         }
                     }
                 }
@@ -2817,19 +2961,20 @@ namespace iPem.TaskServer {
 
                 #region 仅有开始告警
                 foreach (var alarm in starts) {
-                    var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
+                    var key = CommonHelper.GetMD5(string.Format("{0}-{1}-{2}", alarm.Device.Id, alarm.Signal.PointId, alarm.Alarm.AlarmTime.Ticks));
                     if (GlobalConfig.AlarmKeys1.ContainsKey(key)) continue;
                     if (hisKeys.Contains(key)) continue;
-                    _talmRepository.SaveEntities(alarm);
+                    _talmRepository.Save(alarm.Alarm);
                 }
                 #endregion
 
                 #region 仅有结束告警
 
                 foreach (var alarm in ends) {
-                    var key = string.Format("{0}-{1}", alarm.SerialNo, alarm.FsuId);
-                    if (!GlobalConfig.AlarmKeys1.ContainsKey(key)) continue;
-                    _talmRepository.SaveEntities(alarm);
+                    var key = CommonHelper.JoinKeys(alarm.Device.Id, alarm.Signal.PointId);
+                    if (!GlobalConfig.AlarmKeys2.ContainsKey(key)) continue;
+                    if (GlobalConfig.AlarmKeys2[key].AlarmTime >= alarm.Alarm.AlarmTime) continue;
+                    _talmRepository.Save(alarm.Alarm);
                 }
 
                 #endregion
@@ -2837,9 +2982,13 @@ namespace iPem.TaskServer {
                 #region 既有开始又有结束
 
                 foreach (var alarm in finished) {
-                    var key = string.Format("{0}-{1}", alarm.Key.SerialNo, alarm.Key.FsuId);
+                    var key = CommonHelper.GetMD5(string.Format("{0}-{1}-{2}", alarm.Key.Device.Id, alarm.Key.Signal.PointId, alarm.Key.Alarm.AlarmTime.Ticks));
                     if (hisKeys.Contains(key)) continue;
-                    _talmRepository.SaveEntities(alarm.Key, alarm.Value);
+                    if (GlobalConfig.AlarmKeys1.ContainsKey(key)) {
+                        _talmRepository.Save(alarm.Value.Alarm);
+                    } else {
+                        _talmRepository.Save(alarm.Key.Alarm, alarm.Value.Alarm);
+                    }
                 }
 
                 #endregion
@@ -2877,8 +3026,11 @@ namespace iPem.TaskServer {
 
             //加载设备
             iPemWorkContext.Devices = new List<WcDevice>();
-            foreach (var _device in _deviceRepository.GetEntities()) {
-                var _current = new WcDevice(_device) { Signals = _signalRepository.GetEntities(_device.Id) };
+            var _signals = _signalRepository.GetEntities();
+            var _devices = _deviceRepository.GetEntities();
+            foreach (var _device in _devices) {
+                var _signalsInDevice = _signals.FindAll(s => s.DeviceId.Equals(_device.Id));
+                var _current = new WcDevice(_device) { Signals = _signalsInDevice };
                 iPemWorkContext.Devices.Add(_current);
             }
 
@@ -2886,12 +3038,14 @@ namespace iPem.TaskServer {
             iPemWorkContext.DeviceSet1 = new Dictionary<string, WcDevice>();
             iPemWorkContext.DeviceSet2 = new Dictionary<string, WcDevice>();
             foreach (var _device in iPemWorkContext.Devices) {
-                iPemWorkContext.DeviceSet1[_device.Current.Id] = iPemWorkContext.DeviceSet2[CommonHelper.JoinKeys(_device.Current.FsuCode, _device.Current.Code)] = _device;
+                iPemWorkContext.DeviceSet1[_device.Current.Id] = 
+                iPemWorkContext.DeviceSet2[CommonHelper.JoinKeys(_device.Current.FsuCode, _device.Current.Code)] = _device;
             }
 
             //加载区域
             iPemWorkContext.Areas = new List<WcArea>();
-            foreach (var _area in _areaRepository.GetEntities()) {
+            var _areas = _areaRepository.GetEntities();
+            foreach (var _area in _areas) {
                 iPemWorkContext.Areas.Add(new WcArea(_area));
             }
             foreach (var current in iPemWorkContext.Areas) {
@@ -2904,19 +3058,20 @@ namespace iPem.TaskServer {
         /// </summary>
         private void LoadMaskings() {
             GlobalConfig.Maskings = new HashSet<string>();
-            foreach (var mask in _maskingRepository.GetEntities()) {
-                if (mask.Type == EnmMaskType.Station) {
-                    foreach(var device in iPemWorkContext.Devices.FindAll(d => d.Current.StationId == mask.Id)){
+            var _masks = _maskingRepository.GetEntities();
+            foreach (var _mask in _masks) {
+                if (_mask.Type == EnmMaskType.Station) {
+                    foreach(var device in iPemWorkContext.Devices.FindAll(d => d.Current.StationId == _mask.Id)){
                         GlobalConfig.Maskings.Add(CommonHelper.JoinKeys(device.Current.Id, "masking-all"));
                     }
-                } else if (mask.Type == EnmMaskType.Room) {
-                    foreach (var device in iPemWorkContext.Devices.FindAll(d => d.Current.RoomId == mask.Id)) {
+                } else if (_mask.Type == EnmMaskType.Room) {
+                    foreach (var device in iPemWorkContext.Devices.FindAll(d => d.Current.RoomId == _mask.Id)) {
                         GlobalConfig.Maskings.Add(CommonHelper.JoinKeys(device.Current.Id, "masking-all"));
                     }
-                } else if (mask.Type == EnmMaskType.Device) {
-                    GlobalConfig.Maskings.Add(CommonHelper.JoinKeys(mask.Id, "masking-all"));
-                } else if (mask.Type == EnmMaskType.Point) {
-                    var ids = CommonHelper.SplitCondition(mask.Id);
+                } else if (_mask.Type == EnmMaskType.Device) {
+                    GlobalConfig.Maskings.Add(CommonHelper.JoinKeys(_mask.Id, "masking-all"));
+                } else if (_mask.Type == EnmMaskType.Point) {
+                    var ids = CommonHelper.SplitCondition(_mask.Id);
                     if (ids.Length == 2 && !GlobalConfig.Maskings.Contains(CommonHelper.JoinKeys(ids[0], "masking-all")))
                         GlobalConfig.Maskings.Add(CommonHelper.JoinKeys(ids[0], ids[1]));
                 }
@@ -2928,19 +3083,49 @@ namespace iPem.TaskServer {
         /// </summary>
         private void LoadScHeartbeats() {
             GlobalConfig.ScHeartbeats = new List<ScHeartbeat>();
-            foreach (var group in _groupRepository.GetEntities()) {
+            var groups = _groupRepository.GetEntities();
+            var fsus = _fsuRepository.GetEntities();
+
+            //初始化SC心跳包
+            foreach (var group in groups) {
                 GlobalConfig.ScHeartbeats.Add(new ScHeartbeat(group));
             }
+
+            //初始化SC告警配置文件
+            _scXmlDoc = CommonHelper.GetXmlDocument(SC_ALARM_CFG_DIR, SC_ALARM_CFG_FILE);
+            if (_scXmlDoc.DocumentElement.ChildNodes.Count > 0) {
+                var groupKeys = groups.Select(g => g.Id).ToArray();
+                for (int i = _scXmlDoc.DocumentElement.ChildNodes.Count - 1; i >= 0; i--) {
+                    var node = _scXmlDoc.DocumentElement.ChildNodes[i];
+                    if (!groupKeys.Contains(node.Attributes["id"].Value))
+                        node.ParentNode.RemoveChild(node);
+                }
+            }
+            CommonHelper.SaveXmlDocument(SC_ALARM_CFG_DIR, SC_ALARM_CFG_FILE, _scXmlDoc);
+            
+            //初始化FSU告警配置文件
+            _fsuXmlDoc = CommonHelper.GetXmlDocument(FSU_ALARM_CFG_DIR, FSU_ALARM_CFG_FILE);
+            if (_fsuXmlDoc.DocumentElement.ChildNodes.Count > 0) {
+                var groupKeys = groups.Select(g => g.Id).ToArray();
+                for (int i = _fsuXmlDoc.DocumentElement.ChildNodes.Count - 1; i >= 0; i--) {
+                    var node = _fsuXmlDoc.DocumentElement.ChildNodes[i];
+                    if (!groupKeys.Contains(node.Attributes["id"].Value))
+                        node.ParentNode.RemoveChild(node);
+                }
+            }
+            CommonHelper.SaveXmlDocument(FSU_ALARM_CFG_DIR, FSU_ALARM_CFG_FILE, _fsuXmlDoc);
         }
 
         /// <summary>
         /// 加载工程预约数据
+        /// <para>忽略一个月之前的工程预约</para>
         /// </summary>
         private void LoadReservations() {
             GlobalConfig.Reservations = new List<ReservationModel>();
-            var resNodes = _nodesInReservationRepository.GetEntities();
-            foreach (var reservation in _reservationRepository.GetEntities()) {
-                var nodes = resNodes.FindAll(a => a.ReservationId == reservation.Id);
+            var reservations = _reservationRepository.GetEntities(DateTime.Today.AddMonths(-1));
+            var resNodes = _nodesInReservationRepository.GetEntities(reservations.Select(r => r.Id).ToArray());
+            foreach (var reservation in reservations) {
+                var nodes = resNodes.FindAll(n => n.ReservationId.Equals(reservation.Id));
                 if (nodes.Count == 0) continue;
 
                 var resDevices = new HashSet<string>();
@@ -2979,24 +3164,28 @@ namespace iPem.TaskServer {
         /// </summary>
         private void LoadAlarms(bool clean = false) {
             GlobalConfig.InitAlarm();
-            foreach (var alarm in _aalmRepository.GetEntities()) {
-                GlobalConfig.AddAlarm(alarm);
+            var _aalarms = _aalmRepository.GetEntities();
+            foreach (var _alarm in _aalarms) {
+                GlobalConfig.AddAlarm(_alarm);
             }
 
             if (!clean) return;
 
             #region 清理流水告警
-            var talarms = new List<A_TAlarm>();
-            foreach (var _alarm in _talmRepository.GetEntities()) {
-                var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
-                if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) {
-                    talarms.Add(_alarm);
-                }
-            }
-
             try {
-                if (talarms.Count > 0) 
-                    _talmRepository.Delete(talarms);
+                var _tcleans = new List<A_TAlarm>();
+                var _talarms = _talmRepository.GetEntities();
+                foreach (var _alarm in _talarms) {
+                    if (_alarm.FsuId.Equals("-1") || _alarm.FsuId.Equals("-2"))
+                        continue;
+
+                    var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
+                    if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) {
+                        _tcleans.Add(_alarm);
+                    }
+                }
+
+                if (_tcleans.Count > 0) _talmRepository.Delete(_tcleans.ToArray());
             } catch (Exception err) {
                 Logger.Warning("清理流水告警错误，详见错误日志。");
                 Logger.Error("清理流水告警错误", err);
@@ -3004,17 +3193,17 @@ namespace iPem.TaskServer {
             #endregion
 
             #region 清理同步告警
-            var falarms = new List<A_FAlarm>();
-            foreach (var _alarm in _falmRepository.GetEntities()) {
-                var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
-                if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) {
-                    falarms.Add(_alarm);
-                }
-            }
-
             try {
-                if (falarms.Count > 0)
-                    _falmRepository.Delete(falarms);
+                var _fcleans = new List<A_FAlarm>();
+                var _falarms = _falmRepository.GetEntities();
+                foreach (var _alarm in _falarms) {
+                    var key = CommonHelper.JoinKeys(_alarm.FsuId, _alarm.DeviceId);
+                    if (!iPemWorkContext.DeviceSet2.ContainsKey(key)) {
+                        _fcleans.Add(_alarm);
+                    }
+                }
+
+                if (_fcleans.Count > 0) _falmRepository.Delete(_fcleans);
             } catch (Exception err) {
                 Logger.Warning("清理同步告警错误，详见错误日志。");
                 Logger.Error("清理同步告警错误", err);
