@@ -11,11 +11,6 @@ namespace iPem.Data.Common {
         BEGIN
             INSERT INTO [dbo].[A_AAlarm]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmValue],[AlarmDesc],[AlarmRemark],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[ReversalCount],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmValue,@AlarmDesc,@AlarmRemark,@ReservationId,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@ReversalCount,@Masked,GETDATE());
         END";
-        public const string Sql_Alarm_Repository_StartInterface = @"
-        IF NOT EXISTS (SELECT 1 FROM [dbo].[A_IAlarm] WHERE [Id] = @Id)
-        BEGIN
-            INSERT INTO [dbo].[A_IAlarm]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[ReservationId],[ReservationName],[ReservationStart],[ReservationEnd],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@AlarmValue,@AlarmRemark,@ReservationId,@ReservationName,@ReservationStart,@ReservationEnd,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@Masked,GETDATE());
-        END";
         public const string Sql_Alarm_Repository_End = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'A_HAlarm{0}') AND type in (N'U'))
         BEGIN
@@ -60,10 +55,20 @@ namespace iPem.Data.Common {
         BEGIN
             INSERT INTO [dbo].[A_HAlarm{0}]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[StartTime],[EndTime],[AlarmLevel],[StartValue],[EndValue],[AlarmDesc],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[ReversalCount],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@StartTime,@EndTime,@AlarmLevel,@StartValue,@EndValue,@AlarmDesc,@AlarmRemark,@Confirmed,@Confirmer,@ConfirmedTime,@ReservationId,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@ReversalCount,@Masked,GETDATE());
         END";
-        public const string Sql_Alarm_Repository_EndInterface = @"
+        public const string Sql_Alarm_Repository_SaveInterface = @"
         IF NOT EXISTS (SELECT 1 FROM [dbo].[A_IAlarm] WHERE [Id] = @Id)
         BEGIN
-            INSERT INTO [dbo].[A_IAlarm]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[ReservationName],[ReservationStart],[ReservationEnd],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@EndTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@EndValue,@AlarmRemark,@Confirmed,@Confirmer,@ConfirmedTime,@ReservationId,@ReservationName,@ReservationStart,@ReservationEnd,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@Masked,GETDATE());
+            INSERT INTO [dbo].[A_IAlarm]([Id],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[ReservationName],[ReservationStart],[ReservationEnd],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@AlarmValue,@AlarmRemark,@Confirmed,@Confirmer,@ConfirmedTime,@ReservationId,@ReservationName,@ReservationStart,@ReservationEnd,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@Masked,@CreatedTime);
+        END";
+        public const string Sql_Alarm_Repository_SaveMessage = @"
+        IF NOT EXISTS (SELECT 1 FROM [dbo].[A_MAlarm] WHERE [Id] = @Id)
+        BEGIN
+            INSERT INTO [dbo].[A_MAlarm]([Id],[AreaId],[AreaName],[StationId],[StationName],[RoomId],[RoomName],[DeviceId],[DeviceName],[PointId],[PointName],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@AreaName,@StationId,@StationName,@RoomId,@RoomName,@DeviceId,@DeviceName,@PointId,@PointName,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@AlarmValue,@AlarmRemark,@Confirmed,@Confirmer,@ConfirmedTime,@ReservationId,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@Masked,@CreatedTime);
+        END";
+        public const string Sql_Alarm_Repository_SaveSpeech = @"
+        IF NOT EXISTS (SELECT 1 FROM [dbo].[A_SAlarm] WHERE [Id] = @Id)
+        BEGIN
+            INSERT INTO [dbo].[A_SAlarm]([Id],[AreaId],[AreaName],[StationId],[StationName],[RoomId],[RoomName],[DeviceId],[DeviceName],[PointId],[PointName],[SerialNo],[NMAlarmId],[AlarmTime],[AlarmLevel],[AlarmFlag],[AlarmDesc],[AlarmValue],[AlarmRemark],[Confirmed],[Confirmer],[ConfirmedTime],[ReservationId],[PrimaryId],[RelatedId],[FilterId],[ReversalId],[Masked],[CreatedTime]) VALUES(@Id,@AreaId,@AreaName,@StationId,@StationName,@RoomId,@RoomName,@DeviceId,@DeviceName,@PointId,@PointName,@SerialNo,@NMAlarmId,@AlarmTime,@AlarmLevel,@AlarmFlag,@AlarmDesc,@AlarmValue,@AlarmRemark,@Confirmed,@Confirmer,@ConfirmedTime,@ReservationId,@PrimaryId,@RelatedId,@FilterId,@ReversalId,@Masked,@CreatedTime);
         END";
         
         /// <summary>

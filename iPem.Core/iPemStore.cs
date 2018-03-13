@@ -16,14 +16,14 @@ namespace iPem.Core {
         /// Gets or sets the application name
         /// </summary>
         public static string Name {
-            get { return "PECS-II数据处理服务"; }
+            get { return "PECSII数据处理服务"; }
         }
 
         /// <summary>
         /// Gets or sets the application version
         /// </summary>
         public static string Version {
-            get { return "V1.2.5 Build180116"; }
+            get { return "V1.3.0 Build180310"; }
         }
 
         /// <summary>

@@ -303,6 +303,13 @@ namespace iPem.Data.Common {
             return Enum.IsDefined(typeof(EnmBatStatus), v) ? (EnmBatStatus)v : EnmBatStatus.Charge;
         }
 
+        public static EnmResult DBNullResultHandler(object val) {
+            if (val == DBNull.Value) { return EnmResult.Undefine; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(EnmResult), v) ? (EnmResult)v : EnmResult.Undefine;
+        }
+
         public static String CreateConnectionString(DbEntity database) {
             return SqlHelper.CreateConnectionString(false, database.IP, database.Port, database.Db, database.Uid, database.Password, 120);
         }

@@ -17,7 +17,12 @@ namespace iPem.Core {
         public string Name { get; set; }
 
         /// <summary>
-        /// 开始时间
+        /// 预期开始时间
+        /// </summary>
+        public DateTime ExpStartTime { get; set; }
+
+        /// <summary>
+        /// 实际开始时间
         /// </summary>
         public DateTime StartTime { get; set; }
 
@@ -47,7 +52,12 @@ namespace iPem.Core {
         public string Comment { get; set; }
 
         /// <summary>
-        /// 状态
+        /// 审核状态
+        /// </summary>
+        public EnmResult Status { get; set; }
+
+        /// <summary>
+        /// 使能状态
         /// </summary>
         public bool Enabled { get; set; }
     }

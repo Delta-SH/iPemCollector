@@ -71,6 +71,18 @@ namespace iPem.Core {
             return conditions.Split(new char[] { ';', '；' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        public static bool ConditionStartWith(IEnumerable<string> values, string key) {
+            if (values == null || string.IsNullOrWhiteSpace(key))
+                return false;
+
+            foreach (var value in values) {
+                if (key.StartsWith(value))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static bool ValidateFormula(string formula) {
             if (string.IsNullOrWhiteSpace(formula)) return false;
             formula = Regex.Replace(formula, @"\s+", "");

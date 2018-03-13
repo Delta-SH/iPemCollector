@@ -1,4 +1,5 @@
-﻿using iPem.Core.Rs;
+﻿using iPem.Core;
+using iPem.Core.Rs;
 using iPem.Data.Common;
 using System;
 using System.Collections.Generic;
@@ -58,6 +59,12 @@ namespace iPem.Data {
                     entity.AlarmFilteringStr = SqlTypeConverter.DBNullStringHandler(rdr["AlarmFilteringStr"]);
                     entity.AlarmReversalStr = SqlTypeConverter.DBNullStringHandler(rdr["AlarmReversalStr"]);
                     entity.Extend = SqlTypeConverter.DBNullStringHandler(rdr["Extend"]);
+
+                    //判断是否为告警信号
+                    if (entity.Type == EnmPoint.DI && !string.IsNullOrWhiteSpace(entity.AlarmId)) {
+                        entity.Type = EnmPoint.AL;
+                    }
+
                     entities.Add(entity);
                 }
             }
@@ -92,6 +99,12 @@ namespace iPem.Data {
                     entity.AlarmFilteringStr = SqlTypeConverter.DBNullStringHandler(rdr["AlarmFilteringStr"]);
                     entity.AlarmReversalStr = SqlTypeConverter.DBNullStringHandler(rdr["AlarmReversalStr"]);
                     entity.Extend = SqlTypeConverter.DBNullStringHandler(rdr["Extend"]);
+
+                    //判断是否为告警信号
+                    if (entity.Type == EnmPoint.DI && !string.IsNullOrWhiteSpace(entity.AlarmId)) {
+                        entity.Type = EnmPoint.AL;
+                    }
+
                     entities.Add(entity);
                 }
             }

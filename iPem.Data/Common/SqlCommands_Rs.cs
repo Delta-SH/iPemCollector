@@ -12,30 +12,33 @@ namespace iPem.Data.Common {
         /// Device Repository
         /// </summary>
         public const string Sql_Device_Repository_GetEntity = @"
-        SELECT D.[Id],D.[Code],D.[Name],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],D.[SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],D.[SubLogicTypeId],LT.[Name] AS [SubLogicTypeName],S.[AreaId],S.[Id] AS [StationId],S.[Name] AS [StationName],ST.[Id] AS [StationTypeId],ST.[Name] AS [StationTypeName],D.[RoomId],R.[Name] AS [RoomName],D.[FsuId],F.[Code] AS [FsuCode],D.[Desc] AS [Comment],D.[Enabled] FROM [dbo].[D_Device] D
+        SELECT D.[Id],D.[Code],D.[Name],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],D.[SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],D.[SubLogicTypeId],LT.[Name] AS [SubLogicTypeName],S.[AreaId],A.[Name] AS [AreaName],S.[Id] AS [StationId],S.[Name] AS [StationName],ST.[Id] AS [StationTypeId],ST.[Name] AS [StationTypeName],D.[RoomId],R.[Name] AS [RoomName],D.[FsuId],F.[Code] AS [FsuCode],D.[Desc] AS [Comment],D.[Enabled] FROM [dbo].[D_Device] D
         INNER JOIN [dbo].[D_FSU] F ON D.[FsuId] = F.[DeviceId]
         INNER JOIN [dbo].[S_Room] R ON D.[RoomID] = R.[ID]
         INNER JOIN [dbo].[S_Station] S ON R.[StationID] = S.[ID]
+        INNER JOIN [dbo].[A_Area] A ON S.[AreaID] = A.[ID]
         INNER JOIN [dbo].[C_SubDeviceType] SD ON D.[SubDeviceTypeId] = SD.[Id]
         INNER JOIN [dbo].[C_DeviceType] DT ON SD.[DeviceTypeId] = DT.[Id]
         INNER JOIN [dbo].[C_SubLogicType] LT ON D.[SubLogicTypeId] = LT.[Id]
         INNER JOIN [dbo].[C_StationType] ST ON S.[StaTypeId]=ST.[Id]
         WHERE D.[Id] = @Id;";
         public const string Sql_Device_Repository_GetEntitiesByParent = @"
-        SELECT D.[Id],D.[Code],D.[Name],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],D.[SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],D.[SubLogicTypeId],LT.[Name] AS [SubLogicTypeName],S.[AreaId],S.[Id] AS [StationId],S.[Name] AS [StationName],ST.[Id] AS [StationTypeId],ST.[Name] AS [StationTypeName],D.[RoomId],R.[Name] AS [RoomName],D.[FsuId],F.[Code] AS [FsuCode],D.[Desc] AS [Comment],D.[Enabled] FROM [dbo].[D_Device] D
+        SELECT D.[Id],D.[Code],D.[Name],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],D.[SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],D.[SubLogicTypeId],LT.[Name] AS [SubLogicTypeName],S.[AreaId],A.[Name] AS [AreaName],S.[Id] AS [StationId],S.[Name] AS [StationName],ST.[Id] AS [StationTypeId],ST.[Name] AS [StationTypeName],D.[RoomId],R.[Name] AS [RoomName],D.[FsuId],F.[Code] AS [FsuCode],D.[Desc] AS [Comment],D.[Enabled] FROM [dbo].[D_Device] D
         INNER JOIN [dbo].[D_FSU] F ON D.[FsuId] = F.[DeviceId]
         INNER JOIN [dbo].[S_Room] R ON D.[RoomID] = R.[ID]
         INNER JOIN [dbo].[S_Station] S ON R.[StationID] = S.[ID]
+        INNER JOIN [dbo].[A_Area] A ON S.[AreaID] = A.[ID]
         INNER JOIN [dbo].[C_SubDeviceType] SD ON D.[SubDeviceTypeId] = SD.[Id]
         INNER JOIN [dbo].[C_DeviceType] DT ON SD.[DeviceTypeId] = DT.[Id]
         INNER JOIN [dbo].[C_SubLogicType] LT ON D.[SubLogicTypeId] = LT.[Id]
         INNER JOIN [dbo].[C_StationType] ST ON S.[StaTypeId]=ST.[Id]
         WHERE D.[RoomId]=@Parent;";
         public const string Sql_Device_Repository_GetEntities = @"
-        SELECT D.[Id],D.[Code],D.[Name],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],D.[SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],D.[SubLogicTypeId],LT.[Name] AS [SubLogicTypeName],S.[AreaId],S.[Id] AS [StationId],S.[Name] AS [StationName],ST.[Id] AS [StationTypeId],ST.[Name] AS [StationTypeName],D.[RoomId],R.[Name] AS [RoomName],D.[FsuId],F.[Code] AS [FsuCode],D.[Desc] AS [Comment],D.[Enabled] FROM [dbo].[D_Device] D
+        SELECT D.[Id],D.[Code],D.[Name],DT.[Id] AS [DeviceTypeId],DT.[Name] AS [DeviceTypeName],D.[SubDeviceTypeId],SD.[Name] AS [SubDeviceTypeName],D.[SubLogicTypeId],LT.[Name] AS [SubLogicTypeName],S.[AreaId],A.[Name] AS [AreaName],S.[Id] AS [StationId],S.[Name] AS [StationName],ST.[Id] AS [StationTypeId],ST.[Name] AS [StationTypeName],D.[RoomId],R.[Name] AS [RoomName],D.[FsuId],F.[Code] AS [FsuCode],D.[Desc] AS [Comment],D.[Enabled] FROM [dbo].[D_Device] D
         INNER JOIN [dbo].[D_FSU] F ON D.[FsuId] = F.[DeviceId]
         INNER JOIN [dbo].[S_Room] R ON D.[RoomID] = R.[ID]
         INNER JOIN [dbo].[S_Station] S ON R.[StationID] = S.[ID]
+        INNER JOIN [dbo].[A_Area] A ON S.[AreaID] = A.[ID]
         INNER JOIN [dbo].[C_SubDeviceType] SD ON D.[SubDeviceTypeId] = SD.[Id]
         INNER JOIN [dbo].[C_DeviceType] DT ON SD.[DeviceTypeId] = DT.[Id]
         INNER JOIN [dbo].[C_SubLogicType] LT ON D.[SubLogicTypeId] = LT.[Id]
@@ -213,8 +216,8 @@ namespace iPem.Data.Common {
         /// <summary>
         /// Signal Repository
         /// </summary>
-        public const string Sql_Signal_Repository_GetEntitiesInDevice = @"SELECT S.[DeviceID],S.[PointID],P.[Name],P.[Type],P.[UnitState],P.[AlarmId],S.[NMAlarmId],S.[AlarmLevel],P.[DeviceEffect],P.[BusiEffect],S.[AlarmLimit],S.[AlarmDelay],S.[AlarmRecoveryDelay],S.[SavedPeriod],S.[AbsoluteThreshold],S.[PerThreshold],S.[StaticPeriod],S.[StorageRefTime],S.[InferiorAlarmStr],S.[ConnAlarmStr],S.[AlarmFilteringStr],S.[AlarmReversalStr],S.[Extend] FROM [dbo].[D_Signal] S INNER JOIN [dbo].[P_Point] P ON S.[PointID]=P.[ID] WHERE S.[DeviceId] = @DeviceId;";
-        public const string Sql_Signal_Repository_GetEntities = @"SELECT S.[DeviceID],S.[PointID],P.[Name],P.[Type],P.[UnitState],P.[AlarmId],S.[NMAlarmId],S.[AlarmLevel],P.[DeviceEffect],P.[BusiEffect],S.[AlarmLimit],S.[AlarmDelay],S.[AlarmRecoveryDelay],S.[SavedPeriod],S.[AbsoluteThreshold],S.[PerThreshold],S.[StaticPeriod],S.[StorageRefTime],S.[InferiorAlarmStr],S.[ConnAlarmStr],S.[AlarmFilteringStr],S.[AlarmReversalStr],S.[Extend] FROM [dbo].[D_Signal] S INNER JOIN [dbo].[P_Point] P ON S.[PointID]=P.[ID];";
+        public const string Sql_Signal_Repository_GetEntitiesInDevice = @"SELECT S.[DeviceID],S.[PointID],S.[Name],P.[Type],P.[UnitState],P.[AlarmId],S.[NMAlarmId],S.[AlarmLevel],P.[DeviceEffect],P.[BusiEffect],S.[AlarmLimit],S.[AlarmDelay],S.[AlarmRecoveryDelay],S.[SavedPeriod],S.[AbsoluteThreshold],S.[PerThreshold],S.[StaticPeriod],S.[StorageRefTime],S.[InferiorAlarmStr],S.[ConnAlarmStr],S.[AlarmFilteringStr],S.[AlarmReversalStr],S.[Extend] FROM [dbo].[D_Signal] S INNER JOIN [dbo].[P_Point] P ON S.[PointID]=P.[ID] WHERE S.[DeviceId] = @DeviceId;";
+        public const string Sql_Signal_Repository_GetEntities = @"SELECT S.[DeviceID],S.[PointID],S.[Name],P.[Type],P.[UnitState],P.[AlarmId],S.[NMAlarmId],S.[AlarmLevel],P.[DeviceEffect],P.[BusiEffect],S.[AlarmLimit],S.[AlarmDelay],S.[AlarmRecoveryDelay],S.[SavedPeriod],S.[AbsoluteThreshold],S.[PerThreshold],S.[StaticPeriod],S.[StorageRefTime],S.[InferiorAlarmStr],S.[ConnAlarmStr],S.[AlarmFilteringStr],S.[AlarmReversalStr],S.[Extend] FROM [dbo].[D_Signal] S INNER JOIN [dbo].[P_Point] P ON S.[PointID]=P.[ID];";
 
         /// <summary>
         /// SubPoint Repository

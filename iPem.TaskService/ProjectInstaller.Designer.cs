@@ -34,8 +34,8 @@
             // 
             // ServiceInstaller
             // 
-            this.ServiceInstaller.Description = "PECS-II数据处理服务 中达电通股份有限公司";
-            this.ServiceInstaller.DisplayName = "PECS-II Data Service";
+            this.ServiceInstaller.Description = "PECSII 数据处理服务 - 中达电通股份有限公司";
+            this.ServiceInstaller.DisplayName = "PECSII Data Service";
             this.ServiceInstaller.ServiceName = "PECS2Service";
             this.ServiceInstaller.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 

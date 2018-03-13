@@ -6,8 +6,7 @@ namespace iPem.Data.Common {
         /// Reservation Repository
         /// </summary>
         public const string Sql_Reservation_Repository_GetEntities1 = @"SELECT * FROM [dbo].[M_Reservations] WHERE [Enabled] = 1 ORDER BY [StartTime];";
-        public const string Sql_Reservation_Repository_GetEntities2 = @"SELECT * FROM [dbo].[M_Reservations] WHERE [StartTime] >= @StartTime AND [Enabled] = 1 ORDER BY [StartTime];";
-        public const string Sql_Reservation_Repository_GetEntities3 = @"SELECT * FROM [dbo].[M_Reservations] WHERE NOT ([StartTime]>@EndTime OR [EndTime]<@StartTime) AND [Enabled] = 1 ORDER BY [StartTime];";
+        public const string Sql_Reservation_Repository_GetEntities2 = @"SELECT * FROM [dbo].[M_Reservations] WHERE [StartTime] IS NOT NULL AND [StartTime] >= @StartTime AND [Enabled] = 1 ORDER BY [StartTime];";
         
         /// <summary>
         /// Dictionary Repository

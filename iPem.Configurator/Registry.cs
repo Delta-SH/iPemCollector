@@ -57,9 +57,12 @@ namespace iPem.Configurator {
                 new ParamEntity{ Id = ParamId.FsuOff, Value = "076010000", Time = DateTime.Now },
                 new ParamEntity{ Id = ParamId.FZDL, Value = "006309000", Time = DateTime.Now },
                 new ParamEntity{ Id = ParamId.GZZT, Value = "006402000", Time = DateTime.Now },
-                new ParamEntity{ Id = ParamId.SSNH, Value = "0", Time = DateTime.Now },
+                new ParamEntity{ Id = ParamId.DCFD, Value = "068313;007303", Time = DateTime.Now },
+                new ParamEntity{ Id = ParamId.NHZQ, Value = "0", Time = DateTime.Now },
                 new ParamEntity{ Id = ParamId.GJJK, Value = "0", Time = DateTime.Now },
-                new ParamEntity{ Id = ParamId.DCSJ, Value = "0", Time = DateTime.Now }
+                new ParamEntity{ Id = ParamId.DCSJ, Value = "0", Time = DateTime.Now },
+                new ParamEntity{ Id = ParamId.DXGJ, Value = "0", Time = DateTime.Now },
+                new ParamEntity{ Id = ParamId.YYGJ, Value = "0", Time = DateTime.Now }
             });
 
             InitDatabases(new List<DbEntity> {

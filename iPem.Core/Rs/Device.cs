@@ -42,6 +42,11 @@ namespace iPem.Core {
         public string AreaId { get; set; }
 
         /// <summary>
+        /// 所属区域
+        /// </summary>
+        public string AreaName { get; set; }
+
+        /// <summary>
         /// 所属站点
         /// </summary>
         public string StationId { get; set; }

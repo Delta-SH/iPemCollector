@@ -29,14 +29,20 @@ namespace iPem.TaskServer {
         private DataTable _computer;
         private XmlDocument _scXmlDoc;
         private XmlDocument _fsuXmlDoc;
+        private Queue<A_IAlarm> _iAlarmQueue;
+        private Queue<A_MAlarm> _mAlarmQueue;
+        private Queue<A_SAlarm> _sAlarmQueue;
 
         private const string SC_ALARM_CFG_DIR = "cfg";
         private const string SC_ALARM_CFG_FILE = "sc_alarm_cfg.xml";
         private const string FSU_ALARM_CFG_DIR = "cfg";
         private const string FSU_ALARM_CFG_FILE = "fsu_alarm_cfg.xml";
 
-        //静态配置读写锁
+        //静态读写锁
         static ReaderWriterLockSlim _configWriterLock = new ReaderWriterLockSlim();
+        static ReaderWriterLockSlim _iAlarmQueueLock = new ReaderWriterLockSlim();
+        static ReaderWriterLockSlim _mAlarmQueueLock = new ReaderWriterLockSlim();
+        static ReaderWriterLockSlim _sAlarmQueueLock = new ReaderWriterLockSlim();
         #endregion
 
         #region 资源数据类
@@ -135,6 +141,11 @@ namespace iPem.TaskServer {
                 //初始化告警翻转哈希表
                 GlobalConfig.ReversalKeys = new Dictionary<string, ReversalModel>();
 
+                //初始化告警接口队列
+                _iAlarmQueue = new Queue<A_IAlarm>();
+                _mAlarmQueue = new Queue<A_MAlarm>();
+                _sAlarmQueue = new Queue<A_SAlarm>();
+
                 //初始化资源数据类
                 _logicTypeRepository = new LogicTypeRepository();
                 _deviceTypeRepository = new DeviceTypeRepository();
@@ -207,6 +218,12 @@ namespace iPem.TaskServer {
                 _workerThread.Start();
                 _workerThreads.Add(_workerThread);
 
+                //创建告警处理线程
+                _workerThread = new Thread(new ThreadStart(DoiAlarm));
+                _workerThread.IsBackground = true;
+                _workerThread.Start();
+                _workerThreads.Add(_workerThread);
+
                 //创建系统自检线程
                 _workerThread = new Thread(new ThreadStart(DoChecking));
                 _workerThread.IsBackground = true;
@@ -227,6 +244,12 @@ namespace iPem.TaskServer {
 
                 //创建电池数据处理线程
                 _workerThread = new Thread(new ThreadStart(DoBat));
+                _workerThread.IsBackground = true;
+                _workerThread.Start();
+                _workerThreads.Add(_workerThread);
+
+                //创建数据库索引处理线程
+                _workerThread = new Thread(new ThreadStart(DoIndex));
                 _workerThread.IsBackground = true;
                 _workerThread.Start();
                 _workerThreads.Add(_workerThread);
@@ -305,7 +328,7 @@ namespace iPem.TaskServer {
         }
 
         /// <summary>
-        /// 服务初始化任务
+        /// 初始化任务
         /// </summary>
         private void DoInit() {
             var maxRepeat = 3;
@@ -350,7 +373,6 @@ namespace iPem.TaskServer {
 
         /// <summary>
         /// 同步配置任务
-        /// 5秒检查一次配置表
         /// </summary>
         private void DoConfig() {
             _allDone.WaitOne();
@@ -815,7 +837,15 @@ namespace iPem.TaskServer {
 
                         // 告警接口标识
                         var _iparam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.GJJK);
-                        var _ienabled = _iparam != null && "1".Equals(_iparam.Value) ? true : false;
+                        var _ienabled = _iparam != null && "1".Equals(_iparam.Value);
+
+                        // 短信接口标识
+                        var _mparam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.DXGJ);
+                        var _menabled = _mparam != null && "1".Equals(_mparam.Value);
+
+                        // 语音接口标识
+                        var _sparam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.YYGJ);
+                        var _senabled = _sparam != null && "1".Equals(_sparam.Value);
 
                         // 需要处理的告警
                         var _alarmSystem = new List<TAlarmModel>();
@@ -898,9 +928,128 @@ namespace iPem.TaskServer {
                                             #region 开始告警
                                             _alarmer.Start(_current);
                                             GlobalConfig.AddAlarm(_current);
+                                            #endregion
 
-                                            //实时告警接口
-                                            if (_ienabled) _alarmer.StartInterface(_current);
+                                            #region 告警接口
+                                            if (_ienabled) {
+                                                try {
+                                                    _iAlarmQueueLock.EnterWriteLock();
+                                                    _iAlarmQueue.Enqueue(new A_IAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.AlarmTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.AlarmValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = EnmConfirm.Unconfirmed,
+                                                        Confirmer = null,
+                                                        ConfirmedTime = null,
+                                                        ReservationId = _current.ReservationId,
+                                                        ReservationName = _current.ReservationName,
+                                                        ReservationStart = _current.ReservationStart,
+                                                        ReservationEnd = _current.ReservationEnd,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _iAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 短信告警
+                                            if (_menabled) {
+                                                try {
+                                                    _mAlarmQueueLock.EnterWriteLock();
+                                                    _mAlarmQueue.Enqueue(new A_MAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        AreaName = "",
+                                                        StationId = _current.StationId,
+                                                        StationName = "",
+                                                        RoomId = _current.RoomId,
+                                                        RoomName = "",
+                                                        DeviceId = _current.DeviceId,
+                                                        DeviceName = "",
+                                                        PointId = _current.PointId,
+                                                        PointName = _current.AlarmDesc,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.AlarmTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.AlarmValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = EnmConfirm.Unconfirmed,
+                                                        Confirmer = null,
+                                                        ConfirmedTime = null,
+                                                        ReservationId = _current.ReservationId,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _mAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 语音告警
+                                            if (_senabled) {
+                                                try {
+                                                    _sAlarmQueueLock.EnterWriteLock();
+                                                    _sAlarmQueue.Enqueue(new A_SAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        AreaName = "",
+                                                        StationId = _current.StationId,
+                                                        StationName = "",
+                                                        RoomId = _current.RoomId,
+                                                        RoomName = "",
+                                                        DeviceId = _current.DeviceId,
+                                                        DeviceName = "",
+                                                        PointId = _current.PointId,
+                                                        PointName = _current.AlarmDesc,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.AlarmTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.AlarmValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = EnmConfirm.Unconfirmed,
+                                                        Confirmer = null,
+                                                        ConfirmedTime = null,
+                                                        ReservationId = _current.ReservationId,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _sAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
                                             #endregion
 
                                         } else {
@@ -955,9 +1104,128 @@ namespace iPem.TaskServer {
                                             #region 结束告警
                                             _alarmer.End(_current);
                                             GlobalConfig.RemoveAlarm(_current);
+                                            #endregion
 
-                                            //实时告警接口
-                                            if (_ienabled) _alarmer.EndInterface(_current);
+                                            #region 告警接口
+                                            if (_ienabled) {
+                                                try {
+                                                    _iAlarmQueueLock.EnterWriteLock();
+                                                    _iAlarmQueue.Enqueue(new A_IAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.EndTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.EndValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = _current.Confirmed,
+                                                        Confirmer = _current.Confirmer,
+                                                        ConfirmedTime = _current.ConfirmedTime,
+                                                        ReservationId = _current.ReservationId,
+                                                        ReservationName = _current.ReservationName,
+                                                        ReservationStart = _current.ReservationStart,
+                                                        ReservationEnd = _current.ReservationEnd,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _iAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 短信告警
+                                            if (_menabled) {
+                                                try {
+                                                    _mAlarmQueueLock.EnterWriteLock();
+                                                    _mAlarmQueue.Enqueue(new A_MAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        AreaName = "",
+                                                        StationId = _current.StationId,
+                                                        StationName = "",
+                                                        RoomId = _current.RoomId,
+                                                        RoomName = "",
+                                                        DeviceId = _current.DeviceId,
+                                                        DeviceName = "",
+                                                        PointId = _current.PointId,
+                                                        PointName = _current.AlarmDesc,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.EndTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.EndValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = _current.Confirmed,
+                                                        Confirmer = _current.Confirmer,
+                                                        ConfirmedTime = _current.ConfirmedTime,
+                                                        ReservationId = _current.ReservationId,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _mAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 语音告警
+                                            if (_senabled) {
+                                                try {
+                                                    _sAlarmQueueLock.EnterWriteLock();
+                                                    _sAlarmQueue.Enqueue(new A_SAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        AreaName = "",
+                                                        StationId = _current.StationId,
+                                                        StationName = "",
+                                                        RoomId = _current.RoomId,
+                                                        RoomName = "",
+                                                        DeviceId = _current.DeviceId,
+                                                        DeviceName = "",
+                                                        PointId = _current.PointId,
+                                                        PointName = _current.AlarmDesc,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.EndTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.EndValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = _current.Confirmed,
+                                                        Confirmer = _current.Confirmer,
+                                                        ConfirmedTime = _current.ConfirmedTime,
+                                                        ReservationId = _current.ReservationId,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _sAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
                                             #endregion
 
                                         } else {
@@ -1088,9 +1356,128 @@ namespace iPem.TaskServer {
                                             #region 开始告警
                                             _alarmer.Start(_current);
                                             GlobalConfig.AddAlarm(_current);
+                                            #endregion
 
-                                            // 实时告警接口
-                                            if (_ienabled) _alarmer.StartInterface(_current);
+                                            #region 告警接口
+                                            if (_ienabled) {
+                                                try {
+                                                    _iAlarmQueueLock.EnterWriteLock();
+                                                    _iAlarmQueue.Enqueue(new A_IAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.AlarmTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.AlarmValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = EnmConfirm.Unconfirmed,
+                                                        Confirmer = null,
+                                                        ConfirmedTime = null,
+                                                        ReservationId = _current.ReservationId,
+                                                        ReservationName = _current.ReservationName,
+                                                        ReservationStart = _current.ReservationStart,
+                                                        ReservationEnd = _current.ReservationEnd,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _iAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 短信告警
+                                            if (_menabled) {
+                                                try {
+                                                    _mAlarmQueueLock.EnterWriteLock();
+                                                    _mAlarmQueue.Enqueue(new A_MAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        AreaName = _alarm.Device.AreaName,
+                                                        StationId = _current.StationId,
+                                                        StationName = _alarm.Device.StationName,
+                                                        RoomId = _current.RoomId,
+                                                        RoomName = _alarm.Device.RoomName,
+                                                        DeviceId = _current.DeviceId,
+                                                        DeviceName = _alarm.Device.Name,
+                                                        PointId = _current.PointId,
+                                                        PointName = _alarm.Signal.Name,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.AlarmTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.AlarmValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = EnmConfirm.Unconfirmed,
+                                                        Confirmer = null,
+                                                        ConfirmedTime = null,
+                                                        ReservationId = _current.ReservationId,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _mAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 语音告警
+                                            if (_senabled) {
+                                                try {
+                                                    _sAlarmQueueLock.EnterWriteLock();
+                                                    _sAlarmQueue.Enqueue(new A_SAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        AreaName = _alarm.Device.AreaName,
+                                                        StationId = _current.StationId,
+                                                        StationName = _alarm.Device.StationName,
+                                                        RoomId = _current.RoomId,
+                                                        RoomName = _alarm.Device.RoomName,
+                                                        DeviceId = _current.DeviceId,
+                                                        DeviceName = _alarm.Device.Name,
+                                                        PointId = _current.PointId,
+                                                        PointName = _alarm.Signal.Name,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.AlarmTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.AlarmValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = EnmConfirm.Unconfirmed,
+                                                        Confirmer = null,
+                                                        ConfirmedTime = null,
+                                                        ReservationId = _current.ReservationId,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _sAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
                                             #endregion
 
                                             #region 断站、停电、发电
@@ -1210,9 +1597,128 @@ namespace iPem.TaskServer {
                                             #region 结束告警
                                             _alarmer.End(_current);
                                             GlobalConfig.RemoveAlarm(_current);
+                                            #endregion
 
-                                            //启用/关闭 实时告警接口
-                                            if (_ienabled) _alarmer.EndInterface(_current);
+                                            #region 告警接口
+                                            if (_ienabled) {
+                                                try {
+                                                    _iAlarmQueueLock.EnterWriteLock();
+                                                    _iAlarmQueue.Enqueue(new A_IAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        StationId = _current.StationId,
+                                                        RoomId = _current.RoomId,
+                                                        FsuId = _current.FsuId,
+                                                        DeviceId = _current.DeviceId,
+                                                        PointId = _current.PointId,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.EndTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.EndValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = _current.Confirmed,
+                                                        Confirmer = _current.Confirmer,
+                                                        ConfirmedTime = _current.ConfirmedTime,
+                                                        ReservationId = _current.ReservationId,
+                                                        ReservationName = _current.ReservationName,
+                                                        ReservationStart = _current.ReservationStart,
+                                                        ReservationEnd = _current.ReservationEnd,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _iAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 短信告警
+                                            if (_menabled) {
+                                                try {
+                                                    _mAlarmQueueLock.EnterWriteLock();
+                                                    _mAlarmQueue.Enqueue(new A_MAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        AreaName = _alarm.Device.AreaName,
+                                                        StationId = _current.StationId,
+                                                        StationName = _alarm.Device.StationName,
+                                                        RoomId = _current.RoomId,
+                                                        RoomName = _alarm.Device.RoomName,
+                                                        DeviceId = _current.DeviceId,
+                                                        DeviceName = _alarm.Device.Name,
+                                                        PointId = _current.PointId,
+                                                        PointName = _alarm.Signal.Name,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.EndTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.EndValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = _current.Confirmed,
+                                                        Confirmer = _current.Confirmer,
+                                                        ConfirmedTime = _current.ConfirmedTime,
+                                                        ReservationId = _current.ReservationId,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _mAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 语音告警
+                                            if (_senabled) {
+                                                try {
+                                                    _sAlarmQueueLock.EnterWriteLock();
+                                                    _sAlarmQueue.Enqueue(new A_SAlarm {
+                                                        Id = _current.TId,
+                                                        AreaId = _current.AreaId,
+                                                        AreaName = _alarm.Device.AreaName,
+                                                        StationId = _current.StationId,
+                                                        StationName = _alarm.Device.StationName,
+                                                        RoomId = _current.RoomId,
+                                                        RoomName = _alarm.Device.RoomName,
+                                                        DeviceId = _current.DeviceId,
+                                                        DeviceName = _alarm.Device.Name,
+                                                        PointId = _current.PointId,
+                                                        PointName = _alarm.Signal.Name,
+                                                        SerialNo = _current.SerialNo,
+                                                        NMAlarmId = _current.NMAlarmId,
+                                                        AlarmTime = _current.EndTime,
+                                                        AlarmLevel = _current.AlarmLevel,
+                                                        AlarmFlag = _current.AlarmFlag,
+                                                        AlarmValue = _current.EndValue,
+                                                        AlarmDesc = _current.AlarmDesc,
+                                                        AlarmRemark = _current.AlarmRemark,
+                                                        Confirmed = _current.Confirmed,
+                                                        Confirmer = _current.Confirmer,
+                                                        ConfirmedTime = _current.ConfirmedTime,
+                                                        ReservationId = _current.ReservationId,
+                                                        PrimaryId = _current.PrimaryId,
+                                                        RelatedId = _current.RelatedId,
+                                                        FilterId = _current.FilterId,
+                                                        ReversalId = _current.ReversalId,
+                                                        Masked = _current.Masked,
+                                                        CreatedTime = DateTime.Now
+                                                    });
+                                                } finally {
+                                                    _sAlarmQueueLock.ExitWriteLock();
+                                                }
+                                            }
                                             #endregion
 
                                             #region 断站、停电、发电
@@ -1303,8 +1809,92 @@ namespace iPem.TaskServer {
         }
 
         /// <summary>
+        /// 告警接口处理任务
+        /// </summary>
+        private void DoiAlarm() {
+            _allDone.WaitOne();
+
+            if (_runStatus != RunStatus.Running) return;
+            Logger.Information("告警接口处理线程已启动。");
+
+            var interval = 86400;
+            while (_runStatus != RunStatus.Stop) {
+                Thread.Sleep(1000);
+                if (_runStatus == RunStatus.Running) {
+                    if (interval++ <= 5) continue; interval = 1;
+
+                    #region 处理告警接口
+                    try {
+                        var _ialarms = new List<A_IAlarm>();
+                        try {
+                            _iAlarmQueueLock.EnterWriteLock();
+
+                            while (_iAlarmQueue.Count > 0) {
+                                _ialarms.Add(_iAlarmQueue.Dequeue());
+                            }
+                        } finally {
+                            _iAlarmQueueLock.ExitWriteLock();
+                        }
+
+                        if (_ialarms.Count > 0) _alarmer.SaveInterface(_ialarms);
+                    } catch (Exception err) {
+                        Logger.Warning(err.Message);
+                        Logger.Error(err.Message, err);
+                    }
+                    #endregion
+
+                    #region 处理短信告警 需要根据角色判断需要发送给哪些用户
+                    try {
+                        var _malarms = new List<A_MAlarm>();
+                        try {
+                            _mAlarmQueueLock.EnterWriteLock();
+
+                            while (_mAlarmQueue.Count > 0) {
+                                _malarms.Add(_mAlarmQueue.Dequeue());
+                            }
+                        } finally {
+                            _mAlarmQueueLock.ExitWriteLock();
+                        }
+
+                        if (_malarms.Count > 0) {
+                            //TODO: 需要根据角色判断需要发送给哪些用户
+                            _alarmer.SaveMessage(_malarms);
+                        }
+                    } catch (Exception err) {
+                        Logger.Warning(err.Message);
+                        Logger.Error(err.Message, err);
+                    }
+                    #endregion
+
+                    #region 处理语音告警 需要根据角色判断需要发送给哪些用户
+                    try {
+                        var _salarms = new List<A_SAlarm>();
+                        try {
+                            _sAlarmQueueLock.EnterWriteLock();
+
+                            while (_sAlarmQueue.Count > 0) {
+                                _salarms.Add(_sAlarmQueue.Dequeue());
+                            }
+                        } finally {
+                            _sAlarmQueueLock.ExitWriteLock();
+                        }
+
+                        if (_salarms.Count > 0) {
+                            //TODO: 需要根据角色判断需要发送给哪些用户
+                            _alarmer.SaveSpeech(_salarms);
+                        }
+                    } catch (Exception err) {
+                        Logger.Warning(err.Message);
+                        Logger.Error(err.Message, err);
+                    }
+                    #endregion
+
+                }
+            }
+        }
+
+        /// <summary>
         /// 系统自检任务
-        /// 5秒自检一次
         /// </summary>
         private void DoChecking() {
             _allDone.WaitOne();
@@ -1327,12 +1917,6 @@ namespace iPem.TaskServer {
             var _FsuOffSignalNumber = "000";
             var _FsuOffPointLevel = EnmAlarm.Level2;
             var _FsuOffPointNMAlarmId = "603-076-00-076010";
-
-            //上次检索数据库索引的时间
-            DateTime _NextIndexer = DateTime.Today;
-
-            //上次重启IIS的时间
-            DateTime _NextIISReset = DateTime.Today;
 
             //计算SC中断变量
             var _scParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.ScOff);
@@ -1521,35 +2105,6 @@ namespace iPem.TaskServer {
                         }
                         #endregion
 
-                        #region 检查数据库索引
-                        if (DateTime.Now > _NextIndexer) {
-                            for (var i = 0; i <= 3; i++) {
-                                try {
-                                    _indexer.Check(_NextIndexer.AddMonths(i * -1));
-                                } catch (Exception err) {
-                                    Logger.Warning(err.Message);
-                                    Logger.Error(err.Message, err);
-                                }
-                            }
-
-                            _NextIndexer = DateTime.Today.AddHours(26);
-                        }
-                        #endregion
-
-                        #region 重启IIS服务
-                        if (DateTime.Now > _NextIISReset) {
-                            try {
-                                CommonHelper.ResetIIS();
-                            } catch (Exception err) {
-                                Logger.Warning(err.Message);
-                                Logger.Error(err.Message, err);
-                            } finally {
-                                //每月重启一次IIS
-                                _NextIISReset = DateTime.Today.AddMonths(1);
-                            }
-                        }
-                        #endregion
-
                     } catch (Exception err) {
                         Logger.Warning(err.Message);
                         Logger.Error(err.Message, err);
@@ -1627,7 +2182,7 @@ namespace iPem.TaskServer {
         }
 
         /// <summary>
-        /// 实时能耗任务
+        /// 能耗处理任务
         /// </summary>
         private void DoFormula() {
             _allDone.WaitOne();
@@ -1644,7 +2199,7 @@ namespace iPem.TaskServer {
                         _configWriterLock.EnterReadLock();
 
                         if (GlobalConfig.FormulaModels == null) continue;
-                        var _param = GlobalConfig.CurParams.Find(p => p.Id == ParamId.SSNH);
+                        var _param = GlobalConfig.CurParams.Find(p => p.Id == ParamId.NHZQ);
                         var _period = _param == null ? PeriodType.Day : (PeriodType)int.Parse(_param.Value);
                         var _result = new List<V_Elec>();
 
@@ -1775,8 +2330,8 @@ namespace iPem.TaskServer {
                 if (_runStatus == RunStatus.Running) {
                     if (interval++ <= 60) continue; interval = 1;
 
-                    break;
                     #region 屏蔽电池数据处理
+                    /*
                     try {
                         _configWriterLock.EnterReadLock();
                         //以下时间是错误的，需要修改。。。
@@ -1903,7 +2458,75 @@ namespace iPem.TaskServer {
                     } finally {
                         _configWriterLock.ExitReadLock();
                     }
+                    */
                     #endregion
+                }
+            }
+        }
+
+        /// <summary>
+        /// 数据库索引任务
+        /// </summary>
+        private void DoIndex() {
+            _allDone.WaitOne();
+
+            if (_runStatus != RunStatus.Running) return;
+            Logger.Information("数据库索引线程已启动。");
+
+            #region 定义变量
+
+            //上次检索数据库索引的时间
+            DateTime _NextIndexer = DateTime.Today;
+
+            //上次重启IIS的时间
+            DateTime _NextIISReset = DateTime.Today;
+
+            #endregion
+
+            var interval = 86400;
+            while (_runStatus != RunStatus.Stop) {
+                Thread.Sleep(1000);
+                if (_runStatus == RunStatus.Running) {
+                    if (interval++ <= 10) continue; interval = 1;
+
+                    try {
+                        _configWriterLock.EnterReadLock();
+
+                        #region 检查数据库索引
+                        if (DateTime.Now > _NextIndexer) {
+                            for (var i = 1; i <= 3; i++) {
+                                try {
+                                    _indexer.Check(_NextIndexer.AddMonths(i * -1));
+                                } catch (Exception err) {
+                                    Logger.Warning(err.Message);
+                                    Logger.Error(err.Message, err);
+                                }
+                            }
+
+                            _NextIndexer = DateTime.Today.AddHours(26);
+                        }
+                        #endregion
+
+                        #region 重启IIS服务
+                        if (DateTime.Now > _NextIISReset) {
+                            try {
+                                CommonHelper.ResetIIS();
+                            } catch (Exception err) {
+                                Logger.Warning(err.Message);
+                                Logger.Error(err.Message, err);
+                            } finally {
+                                //每月重启一次IIS
+                                _NextIISReset = DateTime.Today.AddMonths(1);
+                            }
+                        }
+                        #endregion
+
+                    } catch (Exception err) {
+                        Logger.Warning(err.Message);
+                        Logger.Error(err.Message, err);
+                    } finally {
+                        _configWriterLock.ExitReadLock();
+                    }
                 }
             }
         }
@@ -2159,8 +2782,13 @@ namespace iPem.TaskServer {
             var _minInterval = 15 * 60;
             var _maxInterval = 3 * 24 * 3600;
             var _curveCount = 240;
-            var _batPoint1 = "068313";
-            var _batPoint2 = "007303";
+
+            //计算电池充放电信号
+            var _dcPoints = new List<string>();
+            var _dcParam = GlobalConfig.CurParams.Find(p => p.Id == ParamId.DCFD);
+            if (_dcParam != null && !string.IsNullOrWhiteSpace(_dcParam.Value)) {
+                _dcPoints.AddRange(CommonHelper.SplitCondition(_dcParam.Value));
+            }
 
             #region 电池充放电过程处理
             try {
@@ -2168,7 +2796,7 @@ namespace iPem.TaskServer {
                 var _procedures = _batRepository.GetProcedures(start, end);
                 foreach (var _procedure in _procedures) {
                     try {
-                        if (!_procedure.PointId.StartsWith(_batPoint1) && !_procedure.PointId.StartsWith(_batPoint2))
+                        if (!CommonHelper.ConditionStartWith(_dcPoints, _procedure.PointId))
                             continue;
 
                         var _details = _batRepository.GetProcDetails(_procedure.DeviceId, _procedure.PointId, _procedure.StartTime, _procedure.StartTime.AddSeconds(_maxInterval));
@@ -2220,7 +2848,7 @@ namespace iPem.TaskServer {
                 var _procedures = _batTimeRepository.GetProcedures(start, end);
                 foreach (var _procedure in _procedures) {
                     try {
-                        if (!_procedure.PointId.StartsWith(_batPoint1) && !_procedure.PointId.StartsWith(_batPoint2))
+                        if (!CommonHelper.ConditionStartWith(_dcPoints, _procedure.PointId))
                             continue;
 
                         var _details = _batTimeRepository.GetProcDetails(_procedure.DeviceId, _procedure.PointId, _procedure.ProcTime, _procedure.ProcTime.AddSeconds(_maxInterval));
@@ -3028,9 +3656,15 @@ namespace iPem.TaskServer {
             iPemWorkContext.Devices = new List<WcDevice>();
             var _signals = _signalRepository.GetEntities();
             var _devices = _deviceRepository.GetEntities();
+            var _signalDictionaries = _signals.GroupBy(s => s.DeviceId).ToDictionary(k=>k.Key,v=>v.ToList());
             foreach (var _device in _devices) {
-                var _signalsInDevice = _signals.FindAll(s => s.DeviceId.Equals(_device.Id));
-                var _current = new WcDevice(_device) { Signals = _signalsInDevice };
+                var _current = new WcDevice(_device);
+                if(_signalDictionaries.ContainsKey(_device.Id)){
+                    _current.Signals = _signalDictionaries[_device.Id];
+                } else {
+                    _current.Signals = new List<Signal>();
+                }
+                
                 iPemWorkContext.Devices.Add(_current);
             }
 
@@ -3106,10 +3740,10 @@ namespace iPem.TaskServer {
             //初始化FSU告警配置文件
             _fsuXmlDoc = CommonHelper.GetXmlDocument(FSU_ALARM_CFG_DIR, FSU_ALARM_CFG_FILE);
             if (_fsuXmlDoc.DocumentElement.ChildNodes.Count > 0) {
-                var groupKeys = groups.Select(g => g.Id).ToArray();
+                var fsuKeys = fsus.Select(f => f.Id).ToArray();
                 for (int i = _fsuXmlDoc.DocumentElement.ChildNodes.Count - 1; i >= 0; i--) {
                     var node = _fsuXmlDoc.DocumentElement.ChildNodes[i];
-                    if (!groupKeys.Contains(node.Attributes["id"].Value))
+                    if (!fsuKeys.Contains(node.Attributes["id"].Value))
                         node.ParentNode.RemoveChild(node);
                 }
             }
@@ -3122,7 +3756,7 @@ namespace iPem.TaskServer {
         /// </summary>
         private void LoadReservations() {
             GlobalConfig.Reservations = new List<ReservationModel>();
-            var reservations = _reservationRepository.GetEntities(DateTime.Today.AddMonths(-1));
+            var reservations = _reservationRepository.GetEntities(DateTime.Today.AddMonths(-1)).FindAll(r => r.Status == EnmResult.Success);
             var resNodes = _nodesInReservationRepository.GetEntities(reservations.Select(r => r.Id).ToArray());
             foreach (var reservation in reservations) {
                 var nodes = resNodes.FindAll(n => n.ReservationId.Equals(reservation.Id));
@@ -3262,6 +3896,9 @@ namespace iPem.TaskServer {
         /// </summary>
         private void LoadBatPolicies() {
             GlobalConfig.BatModels = new List<BatModel>();
+
+            #region 屏蔽电池数据处理
+            /*
             var pattern = @"\{电池放电:\d+&\d+(\.\d+)?\}";
             var models = new List<BatParam>();
             foreach (var _device in iPemWorkContext.Devices) {
@@ -3310,6 +3947,8 @@ namespace iPem.TaskServer {
                     });
                 }
             }
+            */
+            #endregion
         }
 
         /// <summary>

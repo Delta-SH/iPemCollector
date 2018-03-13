@@ -121,13 +121,20 @@ namespace iPem.Configurator {
                     fzdl.Text = _fzdl != null ? _fzdl.Value : "";
                     var _gzzt = parms.Find(p => p.Id == ParamId.GZZT);
                     gzzt.Text = _gzzt != null ? _gzzt.Value : "";
-                    var _ssnh = parms.Find(p => p.Id == ParamId.SSNH);
+                    var _dcfd = parms.Find(p => p.Id == ParamId.DCFD);
+                    dcfd.Text = _dcfd != null ? _dcfd.Value : "";
+                    var _ssnh = parms.Find(p => p.Id == ParamId.NHZQ);
                     nhPeriodField.SelectedValue = _ssnh != null ? int.Parse(_ssnh.Value) : (int)PeriodType.Day;
                     var _gjjk = parms.Find(p => p.Id == ParamId.GJJK);
                     gjjkField.Checked = _gjjk != null ? int.Parse(_gjjk.Value) == 1 : false;
                     var _dcsj = parms.Find(p => p.Id == ParamId.DCSJ);
                     batField.Checked = _dcsj != null ? int.Parse(_dcsj.Value) == 1 : false;
+                    var _dxgj = parms.Find(p => p.Id == ParamId.DXGJ);
+                    dxgjField.Checked = _dxgj != null ? int.Parse(_dxgj.Value) == 1 : false;
+                    var _yygj = parms.Find(p => p.Id == ParamId.YYGJ);
+                    yygjField.Checked = _yygj != null ? int.Parse(_yygj.Value) == 1 : false;
                 } else if (tag.Type == NodeType.Database) {
+                    dbTitle.Text = string.Format("{0}参数", _currentNode.Text);
                     databasePanel.Dock = DockStyle.Fill;
                     databasePanel.Visible = true;
 
@@ -150,6 +157,7 @@ namespace iPem.Configurator {
                     dbPwdField.Text = curDatabase.Password ?? "";
                     tag.Parameter = curDatabase;
                 } else if (tag.Type == NodeType.Plan) {
+                    planTitle.Text = string.Format("{0}参数", _currentNode.Text);
                     planPanel.Dock = DockStyle.Fill;
                     planPanel.Visible = true;
 
@@ -387,25 +395,31 @@ namespace iPem.Configurator {
 
                 if (string.IsNullOrWhiteSpace(scOff.Text)) {
                     scOff.Focus();
-                    MessageBox.Show("告警编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(fsuOff.Text)) {
                     fsuOff.Focus();
-                    MessageBox.Show("告警编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(fzdl.Text)) {
                     fzdl.Focus();
-                    MessageBox.Show("负载电流编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(gzzt.Text)) {
                     gzzt.Focus();
-                    MessageBox.Show("工作状态编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(dcfd.Text)) {
+                    dcfd.Focus();
+                    MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -413,10 +427,14 @@ namespace iPem.Configurator {
                 var fsu = new ParamEntity { Id = ParamId.FsuOff, Value = fsuOff.Text.Trim(), Time = DateTime.Now };
                 var _fzdl = new ParamEntity { Id = ParamId.FZDL, Value = fzdl.Text.Trim(), Time = DateTime.Now };
                 var _gzzt = new ParamEntity { Id = ParamId.GZZT, Value = gzzt.Text.Trim(), Time = DateTime.Now };
-                var _ssnh = new ParamEntity { Id = ParamId.SSNH, Value = nhPeriodField.SelectedValue.ToString(), Time = DateTime.Now };
+                var _dcfd = new ParamEntity { Id = ParamId.DCFD, Value = dcfd.Text.Trim(), Time = DateTime.Now };
+                var _nhzq = new ParamEntity { Id = ParamId.NHZQ, Value = nhPeriodField.SelectedValue.ToString(), Time = DateTime.Now };
                 var _gjjk = new ParamEntity { Id = ParamId.GJJK, Value = gjjkField.Checked ? "1" : "0", Time = DateTime.Now };
                 var _dcsj = new ParamEntity { Id = ParamId.DCSJ, Value = batField.Checked ? "1" : "0", Time = DateTime.Now };
-                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _ssnh, _gjjk, _dcsj });
+                var _dxgj = new ParamEntity { Id = ParamId.DXGJ, Value = dxgjField.Checked ? "1" : "0", Time = DateTime.Now };
+                var _yygj = new ParamEntity { Id = ParamId.YYGJ, Value = yygjField.Checked ? "1" : "0", Time = DateTime.Now };
+
+                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _dcfd, _nhzq, _gjjk, _dcsj, _dxgj, _yygj });
                 MessageBox.Show("保存成功", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -569,8 +587,6 @@ namespace iPem.Configurator {
                 if (_testStatus != TestStatus.Default) {
                     dbCloseButton.Enabled = false;
                     _testStatus = TestStatus.Stop;
-                } else {
-                    Application.Exit();
                 }
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);

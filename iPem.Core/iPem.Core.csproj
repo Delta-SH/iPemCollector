@@ -41,6 +41,9 @@
   <ItemGroup>
     <Compile Include="CommonHelper.cs" />
     <Compile Include="Cs\A_FAlarm.cs" />
+    <Compile Include="Cs\A_IAlarm.cs" />
+    <Compile Include="Cs\A_MAlarm.cs" />
+    <Compile Include="Cs\A_SAlarm.cs" />
     <Compile Include="Cs\H_IArea.cs" />
     <Compile Include="Cs\V_AMeasure.cs" />
     <Compile Include="Cs\V_BatCurve.cs" />
