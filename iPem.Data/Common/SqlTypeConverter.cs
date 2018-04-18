@@ -166,6 +166,11 @@ namespace iPem.Data.Common {
             return (byte[])val;
         }
 
+        public static object DBNullBytesChecker(object val) {
+            if (val == null) { return DBNull.Value; }
+            return val;
+        }
+
         public static DatabaseType DBNullDatabaseTypeHandler(object val) {
             if(val == DBNull.Value) { return DatabaseType.SQLServer; }
 

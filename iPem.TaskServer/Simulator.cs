@@ -32,6 +32,7 @@ namespace iPem.TaskServer {
         private Queue<A_IAlarm> _iAlarmQueue;
         private Queue<A_MAlarm> _mAlarmQueue;
         private Queue<A_SAlarm> _sAlarmQueue;
+        private String _macId;
 
         private const string SC_ALARM_CFG_DIR = "cfg";
         private const string SC_ALARM_CFG_FILE = "sc_alarm_cfg.xml";
@@ -93,6 +94,7 @@ namespace iPem.TaskServer {
         private ReservationRepository _reservationRepository;
         private NodesInReservationRepository _nodesInReservationRepository;
         private FormulaRepository _formulaRepository;
+        private DictionaryRepository _dictionaryRepository;
         private Serialer _serialer;
         #endregion
 
@@ -192,10 +194,14 @@ namespace iPem.TaskServer {
                 _reservationRepository = new ReservationRepository();
                 _nodesInReservationRepository = new NodesInReservationRepository();
                 _formulaRepository = new FormulaRepository();
+                _dictionaryRepository = new DictionaryRepository();
                 _serialer = new Serialer();
 
                 //清空同步配置命令表
                 _noticeRepository.Clear();
+
+                //生成机器标识
+                _macId = CommonHelper.GetMacId();
 
                 //线程挂起
                 _allDone.Reset();
@@ -2481,6 +2487,9 @@ namespace iPem.TaskServer {
             //上次重启IIS的时间
             DateTime _NextIISReset = DateTime.Today;
 
+            //上次机器标识监测时间
+            DateTime _NextMacCheck = DateTime.Today;
+
             #endregion
 
             var interval = 86400;
@@ -2517,6 +2526,35 @@ namespace iPem.TaskServer {
                             } finally {
                                 //每月重启一次IIS
                                 _NextIISReset = DateTime.Today.AddMonths(1);
+                            }
+                        }
+                        #endregion
+
+                        #region 机器标识监测
+                        if (!string.IsNullOrWhiteSpace(_macId) && DateTime.Now > _NextMacCheck) {
+                            try {
+                                var dictionary = _dictionaryRepository.GetEntity(5);
+                                if(dictionary != null) {
+                                    if (string.IsNullOrWhiteSpace(dictionary.ValuesJson)) {
+                                        dictionary.ValuesJson = _macId;
+                                        dictionary.LastUpdatedDate = DateTime.Now;
+                                        _dictionaryRepository.Update(dictionary);
+                                        Logger.Information(string.Format("生成机器标识码，[{0}]。", _macId));
+                                    } else {
+                                        var macId = dictionary.ValuesJson;
+                                        if (!_macId.Equals(macId)) {
+                                            dictionary.ValuesJson = _macId;
+                                            dictionary.LastUpdatedDate = DateTime.Now;
+                                            _dictionaryRepository.Update(dictionary);
+                                            Logger.Information(string.Format("更新机器标识码，[{0}]=>[{1}]。", macId, _macId));
+                                        }
+                                    }
+                                }
+                            } catch (Exception err) {
+                                Logger.Warning(err.Message);
+                                Logger.Error(err.Message, err);
+                            } finally {
+                                _NextMacCheck = DateTime.Now.AddMinutes(5);
                             }
                         }
                         #endregion
@@ -3731,8 +3769,11 @@ namespace iPem.TaskServer {
                 var groupKeys = groups.Select(g => g.Id).ToArray();
                 for (int i = _scXmlDoc.DocumentElement.ChildNodes.Count - 1; i >= 0; i--) {
                     var node = _scXmlDoc.DocumentElement.ChildNodes[i];
-                    if (!groupKeys.Contains(node.Attributes["id"].Value))
+                    var id = node.Attributes["id"].Value;
+                    if (!groupKeys.Contains(id)) {
+                        _aalmRepository.Delete(new KV<string, string>("-1", id));
                         node.ParentNode.RemoveChild(node);
+                    }
                 }
             }
             CommonHelper.SaveXmlDocument(SC_ALARM_CFG_DIR, SC_ALARM_CFG_FILE, _scXmlDoc);
@@ -3743,8 +3784,11 @@ namespace iPem.TaskServer {
                 var fsuKeys = fsus.Select(f => f.Id).ToArray();
                 for (int i = _fsuXmlDoc.DocumentElement.ChildNodes.Count - 1; i >= 0; i--) {
                     var node = _fsuXmlDoc.DocumentElement.ChildNodes[i];
-                    if (!fsuKeys.Contains(node.Attributes["id"].Value))
+                    var id = node.Attributes["id"].Value;
+                    if (!fsuKeys.Contains(id)) {
+                        _aalmRepository.Delete(new KV<string, string>("-2", id));
                         node.ParentNode.RemoveChild(node);
+                    }
                 }
             }
             CommonHelper.SaveXmlDocument(FSU_ALARM_CFG_DIR, FSU_ALARM_CFG_FILE, _fsuXmlDoc);

@@ -218,6 +218,7 @@ namespace iPem.Data.Common {
         public const string Sql_A_AAlarm_Repository_GetEntitiesInDevice = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [DeviceId] = @DeviceId ORDER BY [AlarmTime];";
         public const string Sql_A_AAlarm_Repository_GetEntitiesInSpan = @"SELECT * FROM [dbo].[A_AAlarm] WHERE [AlarmTime] BETWEEN @Start AND @End ORDER BY [AlarmTime];";
         public const string Sql_A_AAlarm_Repository_GetEntities = @"SELECT * FROM [dbo].[A_AAlarm] ORDER BY [AlarmTime];";
+        public const string Sql_A_AAlarm_Repository_Delete = @"DELETE FROM [dbo].[A_AAlarm] WHERE [FsuId]=@FsuId AND [DeviceId]=@DeviceId;";
         
         /// <summary>
         /// 历史告警表

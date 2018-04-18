@@ -223,6 +223,27 @@ namespace iPem.Data {
             return entities;
         }
 
+        public void Delete(params KV<string, string>[] entities) {
+            SqlParameter[] parms = { new SqlParameter("@FsuId", SqlDbType.VarChar, 100), 
+                                     new SqlParameter("@DeviceId", SqlDbType.VarChar, 100) };
+
+            using (var conn = new SqlConnection(this._databaseConnectionString)) {
+                conn.Open();
+                var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
+                try {
+                    foreach (var entity in entities) {
+                        parms[0].Value = SqlTypeConverter.DBNullStringChecker(entity.Key);
+                        parms[1].Value = SqlTypeConverter.DBNullStringChecker(entity.Value);
+                        SqlHelper.ExecuteNonQuery(trans, CommandType.Text, SqlCommands_Cs.Sql_A_AAlarm_Repository_Delete, parms);
+                    }
+                    trans.Commit();
+                } catch {
+                    trans.Rollback();
+                    throw;
+                }
+            }
+        }
+
         #endregion
 
     }

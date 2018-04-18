@@ -13,6 +13,7 @@ namespace iPem.Data.Common {
         /// </summary>
         public const string Sql_Dictionary_Repository_GetEntity = @"SELECT * FROM [dbo].[M_Dictionary] WHERE [Id]=@Id;";
         public const string Sql_Dictionary_Repository_GetEntities = @"SELECT * FROM [dbo].[M_Dictionary];";
+        public const string Sql_Dictionary_Repository_Update = @"UPDATE [dbo].[M_Dictionary] SET [ValuesJson] = @ValuesJson,[ValuesBinary] = @ValuesBinary,[LastUpdatedDate] = @LastUpdatedDate WHERE [Id] = @Id;";
         
         /// <summary>
         /// Formula Repository

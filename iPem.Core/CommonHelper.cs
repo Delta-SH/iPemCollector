@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
 using Microsoft.Win32;
-using iPem.Core.Rs;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 using System.IO;
+using System.Management;
 
 namespace iPem.Core {
     public partial class CommonHelper {
+        private static readonly string[] DefaultSalts = new string[] { "91E709Fc", "1A8d", "8d1e", "a28822a6B010" };
+
         public static string GlobalSeparator {
             get { return "┆"; }
         }
@@ -250,6 +252,48 @@ namespace iPem.Core {
             if (!Directory.Exists(filePath)) Directory.CreateDirectory(filePath);
 
             xmlDoc.Save(fileName);
+        }
+
+        public static String GetMacId() {
+            var cpu = GetCpuId();
+            var hdd = GetHddId();
+            var key = String.Format("{0}{1}{2}{3}{4}{5}{6}", DefaultSalts[0], hdd, DefaultSalts[3], cpu, DefaultSalts[2], hdd, DefaultSalts[1]);
+            var bs = Encoding.UTF8.GetBytes(key);
+            var hs = MD5.Create().ComputeHash(bs);
+            return new Guid(hs).ToString("N").ToUpper();
+        }
+
+        public static String GetCpuId() {
+            try {
+                var cpus = new SortedSet<string>();
+                using (var mc = new ManagementClass("Win32_Processor")) {
+                    var moc = mc.GetInstances();
+                    foreach (ManagementObject mo in moc) {
+                        cpus.Add(mo.Properties["ProcessorId"].Value.ToString());
+                    }
+                }
+
+                if (cpus.Count > 0) return string.Join(".", cpus);
+            } catch {
+            }
+
+            return "unknow";
+        }
+
+        public static String GetHddId() {
+            try {
+                var disks = new SortedList<int, string>();
+                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive")) {
+                    foreach (ManagementObject mo in searcher.Get()) {
+                        disks.Add(Convert.ToInt32(mo.Properties["Index"].Value), string.Format("{0:X}", mo.Properties["Signature"].Value));
+                    }
+                }
+
+                if (disks.Count > 0) return string.Join(".", disks.Values);
+            } catch {
+            }
+
+            return "unknow";
         }
     }
 }
