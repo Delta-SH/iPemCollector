@@ -2,12 +2,12 @@
 
 namespace iPem.Core {
     /// <summary>
-    /// 能耗公式信息
+    /// 停电、发电信息类
     /// </summary>
     [Serializable]
-    public partial class Formula {
+    public partial class V_Offline {
         /// <summary>
-        /// 站点/机房/设备编码
+        /// 编号
         /// </summary>
         public string Id { get; set; }
 
@@ -17,28 +17,23 @@ namespace iPem.Core {
         public EnmSSH Type { get; set; }
 
         /// <summary>
-        /// 公式类型
+        /// 停电、发电公式类型
         /// </summary>
         public EnmFormula FormulaType { get; set; }
 
         /// <summary>
-        /// 运算方式
+        /// 开始时间
         /// </summary>
-        public EnmCompute ComputeType { get; set; }
+        public DateTime StartTime { get; set; }
 
         /// <summary>
-        /// 公式信息
+        /// 结束时间
         /// </summary>
-        public string FormulaText { get; set; }
+        public DateTime EndTime { get; set; }
 
         /// <summary>
-        /// 公式信息
+        /// 发电量
         /// </summary>
-        public string FormulaValue { get; set; }
-
-        /// <summary>
-        /// 公式描述
-        /// </summary>
-        public string Comment { get; set; }
+        public double Value { get; set; }
     }
 }

@@ -260,6 +260,7 @@ namespace iPem.Data.Common {
             if(conn.State != ConnectionState.Open) { conn.Open(); }
             cmd.Connection = conn;
             cmd.CommandText = cmdText;
+            cmd.CommandTimeout = 1800;
 
             if(trans != null) { cmd.Transaction = trans; }
             cmd.CommandType = cmdType;
@@ -334,7 +335,7 @@ namespace iPem.Data.Common {
         /// <param name="password">The password for the SQL Server account</param>
         /// <param name="timeout">The connection timeout</param>
         /// <returns>Connection string</returns>
-        public static string CreateConnectionString(bool trustedConnection, string serverName, int portNumber, string databaseName, string userName, string password, int timeout) {
+        public static string CreateConnectionString(bool trustedConnection, string serverName, int portNumber, string databaseName, string userName, string password, int timeout=120) {
             var builder = new SqlConnectionStringBuilder();
             builder.IntegratedSecurity = trustedConnection;
             builder.DataSource = String.Format("{0},{1}", serverName, portNumber);

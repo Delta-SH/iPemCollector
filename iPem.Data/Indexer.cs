@@ -28,14 +28,7 @@ namespace iPem.Data {
         public void Check(DateTime date) {
             using (var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();
-                var trans = conn.BeginTransaction(IsolationLevel.ReadCommitted);
-                try {
-                    SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_Indexer_Check, date.ToString("yyyyMM")), null);
-                    trans.Commit();
-                } catch {
-                    trans.Rollback();
-                    throw;
-                }
+                SqlHelper.ExecuteNonQuery(conn, CommandType.Text, string.Format(SqlCommands_Cs.Sql_Indexer_Check, date.ToString("yyyyMM")), null);
             }
         }
 

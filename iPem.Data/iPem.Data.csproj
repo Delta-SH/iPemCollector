@@ -63,12 +63,12 @@
     <Compile Include="Cs\A_AAlarmRepository.cs" />
     <Compile Include="Cs\A_HAlarmRepository.cs" />
     <Compile Include="Cs\A_TAlarmRepository.cs" />
+    <Compile Include="Cs\V_ACabinetRepository.cs" />
     <Compile Include="Cs\V_AMeasureRepository.cs" />
     <Compile Include="Cs\V_BatCurveRepository.cs" />
     <Compile Include="Cs\V_BatRepository.cs" />
     <Compile Include="Cs\V_BatTimeRepository.cs" />
-    <Compile Include="Cs\V_CutedRepository.cs" />
-    <Compile Include="Cs\V_CuttingRepository.cs" />
+    <Compile Include="Cs\V_OfflineRepository.cs" />
     <Compile Include="Cs\V_ElecRepository.cs" />
     <Compile Include="Cs\V_LoadRepository.cs" />
     <Compile Include="Cs\V_ParamDiffRepository.cs" />

@@ -97,6 +97,17 @@ namespace iPem.Data.Common {
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
         --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        --创建索引[dbo].[V_ACabinet]
+        IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_ACabinet{0}]') AND type in (N'U')) 
+        AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_ACabinet{0}]') AND name = N'ClusteredIndex{0}')
+        CREATE CLUSTERED INDEX [ClusteredIndex{0}] ON [dbo].[V_ACabinet{0}]
+        (
+	        [ValueTime] ASC,
+	        [Category] ASC,
+	        [DeviceId] ASC
+        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+        --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
         --创建索引[dbo].[V_Bat]
         IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_Bat{0}]') AND type in (N'U')) 
         AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_Bat{0}]') AND name = N'ClusteredIndex{0}')
@@ -104,7 +115,7 @@ namespace iPem.Data.Common {
         (
 	        [ValueTime] ASC,
 	        [DeviceId] ASC,
-	        [PointId] ASC
+	        [PackId] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
         IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_Bat{0}]') AND type in (N'U')) 
@@ -113,7 +124,7 @@ namespace iPem.Data.Common {
         (
 	        [StartTime] ASC,
 	        [DeviceId] ASC,
-	        [PointId] ASC
+	        [PackId] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
         --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -122,18 +133,9 @@ namespace iPem.Data.Common {
         AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_BatCurve{0}]') AND name = N'ClusteredIndex{0}')
         CREATE CLUSTERED INDEX [ClusteredIndex{0}] ON [dbo].[V_BatCurve{0}]
         (
-	        [ValueTime] ASC,
-	        [DeviceId] ASC,
-	        [PointId] ASC
-        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-
-        IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_BatCurve{0}]') AND type in (N'U')) 
-        AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_BatCurve{0}]') AND name = N'NonClusteredIndex{0}')
-        CREATE NONCLUSTERED INDEX [NonClusteredIndex{0}] ON [dbo].[V_BatCurve{0}]
-        (
 	        [ProcTime] ASC,
 	        [DeviceId] ASC,
-	        [PointId] ASC
+	        [PackId] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
         --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -144,27 +146,18 @@ namespace iPem.Data.Common {
         (
 	        [StartTime] ASC,
 	        [DeviceId] ASC,
-	        [PointId] ASC
-        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-
-        IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_BatTime{0}]') AND type in (N'U')) 
-        AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_BatTime{0}]') AND name = N'NonClusteredIndex{0}')
-        CREATE NONCLUSTERED INDEX [NonClusteredIndex{0}] ON [dbo].[V_BatTime{0}]
-        (
-	        [ProcTime] ASC,
-	        [DeviceId] ASC,
-	        [PointId] ASC
+	        [PackId] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
         --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-        --创建索引[dbo].[V_Cuted]
-        IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_Cuted{0}]') AND type in (N'U')) 
-        AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_Cuted{0}]') AND name = N'NonClusteredIndex{0}')
-        CREATE NONCLUSTERED INDEX [NonClusteredIndex{0}] ON [dbo].[V_Cuted{0}]
+        --创建索引[dbo].[V_Offline]
+        IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_Offline{0}]') AND type in (N'U')) 
+        AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_Offline{0}]') AND name = N'ClusteredIndex{0}')
+        CREATE CLUSTERED INDEX [ClusteredIndex{0}] ON [dbo].[V_Offline{0}]
         (
 	        [StartTime] ASC,
-	        [DeviceId] ASC,
-	        [PointId] ASC
+	        [Type] ASC,
+	        [FormulaType] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
         --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -176,17 +169,6 @@ namespace iPem.Data.Common {
 	        [StartTime] ASC,
 	        [Type] ASC,
 	        [FormulaType] ASC
-        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-
-        --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-        --创建索引[dbo].[V_HMeasure]
-        IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_HMeasure{0}]') AND type in (N'U')) 
-        AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_HMeasure{0}]') AND name = N'ClusteredIndex{0}')
-        CREATE CLUSTERED INDEX [ClusteredIndex{0}] ON [dbo].[V_HMeasure{0}]
-        (
-	        [UpdateTime] ASC,
-	        [DeviceId] ASC,
-	        [PointId] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
         --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -206,6 +188,17 @@ namespace iPem.Data.Common {
         CREATE CLUSTERED INDEX [ClusteredIndex{0}] ON [dbo].[V_Static{0}]
         (
 	        [StartTime] ASC,
+	        [DeviceId] ASC,
+	        [PointId] ASC
+        )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+        --■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        --创建索引[dbo].[V_HMeasure]
+        IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[V_HMeasure{0}]') AND type in (N'U')) 
+        AND NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[V_HMeasure{0}]') AND name = N'ClusteredIndex{0}')
+        CREATE CLUSTERED INDEX [ClusteredIndex{0}] ON [dbo].[V_HMeasure{0}]
+        (
+	        [UpdateTime] ASC,
 	        [DeviceId] ASC,
 	        [PointId] ASC
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]";
@@ -361,6 +354,14 @@ namespace iPem.Data.Common {
         public const string Sql_V_AMeasure_Repository_GetEntity = @"SELECT * FROM [dbo].[V_AMeasure] WHERE [DeviceId]=@DeviceId AND [PointId]=@PointId;";
         public const string Sql_V_AMeasure_Repository_GetEntities = @"SELECT * FROM [dbo].[V_AMeasure];";
         public const string Sql_V_AMeasure_Repository_GetEntitiesInDevice = @"SELECT * FROM [dbo].[V_AMeasure] WHERE [DeviceId]=@DeviceId;";
+        public const string Sql_V_AMeasure_Repository_Save = @"
+        UPDATE [dbo].[V_AMeasure] SET [Status]=@Status,[Value]=@Value,[UpdateTime]=@UpdateTime WHERE [FsuId] = @FsuId AND [DeviceId]=@DeviceId AND [PointId]=@PointId;
+        IF(@@ROWCOUNT = 0)
+        BEGIN
+	        INSERT INTO [dbo].[V_AMeasure]([GroupId],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[Code],[PointId],[SignalId],[SignalNumber],[SignalDesc],[Status],[Value],[UpdateTime]) 
+	        VALUES('-1',@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@DeviceId,@PointId,'virtual','000',@SignalDesc,@Status,@Value,@UpdateTime);
+        END";
+
 
         /// <summary>
         /// 电池数据表
@@ -435,7 +436,109 @@ namespace iPem.Data.Common {
         END
 
         EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_Bat_Repository_GetProcedures = @"
+        public const string Sql_V_Bat_Repository_GetProcDetails = @"
+        DECLARE @tpDate DATETIME, 
+                @tbName NVARCHAR(255),
+                @tableCnt INT = 0,
+                @SQL NVARCHAR(MAX) = N'';
+
+        SET @tpDate = @Start;
+        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
+        BEGIN
+            SET @tbName = N'[dbo].[V_Bat'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
+            BEGIN
+                IF(@tableCnt>0)
+                BEGIN
+                SET @SQL += N' 
+                UNION ALL 
+                ';
+                END
+        		
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [StartTime] = ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PackId]='+ CAST(@PackId AS NVARCHAR) + N' AND [Type]='+CAST(@Type AS NVARCHAR);
+                SET @tableCnt += 1;
+            END
+            SET @tpDate = DATEADD(MM,1,@tpDate);
+        END
+
+        IF(@tableCnt>0)
+        BEGIN
+	        SET @SQL = N';WITH V AS
+	        (
+		        ' + @SQL + N'
+	        )
+	        SELECT * FROM V ORDER BY [PointId],[ValueTime];'
+        END
+
+        EXECUTE sp_executesql @SQL;";
+        public const string Sql_V_Bat_Repository_Save = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Bat{0}') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [dbo].[V_Bat{0}](
+	            [AreaId] [varchar](100) NOT NULL,
+	            [StationId] [varchar](100) NOT NULL,
+	            [RoomId] [varchar](100) NOT NULL,
+	            [DeviceId] [varchar](100) NOT NULL,
+	            [PointId] [varchar](100) NOT NULL,
+	            [PackId] [int] NOT NULL,
+	            [Type] [int] NOT NULL,
+	            [StartTime] [datetime] NOT NULL,
+	            [Value] [float] NOT NULL,
+	            [ValueTime] [datetime] NOT NULL
+            ) ON [PRIMARY]
+        END
+        INSERT INTO [dbo].[V_Bat{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[Type],[StartTime],[Value],[ValueTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@Type,@StartTime,@Value,@ValueTime);";
+        public const string Sql_V_Bat_Repository_DeleteEntities = @"
+        DECLARE @tpDate DATETIME, 
+                @tbName NVARCHAR(255),
+                @SQL NVARCHAR(MAX) = N'';
+
+        SET @tpDate = @Start;
+        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
+        BEGIN
+            SET @tbName = N'[dbo].[V_Bat'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
+            BEGIN
+                SET @SQL += N'
+                DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';'; 
+            END
+            SET @tpDate = DATEADD(MM,1,@tpDate);
+        END
+
+        EXECUTE sp_executesql @SQL;";
+
+        /// <summary>
+        /// 列头柜数据表
+        /// </summary>
+        public const string Sql_V_ACabinet_Repository_Save = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_ACabinet{0}') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [dbo].[V_ACabinet{0}](
+	            [DeviceId] [varchar](100) NOT NULL,
+	            [PointId] [varchar](100) NOT NULL,
+	            [Category] [int] NOT NULL,
+	            [Value] [float] NOT NULL,
+	            [ValueTime] [datetime] NOT NULL,
+	            [AValue] [float] NULL,
+	            [AValueTime] [datetime] NULL,
+	            [BValue] [float] NULL,
+	            [BValueTime] [datetime] NULL,
+	            [CValue] [float] NULL,
+	            [CValueTime] [datetime] NULL
+            ) ON [PRIMARY]
+        END
+        UPDATE [dbo].[V_ACabinet{0}] SET [Category] = @Category,[Value] = @Value,[AValue] = @AValue,[AValueTime] = @AValueTime,[BValue] = @BValue,[BValueTime] = @BValueTime,[CValue] = @CValue,[CValueTime] = @CValueTime WHERE [ValueTime] = @ValueTime AND [DeviceId] = @DeviceId AND [PointId] = @PointId;
+        IF(@@ROWCOUNT = 0)
+        BEGIN
+	        INSERT INTO [dbo].[V_ACabinet{0}]([DeviceId],[PointId],[Category],[Value],[ValueTime],[AValue],[AValueTime],[BValue],[BValueTime],[CValue],[CValueTime])
+	        VALUES(@DeviceId,@PointId,@Category,@Value,@ValueTime,@AValue,@AValueTime,@BValue,@BValueTime,@CValue,@CValueTime);
+        END";
+        
+
+        /// <summary>
+        /// 电池充放电过程表
+        /// </summary>
+        public const string Sql_V_BatTime_Repository_GetProcedures = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
                 @tableCnt INT = 0,
@@ -465,15 +568,12 @@ namespace iPem.Data.Common {
 	        SET @SQL = N';WITH V AS
 	        (
 		        ' + @SQL + N'
-	        ),G AS 
-	        (
-		        SELECT *, ROW_NUMBER() OVER(PARTITION BY [StartTime],[DeviceId],[PointId] ORDER BY [ValueTime]) AS GINDEX FROM V
 	        )
-	        SELECT [AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[Type],[StartTime],[Value],[ValueTime] FROM G WHERE GINDEX=1;'
+	        SELECT [DeviceId],[PackId],[Type],[StartTime] FROM V GROUP BY [StartTime],[PackId],[Type],[DeviceId];'
         END
 
         EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_Bat_Repository_GetProcDetails = @"
+        public const string Sql_V_BatTime_Repository_GetPreProcedure = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
                 @tableCnt INT = 0,
@@ -491,8 +591,8 @@ namespace iPem.Data.Common {
                 UNION ALL 
                 ';
                 END
-        		
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [StartTime] = ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]='''+ @PointId + N'''';
+        			
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [ValueTime] >= ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [ValueTime] < ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId]= '''+@DeviceId+''' AND [PackId]='+CAST(@PackId AS NVARCHAR);
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -504,189 +604,7 @@ namespace iPem.Data.Common {
 	        (
 		        ' + @SQL + N'
 	        )
-	        SELECT * FROM V ORDER BY [ValueTime];'
-        END
-
-        EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_Bat_Repository_GetFirst = @"
-        DECLARE @tpDate DATETIME, 
-		        @tbName NVARCHAR(255),
-		        @tableCnt INT = 0,
-		        @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-        SET @tbName = N'[dbo].[V_Bat'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-        IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-        BEGIN
-	        IF(@tableCnt>0)
-	        BEGIN
-	        SET @SQL += N' 
-	        UNION ALL 
-	        ';
-	        END
-        			
-	        SET @SQL += N'SELECT TOP 1 * FROM ' + @tbName + N' WHERE [ValueTime] > ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [ValueTime] <= ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]='''+ @PointId + N''' ORDER BY [ValueTime]';
-	        SET @tableCnt += 1;
-        END
-        SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        IF(@tableCnt>0)
-        BEGIN
-        SET @SQL = N';WITH V AS
-        (
-	        ' + @SQL + N'
-        )
-        SELECT TOP 1 * FROM V ORDER BY [ValueTime];'
-        END
-
-        EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_Bat_Repository_GetLast = @"
-        DECLARE @tpDate DATETIME, 
-		        @tbName NVARCHAR(255),
-		        @tableCnt INT = 0,
-		        @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-        SET @tbName = N'[dbo].[V_Bat'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-        IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-        BEGIN
-	        IF(@tableCnt>0)
-	        BEGIN
-	        SET @SQL += N' 
-	        UNION ALL 
-	        ';
-	        END
-        			
-	        SET @SQL += N'SELECT TOP 1 * FROM ' + @tbName + N' WHERE [ValueTime] >= ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [ValueTime] < ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]='''+ @PointId + N''' ORDER BY [ValueTime] DESC';
-	        SET @tableCnt += 1;
-        END
-        SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        IF(@tableCnt>0)
-        BEGIN
-        SET @SQL = N';WITH V AS
-        (
-	        ' + @SQL + N'
-        )
-        SELECT TOP 1 * FROM V ORDER BY [ValueTime] DESC;'
-        END
-
-        EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_Bat_Repository_SaveEntities = @"
-        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Bat{0}') AND type in (N'U'))
-        BEGIN
-            CREATE TABLE [dbo].[V_Bat{0}](
-	            [AreaId] [varchar](100) NOT NULL,
-	            [StationId] [varchar](100) NOT NULL,
-	            [RoomId] [varchar](100) NOT NULL,
-	            [DeviceId] [varchar](100) NOT NULL,
-	            [PointId] [varchar](100) NOT NULL,
-	            [PackId] [int] NOT NULL,
-	            [Type] [int] NOT NULL,
-	            [StartTime] [datetime] NOT NULL,
-	            [Value] [float] NOT NULL,
-	            [ValueTime] [datetime] NOT NULL
-            ) ON [PRIMARY]
-        END
-        INSERT INTO [dbo].[V_Bat{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[Type],[StartTime],[Value],[ValueTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@Type,@StartTime,@Value,@ValueTime);";
-        public const string Sql_V_Bat_Repository_DeleteEntities = @"
-        DECLARE @tpDate DATETIME, 
-                @tbName NVARCHAR(255),
-                @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-            SET @tbName = N'[dbo].[V_Bat'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-            BEGIN
-                SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [StartTime] = ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''';';
-            END
-            SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        EXECUTE sp_executesql @SQL;";
-
-        /// <summary>
-        /// 电池充放电过程表
-        /// </summary>
-        public const string Sql_V_BatTime_Repository_GetProcedures = @"
-        DECLARE @tpDate DATETIME, 
-                @tbName NVARCHAR(255),
-                @tableCnt INT = 0,
-                @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-            SET @tbName = N'[dbo].[V_BatTime'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-            BEGIN
-                IF(@tableCnt>0)
-                BEGIN
-                SET @SQL += N' 
-                UNION ALL 
-                ';
-                END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [EndTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N'''';
-                SET @tableCnt += 1;
-            END
-            SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        IF(@tableCnt>0)
-        BEGIN
-	        SET @SQL = N';WITH V AS
-	        (
-		        ' + @SQL + N'
-	        ),G AS 
-	        (
-		        SELECT *, ROW_NUMBER() OVER(PARTITION BY [ProcTime],[DeviceId],[PointId] ORDER BY [StartTime]) AS GINDEX FROM V
-	        )
-	        SELECT [AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[Type],[StartTime],[EndTime],[StartValue],[EndValue],[ProcTime] FROM G WHERE GINDEX=1;'
-        END
-
-        EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_BatTime_Repository_GetProcDetails = @"
-        DECLARE @tpDate DATETIME, 
-                @tbName NVARCHAR(255),
-                @tableCnt INT = 0,
-                @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-            SET @tbName = N'[dbo].[V_BatTime'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-            BEGIN
-                IF(@tableCnt>0)
-                BEGIN
-                SET @SQL += N' 
-                UNION ALL 
-                ';
-                END
-        		
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [ProcTime] = ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]='''+ @PointId + N'''';
-                SET @tableCnt += 1;
-            END
-            SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        IF(@tableCnt>0)
-        BEGIN
-	        SET @SQL = N';WITH V AS
-	        (
-		        ' + @SQL + N'
-	        )
-	        SELECT * FROM V ORDER BY [StartTime];'
+	        SELECT TOP 1 [DeviceId],[PackId],[Type],[StartTime],[ValueTime] AS [EndTime] FROM V ORDER BY [ValueTime] DESC;'
         END
 
         EXECUTE sp_executesql @SQL;";
@@ -698,18 +616,15 @@ namespace iPem.Data.Common {
 	            [StationId] [varchar](100) NOT NULL,
 	            [RoomId] [varchar](100) NOT NULL,
 	            [DeviceId] [varchar](100) NOT NULL,
-	            [PointId] [varchar](100) NOT NULL,
 	            [PackId] [int] NOT NULL,
 	            [Type] [int] NOT NULL,
 	            [StartTime] [datetime] NOT NULL,
 	            [EndTime] [datetime] NOT NULL,
-	            [StartValue] [float] NOT NULL,
-	            [EndValue] [float] NOT NULL,
 	            [ProcTime] [datetime] NOT NULL
             ) ON [PRIMARY]
         END
-        DELETE FROM [dbo].[V_BatTime{0}] WHERE [StartTime] = @StartTime AND [DeviceId] = @DeviceId AND [PointId] = @PointId;
-        INSERT INTO [dbo].[V_BatTime{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[Type],[StartTime],[EndTime],[StartValue],[EndValue],[ProcTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@Type,@StartTime,@EndTime,@StartValue,@EndValue,@ProcTime);";
+        DELETE FROM [dbo].[V_BatTime{0}] WHERE [StartTime] = @StartTime AND [DeviceId] = @DeviceId AND [PackId] = @PackId AND [Type]=@Type;
+        INSERT INTO [dbo].[V_BatTime{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PackId],[Type],[StartTime],[EndTime],[ProcTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PackId,@Type,@StartTime,@EndTime,@ProcTime);";
         public const string Sql_V_BatTime_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
@@ -736,20 +651,21 @@ namespace iPem.Data.Common {
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_BatCurve{0}') AND type in (N'U'))
         BEGIN
             CREATE TABLE [dbo].[V_BatCurve{0}](
-		        [AreaId] [varchar](100) NOT NULL,
-		        [StationId] [varchar](100) NOT NULL,
-		        [RoomId] [varchar](100) NOT NULL,
-		        [DeviceId] [varchar](100) NOT NULL,
-		        [PointId] [varchar](100) NOT NULL,
-		        [PackId] [int] NOT NULL,
-		        [Type] [int] NOT NULL,
-		        [StartTime] [datetime] NOT NULL,
-		        [Value] [float] NOT NULL,
-		        [ValueTime] [datetime] NOT NULL,
-		        [ProcTime] [datetime] NOT NULL
-	        ) ON [PRIMARY]
+	            [AreaId] [varchar](100) NOT NULL,
+	            [StationId] [varchar](100) NOT NULL,
+	            [RoomId] [varchar](100) NOT NULL,
+	            [DeviceId] [varchar](100) NOT NULL,
+	            [PointId] [varchar](100) NOT NULL,
+	            [PackId] [int] NOT NULL,
+	            [Type] [int] NOT NULL,
+	            [PType] [int] NOT NULL,
+	            [StartTime] [datetime] NOT NULL,
+	            [Value] [float] NOT NULL,
+	            [ValueTime] [datetime] NOT NULL,
+	            [ProcTime] [datetime] NOT NULL
+            ) ON [PRIMARY]
         END
-        INSERT INTO [dbo].[V_BatCurve{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[Type],[StartTime],[Value],[ValueTime],[ProcTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@Type,@StartTime,@Value,@ValueTime,@ProcTime);";
+        INSERT INTO [dbo].[V_BatCurve{0}]([AreaId],[StationId],[RoomId],[DeviceId],[PointId],[PackId],[Type],[PType],[StartTime],[Value],[ValueTime],[ProcTime]) VALUES(@AreaId,@StationId,@RoomId,@DeviceId,@PointId,@PackId,@Type,@PType,@StartTime,@Value,@ValueTime,@ProcTime);";
         public const string Sql_V_BatCurve_Repository_DeleteEntities = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
@@ -762,7 +678,7 @@ namespace iPem.Data.Common {
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 SET @SQL += N'
-		        DELETE FROM ' + @tbName + N' WHERE [ProcTime] = ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND [DeviceId]=''' + @DeviceId + N''' AND [PointId]=''' + @PointId + N''';';                
+                DELETE FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''';'; 
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
         END
@@ -770,9 +686,11 @@ namespace iPem.Data.Common {
         EXECUTE sp_executesql @SQL;";
 
         /// <summary>
-        /// 站点停电历史表
+        /// 停电\发电数据表
         /// </summary>
-        public const string Sql_V_Cuted_Repository_GetEntities = @"
+        public const string Sql_V_Offline_Repository_GetActive1 = @"SELECT [Id],[Type],[FormulaType],[StartTime],[EndTime],[Value] FROM [dbo].[V_Offline];";
+        public const string Sql_V_Offline_Repository_GetActive2 = @"SELECT [Id],[Type],[FormulaType],[StartTime],[EndTime],[Value] FROM [dbo].[V_Offline] WHERE [FormulaType]=@FormulaType;";
+        public const string Sql_V_Offline_Repository_GetHistory1 = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
                 @tableCnt INT = 0,
@@ -781,7 +699,7 @@ namespace iPem.Data.Common {
         SET @tpDate = @Start;
         WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
         BEGIN
-            SET @tbName = N'[dbo].[V_Cuted'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            SET @tbName = N'[dbo].[V_Offline'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 IF(@tableCnt>0)
@@ -799,15 +717,15 @@ namespace iPem.Data.Common {
 
         IF(@tableCnt>0)
         BEGIN
-	        SET @SQL = N';WITH Values AS
+	        SET @SQL = N';WITH Result AS
 		    (
 			    ' + @SQL + N'
 		    )
-		    SELECT * FROM Values ORDER BY [StartTime];'
+		    SELECT * FROM Result ORDER BY [StartTime],[FormulaType],[Type],[Id];'
         END
 
         EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_Cuted_Repository_GetEntitiesInType = @"
+        public const string Sql_V_Offline_Repository_GetHistory2 = @"
         DECLARE @tpDate DATETIME,
                 @tbName NVARCHAR(255),
                 @tableCnt INT = 0,
@@ -816,7 +734,7 @@ namespace iPem.Data.Common {
         SET @tpDate = @Start;
         WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
         BEGIN
-            SET @tbName = N'[dbo].[V_Cuted'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
+            SET @tbName = N'[dbo].[V_Offline'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
             IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
             BEGIN
                 IF(@tableCnt>0)
@@ -825,8 +743,8 @@ namespace iPem.Data.Common {
                 UNION ALL 
                 ';
                 END
-        			
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [Type] = ' + CAST(@Type AS NVARCHAR);
+        		
+                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [StartTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [FormulaType] = '+ CAST(@FormulaType AS NVARCHAR);
                 SET @tableCnt += 1;
             END
             SET @tpDate = DATEADD(MM,1,@tpDate);
@@ -834,72 +752,65 @@ namespace iPem.Data.Common {
 
         IF(@tableCnt>0)
         BEGIN
-	        SET @SQL = N';WITH C AS
-	        (
-		        ' + @SQL + N'
-	        )
-	        SELECT * FROM C ORDER BY [StartTime];'
+	        SET @SQL = N';WITH Result AS
+		    (
+			    ' + @SQL + N'
+		    )
+		    SELECT * FROM Result ORDER BY [StartTime],[Type],[Id];'
         END
 
         EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_Cuted_Repository_SaveEntities = @"
-        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Cuted{0}') AND type in (N'U'))
+        public const string Sql_V_Offline_Repository_SaveHistory = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Offline{0}') AND type in (N'U'))
         BEGIN
-            CREATE TABLE [dbo].[V_Cuted{0}](
-	            [Id] [varchar](200) NOT NULL,
+	        CREATE TABLE [dbo].[V_Offline{0}](
+	            [Id] [varchar](100) NOT NULL,
 	            [Type] [int] NOT NULL,
-	            [AreaId] [varchar](100) NOT NULL,
-	            [StationId] [varchar](100) NOT NULL,
-	            [RoomId] [varchar](100) NOT NULL,
-	            [FsuId] [varchar](100) NOT NULL,
-	            [DeviceId] [varchar](100) NOT NULL,
-	            [PointId] [varchar](100) NOT NULL,
+	            [FormulaType] [int] NOT NULL,
 	            [StartTime] [datetime] NOT NULL,
 	            [EndTime] [datetime] NOT NULL,
-             CONSTRAINT [PK_V_Cuted{0}] PRIMARY KEY CLUSTERED 
-            (
-	            [Id] ASC,
-	            [Type] ASC
-            )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+                [Value] [float] NOT NULL
             ) ON [PRIMARY]
         END
-        DELETE FROM [dbo].[V_Cutting] WHERE [Id]=@Id AND [Type]=@Type;
-        DELETE FROM [dbo].[V_Cuted{0}] WHERE [Id]=@Id AND [Type]=@Type;
-        INSERT INTO [dbo].[V_Cuted{0}]([Id],[Type],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[StartTime],[EndTime]) VALUES(@Id,@Type,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,,@StartTime,@EndTime);";
-
-        /// <summary>
-        /// 站点停电实时表
-        /// </summary>
-        public const string Sql_V_Cutting_Repository_GetEntity = @"SELECT * FROM [dbo].[V_Cutting] WHERE [Id]=@Id AND [Type]=@Type;";
-        public const string Sql_V_Cutting_Repository_GetEntities = @"SELECT * FROM [dbo].[V_Cutting];";
-        public const string Sql_V_Cutting_Repository_SaveEntities = @"
-        DELETE FROM [dbo].[V_Cutting] WHERE [Id]=@Id AND [Type]=@Type;
-        INSERT INTO [dbo].[V_Cutting]([Id],[Type],[AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[StartTime]) VALUES(@Id,@Type,@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,,@StartTime);";
+        DELETE FROM [dbo].[V_Offline] WHERE [Id]=@Id AND [Type]=@Type AND [FormulaType]=@FormulaType;
+        INSERT INTO [dbo].[V_Offline{0}]([Id],[Type],[FormulaType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@StartTime,@EndTime,@Value);";
+        public const string Sql_V_Offline_Repository_UpdateHistory = @"
+        IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Offline{0}') AND type in (N'U'))
+        BEGIN
+	        UPDATE [dbo].[V_Offline{0}] SET [Value]=@Value WHERE [Id]=@Id AND [Type]=@Type AND [FormulaType]=@FormulaType AND [StartTime]=@StartTime;
+        END";
+        public const string Sql_V_Offline_Repository_SaveActive = @"
+        UPDATE [dbo].[V_Offline] SET [StartTime]=@StartTime,[EndTime]=@EndTime,[Value]=@Value WHERE [Id]=@Id AND [Type]=@Type AND [FormulaType]=@FormulaType;
+        IF(@@ROWCOUNT = 0)
+        BEGIN
+            INSERT INTO [dbo].[V_Offline]([Id],[Type],[FormulaType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@StartTime,@EndTime,@Value);
+        END";
+        public const string Sql_V_Offline_Repository_UpdateActive = @"
+        UPDATE [dbo].[V_Offline] SET [Value]=@Value WHERE [Id]=@Id AND [Type]=@Type AND [FormulaType]=@FormulaType;";
 
         /// <summary>
         /// 能耗统计表
         /// </summary>
-        public const string Sql_V_Elec_Repository_SaveActiveEntities = @"
-        UPDATE [dbo].[V_Elec] SET [ComputeType] = @ComputeType,[StartTime] = @StartTime,[EndTime] = @EndTime,[Value] = @Value WHERE [Id] = @Id AND [Type] = @Type AND [FormulaType] = @FormulaType;
+        public const string Sql_V_Elec_Repository_SaveActive = @"
+        UPDATE [dbo].[V_Elec] SET [StartTime] = @StartTime,[EndTime] = @EndTime,[Value] = @Value WHERE [Id] = @Id AND [Type] = @Type AND [FormulaType] = @FormulaType;
         IF(@@ROWCOUNT = 0)
         BEGIN
-          INSERT INTO [dbo].[V_Elec]([Id],[Type],[FormulaType],[ComputeType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@ComputeType,@StartTime,@EndTime,@Value);	
+          INSERT INTO [dbo].[V_Elec]([Id],[Type],[FormulaType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@StartTime,@EndTime,@Value);	
         END";
-        public const string Sql_V_Elec_Repository_SaveEntities = @"
+        public const string Sql_V_Elec_Repository_SaveHistory = @"
         IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_Elec{0}') AND type in (N'U'))
         BEGIN
             CREATE TABLE [dbo].[V_Elec{0}](
 	            [Id] [varchar](100) NOT NULL,
 	            [Type] [int] NOT NULL,
 	            [FormulaType] [int] NOT NULL,
-	            [ComputeType] [int] NOT NULL,
 	            [StartTime] [datetime] NOT NULL,
 	            [EndTime] [datetime] NOT NULL,
 	            [Value] [float] NOT NULL
             ) ON [PRIMARY]
         END
-        INSERT INTO [dbo].[V_Elec{0}]([Id],[Type],[FormulaType],[ComputeType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@ComputeType,@StartTime,@EndTime,@Value);";
-        public const string Sql_V_Elec_Repository_DeleteEntities = @"
+        INSERT INTO [dbo].[V_Elec{0}]([Id],[Type],[FormulaType],[StartTime],[EndTime],[Value]) VALUES(@Id,@Type,@FormulaType,@StartTime,@EndTime,@Value);";
+        public const string Sql_V_Elec_Repository_DeleteHistory = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
                 @SQL NVARCHAR(MAX) = N'';
@@ -1173,41 +1084,6 @@ namespace iPem.Data.Common {
         END
 
         EXECUTE sp_executesql @SQL;";
-        public const string Sql_V_HMeasure_Repository_GetValDiff = @"
-        DECLARE @tpDate DATETIME, 
-                @tbName NVARCHAR(255),
-                @tableCnt INT = 0,
-                @SQL NVARCHAR(MAX) = N'';
-
-        SET @tpDate = @Start;
-        WHILE(DATEDIFF(MM,@tpDate,@End)>=0)
-        BEGIN
-            SET @tbName = N'[dbo].[V_HMeasure'+CONVERT(VARCHAR(6),@tpDate,112)+ N']';
-            IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(@tbName) AND type in (N'U'))
-            BEGIN
-                IF(@tableCnt>0)
-                BEGIN
-                SET @SQL += N' 
-                UNION ALL 
-                ';
-                END
-
-                SET @SQL += N'SELECT * FROM ' + @tbName + N' WHERE [UpdateTime] BETWEEN ''' + CONVERT(NVARCHAR,@Start,120) + N''' AND ''' + CONVERT(NVARCHAR,@End,120) + N''' AND [DeviceId] = ''' + @DeviceId + N''' AND [PointId] = ''' + @PointId + N'''';        		        		        		
-                SET @tableCnt += 1;
-            END
-            SET @tpDate = DATEADD(MM,1,@tpDate);
-        END
-
-        IF(@tableCnt>0)
-        BEGIN
-	        SET @SQL = N';WITH HisValue AS
-		        (
-			        ' + @SQL + N'
-		        )
-		        SELECT ROUND(ISNULL(MAX([Value]),0),3) AS [MaxValue], ROUND(ISNULL(MIN([Value]),0),3) AS [MinValue] FROM HisValue;'
-        END
-
-        EXECUTE sp_executesql @SQL;";
         public const string Sql_V_HMeasure_Repository_GetValAvg = @"
         DECLARE @tpDate DATETIME, 
                 @tbName NVARCHAR(255),
@@ -1239,10 +1115,31 @@ namespace iPem.Data.Common {
 		        (
 			        ' + @SQL + N'
 		        )
-		        SELECT ROUND(ISNULL(AVG([Value]),0),3) AS [AvgValue] FROM HisValue;'
+		        SELECT ROUND(AVG([AlarmValue]),3) AS [AvgValue] FROM HisValue;'
         END
 
         EXECUTE sp_executesql @SQL;";
+        public const string Sql_V_HMeasure_Repository_Save = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'V_HMeasure{0}') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [dbo].[V_HMeasure{0}](
+		        [AreaID] [varchar](100) NULL,
+		        [StationID] [varchar](100) NULL,
+		        [RoomID] [varchar](100) NULL,
+		        [FsuID] [varchar](100) NULL,
+		        [OrderNumber] [varchar](20) NULL,
+		        [UpdateTime] [datetime] NULL,
+		        [DeviceID] [varchar](100) NULL,
+		        [PointID] [varchar](100) NULL,
+		        [SignalID] [varchar](100) NULL,
+		        [SignalNumber] [varchar](10) NULL,
+		        [SignalDesc] [varchar](120) NULL,
+		        [Type] [int] NULL,
+		        [Value] [float] NULL
+	        ) ON [PRIMARY]
+        END
+        INSERT INTO [dbo].[V_HMeasure{0}]([AreaId],[StationId],[RoomId],[FsuId],[DeviceId],[PointId],[SignalId],[SignalNumber],[SignalDesc],[Type],[Value],[UpdateTime]) 
+        VALUES(@AreaId,@StationId,@RoomId,@FsuId,@DeviceId,@PointId,'virtual','000',@SignalDesc,@Type,@Value,@UpdateTime);";
 
         /// <summary>
         /// 参数巡检表

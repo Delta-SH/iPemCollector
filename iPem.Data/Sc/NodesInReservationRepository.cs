@@ -35,7 +35,7 @@ namespace iPem.Data {
                     var entity = new NodesInReservation();
                     entity.ReservationId = SqlTypeConverter.DBNullStringHandler(rdr["ReservationId"]);
                     entity.NodeId = SqlTypeConverter.DBNullStringHandler(rdr["NodeId"]);
-                    entity.NodeType = SqlTypeConverter.DBNullEnmOrganizationHandler(rdr["NodeType"]);
+                    entity.NodeType = SqlTypeConverter.DBNullEnmSSHHandler(rdr["NodeType"]);
                     entities.Add(entity);
                 }
             }
@@ -52,7 +52,7 @@ namespace iPem.Data {
                     var entity = new NodesInReservation();
                     entity.ReservationId = SqlTypeConverter.DBNullStringHandler(rdr["ReservationId"]);
                     entity.NodeId = SqlTypeConverter.DBNullStringHandler(rdr["NodeId"]);
-                    entity.NodeType = SqlTypeConverter.DBNullEnmOrganizationHandler(rdr["NodeType"]);
+                    entity.NodeType = SqlTypeConverter.DBNullEnmSSHHandler(rdr["NodeType"]);
                     entities.Add(entity);
                 }
             }
@@ -69,7 +69,7 @@ namespace iPem.Data {
                     var entity = new NodesInReservation();
                     entity.ReservationId = SqlTypeConverter.DBNullStringHandler(rdr["ReservationId"]);
                     entity.NodeId = SqlTypeConverter.DBNullStringHandler(rdr["NodeId"]);
-                    entity.NodeType = SqlTypeConverter.DBNullEnmOrganizationHandler(rdr["NodeType"]);
+                    entity.NodeType = SqlTypeConverter.DBNullEnmSSHHandler(rdr["NodeType"]);
                     entities.Add(entity);
                 }
             }
@@ -86,7 +86,7 @@ namespace iPem.Data {
                         var entity = new NodesInReservation();
                         entity.ReservationId = SqlTypeConverter.DBNullStringHandler(rdr["ReservationId"]);
                         entity.NodeId = SqlTypeConverter.DBNullStringHandler(rdr["NodeId"]);
-                        entity.NodeType = SqlTypeConverter.DBNullEnmOrganizationHandler(rdr["NodeType"]);
+                        entity.NodeType = SqlTypeConverter.DBNullEnmSSHHandler(rdr["NodeType"]);
                         entities.Add(entity);
                     }
                 }

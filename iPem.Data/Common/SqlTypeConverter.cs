@@ -219,10 +219,10 @@ namespace iPem.Data.Common {
         }
 
         /// <summary>
-        /// DBNull Organisation Handler
+        /// DBNull SSH Handler
         /// </summary>
         /// <param name="val">val</param>
-        public static EnmSSH DBNullEnmOrganizationHandler(object val) {
+        public static EnmSSH DBNullEnmSSHHandler(object val) {
             if (val == DBNull.Value) { return EnmSSH.Root; }
 
             var v = (Int32)val;
@@ -256,10 +256,10 @@ namespace iPem.Data.Common {
         /// </summary>
         /// <param name="val">val</param>
         public static EnmCompute DBNullEnmComputeHandler(object val) {
-            if (val == DBNull.Value) { return EnmCompute.Diff; }
+            if (val == DBNull.Value) { return EnmCompute.Kwh; }
 
             var v = (Int32)val;
-            return Enum.IsDefined(typeof(EnmCompute), v) ? (EnmCompute)v : EnmCompute.Diff;
+            return Enum.IsDefined(typeof(EnmCompute), v) ? (EnmCompute)v : EnmCompute.Kwh;
         }
 
         /// <summary>
@@ -287,13 +287,6 @@ namespace iPem.Data.Common {
             return Enum.IsDefined(typeof(ParamId), v) ? (ParamId)v : ParamId.Null;
         }
 
-        public static EnmCutType DBNullEnmCutTypeHandler(object val) {
-            if (val == DBNull.Value) { return EnmCutType.Cut; }
-
-            var v = (Int32)val;
-            return Enum.IsDefined(typeof(EnmCutType), v) ? (EnmCutType)v : EnmCutType.Cut;
-        }
-
         public static EnmMaskType DBNullEnmMaskTypeHandler(object val) {
             if (val == DBNull.Value) { return EnmMaskType.Area; }
 
@@ -301,11 +294,18 @@ namespace iPem.Data.Common {
             return Enum.IsDefined(typeof(EnmMaskType), v) ? (EnmMaskType)v : EnmMaskType.Area;
         }
 
-        public static EnmBatStatus DBNullBatStatusHandler(object val) {
-            if (val == DBNull.Value) { return EnmBatStatus.Charge; }
+        public static EnmBatType DBNullBatTypeHandler(object val) {
+            if (val == DBNull.Value) { return EnmBatType.Charge; }
 
             var v = (Int32)val;
-            return Enum.IsDefined(typeof(EnmBatStatus), v) ? (EnmBatStatus)v : EnmBatStatus.Charge;
+            return Enum.IsDefined(typeof(EnmBatType), v) ? (EnmBatType)v : EnmBatType.Charge;
+        }
+
+        public static EnmBatPoint DBNullBatPointHandler(object val) {
+            if (val == DBNull.Value) { return EnmBatPoint.DCZDY; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(EnmBatPoint), v) ? (EnmBatPoint)v : EnmBatPoint.DCZDY;
         }
 
         public static EnmResult DBNullResultHandler(object val) {
@@ -313,6 +313,13 @@ namespace iPem.Data.Common {
 
             var v = (Int32)val;
             return Enum.IsDefined(typeof(EnmResult), v) ? (EnmResult)v : EnmResult.Undefine;
+        }
+
+        public static EnmVSignalCategory DBNullVSignalCategoryHandler(object val) {
+            if (val == DBNull.Value) { return EnmVSignalCategory.Category01; }
+
+            var v = (Int32)val;
+            return Enum.IsDefined(typeof(EnmVSignalCategory), v) ? (EnmVSignalCategory)v : EnmVSignalCategory.Category01;
         }
 
         public static String CreateConnectionString(DbEntity database) {

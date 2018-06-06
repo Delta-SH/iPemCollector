@@ -12,11 +12,6 @@ namespace iPem.Core {
         public string Id { get; set; }
 
         /// <summary>
-        /// 外部编码
-        /// </summary>
-        public string Code { get; set; }
-
-        /// <summary>
         /// 设备名称
         /// </summary>
         public string Name { get; set; }
@@ -30,11 +25,6 @@ namespace iPem.Core {
         /// 设备子类型
         /// </summary>
         public SubDeviceType SubType { get; set; }
-
-        /// <summary>
-        /// 逻辑子类
-        /// </summary>
-        public SubLogicType SubLogicType { get; set; }
 
         /// <summary>
         /// 所属区域
@@ -77,18 +67,8 @@ namespace iPem.Core {
         public string FsuId { get; set; }
 
         /// <summary>
-        /// 所属FSU外部编码
-        /// </summary>
-        public string FsuCode { get; set; }
-
-        /// <summary>
         /// 备注
         /// </summary>
         public string Comment { get; set; }
-
-        /// <summary>
-        /// 状态
-        /// </summary>
-        public bool Enabled { get; set; }
     }
 }

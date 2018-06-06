@@ -46,10 +46,10 @@
     <Compile Include="Cs\A_MAlarm.cs" />
     <Compile Include="Cs\A_SAlarm.cs" />
     <Compile Include="Cs\H_IArea.cs" />
+    <Compile Include="Cs\V_ACabinet.cs" />
     <Compile Include="Cs\V_AMeasure.cs" />
     <Compile Include="Cs\V_BatCurve.cs" />
-    <Compile Include="Cs\V_Cuted.cs" />
-    <Compile Include="Cs\V_Cutting.cs" />
+    <Compile Include="Cs\V_Offline.cs" />
     <Compile Include="Cs\V_ParamDiff.cs" />
     <Compile Include="AlarmEnd.cs" />
     <Compile Include="Rs\ExtFsu.cs" />
@@ -78,7 +78,6 @@
     <Compile Include="Rs\DeviceType.cs" />
     <Compile Include="Rs\DivSwitElecSour.cs" />
     <Compile Include="Rs\EnumMethods.cs" />
-    <Compile Include="Rs\Fsu.cs" />
     <Compile Include="Rs\LogicType.cs" />
     <Compile Include="Rs\Point.cs" />
     <Compile Include="Rs\Signal.cs" />
@@ -88,6 +87,7 @@
     <Compile Include="Rs\StationType.cs" />
     <Compile Include="Rs\SubDeviceType.cs" />
     <Compile Include="Rs\SubLogicType.cs" />
+    <Compile Include="Rs\VSignal.cs" />
     <Compile Include="Sc\Reservation.cs" />
     <Compile Include="Sc\Dictionary.cs" />
     <Compile Include="Sc\Formula.cs" />

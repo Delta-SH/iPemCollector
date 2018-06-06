@@ -5,12 +5,8 @@ namespace iPem.Configurator {
         Null,
         Restart,
         Reload,
-        SyncConfig,
-        SyncAlarm,
-        SyncReservation,
-        SyncFormula,
-        SyncMasking,
-        SyncFsu,
+        SyncBase,
+        SyncData,
         ExTask001,
         ExTask002,
         ExTask003,
@@ -39,9 +35,21 @@ namespace iPem.Configurator {
         /// </summary>
         GZZT,
         /// <summary>
-        /// 电池充放电信号
+        /// 电池总电压信号
         /// </summary>
-        DCFD,
+        DCZDY,
+        /// <summary>
+        /// 电池总电流信号
+        /// </summary>
+        DCZDL,
+        /// <summary>
+        /// 电池电压信号
+        /// </summary>
+        DCDY,
+        /// <summary>
+        /// 电池温度信号
+        /// </summary>
+        DCWD,
         /// <summary>
         /// 实时能耗统计周期
         /// </summary>
@@ -61,10 +69,15 @@ namespace iPem.Configurator {
         /// <summary>
         /// 语音告警功能
         /// </summary>
-        YYGJ
+        YYGJ,
+        /// <summary>
+        /// 虚拟信号处理频率
+        /// </summary>
+        XXPL
     }
 
     public enum PeriodType {
+        Hour,
         Day,
         Month
     }

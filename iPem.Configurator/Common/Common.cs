@@ -42,6 +42,8 @@ namespace iPem.Configurator {
 
         public static string GetPeriodName(PeriodType type) {
             switch (type) {
+                case PeriodType.Hour:
+                    return "每小时";
                 case PeriodType.Day:
                     return "每天";
                 case PeriodType.Month:

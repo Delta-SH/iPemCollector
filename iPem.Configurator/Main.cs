@@ -121,10 +121,18 @@ namespace iPem.Configurator {
                     fzdl.Text = _fzdl != null ? _fzdl.Value : "";
                     var _gzzt = parms.Find(p => p.Id == ParamId.GZZT);
                     gzzt.Text = _gzzt != null ? _gzzt.Value : "";
-                    var _dcfd = parms.Find(p => p.Id == ParamId.DCFD);
-                    dcfd.Text = _dcfd != null ? _dcfd.Value : "";
+                    var _dczdy = parms.Find(p => p.Id == ParamId.DCZDY);
+                    dczdy.Text = _dczdy != null ? _dczdy.Value : "";
+                    var _dczdl = parms.Find(p => p.Id == ParamId.DCZDL);
+                    dczdl.Text = _dczdl != null ? _dczdl.Value : "";
+                    var _dcdy = parms.Find(p => p.Id == ParamId.DCDY);
+                    dcdy.Text = _dcdy != null ? _dcdy.Value : "";
+                    var _dcwd = parms.Find(p => p.Id == ParamId.DCWD);
+                    dcwd.Text = _dcwd != null ? _dcwd.Value : "";
                     var _ssnh = parms.Find(p => p.Id == ParamId.NHZQ);
                     nhPeriodField.SelectedValue = _ssnh != null ? int.Parse(_ssnh.Value) : (int)PeriodType.Day;
+                    var _xxpl = parms.Find(p => p.Id == ParamId.XXPL);
+                    vpPeriod.Value = _xxpl != null ? int.Parse(_xxpl.Value) : 10;
                     var _gjjk = parms.Find(p => p.Id == ParamId.GJJK);
                     gjjkField.Checked = _gjjk != null ? int.Parse(_gjjk.Value) == 1 : false;
                     var _dcsj = parms.Find(p => p.Id == ParamId.DCSJ);
@@ -344,7 +352,7 @@ namespace iPem.Configurator {
             }
         }
 
-        private void syncCfgButton_Click(object sender, EventArgs e) {
+        private void syncBaseButton_Click(object sender, EventArgs e) {
             try {
                 var current = this.GetService();
                 if (current == null) {
@@ -358,7 +366,7 @@ namespace iPem.Configurator {
                 }
 
                 if (MessageBox.Show("您确定要同步配置吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
-                    _registry.SaveOrders(new List<OrderEntity> { new OrderEntity { Id = OrderId.SyncConfig, Param = null } });
+                    _registry.SaveOrders(new List<OrderEntity> { new OrderEntity { Id = OrderId.SyncBase, Param = null } });
                     MessageBox.Show("同步配置命令已下发", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             } catch (Exception err) {
@@ -366,11 +374,11 @@ namespace iPem.Configurator {
             }
         }
 
-        private void syncAlmButton_Click(object sender, EventArgs e) {
+        private void syncDataButton_Click(object sender, EventArgs e) {
             try {
                 var current = this.GetService();
                 if (current == null) {
-                    MessageBox.Show("服务尚未安装，无法同步告警。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("服务尚未安装，无法同步数据。", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -379,9 +387,9 @@ namespace iPem.Configurator {
                     return;
                 }
 
-                if (MessageBox.Show("您确定要同步告警吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
-                    _registry.SaveOrders(new List<OrderEntity> { new OrderEntity { Id = OrderId.SyncAlarm, Param = null } });
-                    MessageBox.Show("同步告警命令已下发", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (MessageBox.Show("您确定要同步数据吗？", "确认对话框", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK) {
+                    _registry.SaveOrders(new List<OrderEntity> { new OrderEntity { Id = OrderId.SyncData, Param = null } });
+                    MessageBox.Show("同步数据命令已下发", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -417,8 +425,26 @@ namespace iPem.Configurator {
                     return;
                 }
 
-                if (string.IsNullOrWhiteSpace(dcfd.Text)) {
-                    dcfd.Focus();
+                if (string.IsNullOrWhiteSpace(dczdy.Text)) {
+                    dczdy.Focus();
+                    MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(dczdl.Text)) {
+                    dczdy.Focus();
+                    MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(dcdy.Text)) {
+                    dczdy.Focus();
+                    MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(dcwd.Text)) {
+                    dczdy.Focus();
                     MessageBox.Show("信号编码不能为空", "系统警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -427,14 +453,18 @@ namespace iPem.Configurator {
                 var fsu = new ParamEntity { Id = ParamId.FsuOff, Value = fsuOff.Text.Trim(), Time = DateTime.Now };
                 var _fzdl = new ParamEntity { Id = ParamId.FZDL, Value = fzdl.Text.Trim(), Time = DateTime.Now };
                 var _gzzt = new ParamEntity { Id = ParamId.GZZT, Value = gzzt.Text.Trim(), Time = DateTime.Now };
-                var _dcfd = new ParamEntity { Id = ParamId.DCFD, Value = dcfd.Text.Trim(), Time = DateTime.Now };
+                var _dczdy = new ParamEntity { Id = ParamId.DCZDY, Value = dczdy.Text.Trim(), Time = DateTime.Now };
+                var _dczdl = new ParamEntity { Id = ParamId.DCZDL, Value = dczdl.Text.Trim(), Time = DateTime.Now };
+                var _dcdy = new ParamEntity { Id = ParamId.DCDY, Value = dcdy.Text.Trim(), Time = DateTime.Now };
+                var _dcwd = new ParamEntity { Id = ParamId.DCWD, Value = dcwd.Text.Trim(), Time = DateTime.Now };
                 var _nhzq = new ParamEntity { Id = ParamId.NHZQ, Value = nhPeriodField.SelectedValue.ToString(), Time = DateTime.Now };
+                var _xxpl = new ParamEntity { Id = ParamId.XXPL, Value = vpPeriod.Value.ToString(), Time = DateTime.Now };
                 var _gjjk = new ParamEntity { Id = ParamId.GJJK, Value = gjjkField.Checked ? "1" : "0", Time = DateTime.Now };
                 var _dcsj = new ParamEntity { Id = ParamId.DCSJ, Value = batField.Checked ? "1" : "0", Time = DateTime.Now };
                 var _dxgj = new ParamEntity { Id = ParamId.DXGJ, Value = dxgjField.Checked ? "1" : "0", Time = DateTime.Now };
                 var _yygj = new ParamEntity { Id = ParamId.YYGJ, Value = yygjField.Checked ? "1" : "0", Time = DateTime.Now };
 
-                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _dcfd, _nhzq, _gjjk, _dcsj, _dxgj, _yygj });
+                _registry.SaveParams(new List<ParamEntity> { sc, fsu, _fzdl, _gzzt, _dczdy, _dczdl, _dcdy, _dcwd, _nhzq, _xxpl, _gjjk, _dcsj, _dxgj, _yygj });
                 MessageBox.Show("保存成功", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (Exception err) {
                 MessageBox.Show(err.Message, "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);

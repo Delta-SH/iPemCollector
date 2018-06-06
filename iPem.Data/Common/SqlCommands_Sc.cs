@@ -18,8 +18,7 @@ namespace iPem.Data.Common {
         /// <summary>
         /// Formula Repository
         /// </summary>
-        public const string Sql_Formula_Repository_GetEntity = @"SELECT * FROM [dbo].[M_Formulas] WHERE [Id]=@Id AND [Type]=@Type AND [FormulaType]=@FormulaType;";
-        public const string Sql_Formula_Repository_GetEntities = @"SELECT * FROM [dbo].[M_Formulas] WHERE [Id]=@Id AND [Type]=@Type;";
+        public const string Sql_Formula_Repository_GetEntities = @"SELECT * FROM [dbo].[M_Formulas] WHERE [FormulaType]=@FormulaType;";
         public const string Sql_Formula_Repository_GetAllEntities = @"SELECT * FROM [dbo].[M_Formulas];";
         
         /// <summary>

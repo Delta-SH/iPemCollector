@@ -28,12 +28,8 @@ namespace iPem.Core {
         Null,
         Restart,
         Reload,
-        SyncConfig,
-        SyncAlarm,
-        SyncReservation,
-        SyncFormula,
-        SyncMasking,
-        SyncFsu,
+        SyncBase,
+        SyncData,
         ExTask001,
         ExTask002,
         ExTask003,
@@ -62,9 +58,21 @@ namespace iPem.Core {
         /// </summary>
         GZZT,
         /// <summary>
-        /// 电池充放电信号
+        /// 电池总电压信号
         /// </summary>
-        DCFD,
+        DCZDY,
+        /// <summary>
+        /// 电池总电流信号
+        /// </summary>
+        DCZDL,
+        /// <summary>
+        /// 电池电压信号
+        /// </summary>
+        DCDY,
+        /// <summary>
+        /// 电池温度信号
+        /// </summary>
+        DCWD,
         /// <summary>
         /// 实时能耗统计周期
         /// </summary>
@@ -84,10 +92,15 @@ namespace iPem.Core {
         /// <summary>
         /// 语音告警功能
         /// </summary>
-        YYGJ
+        YYGJ,
+        /// <summary>
+        /// 虚拟信号处理频率
+        /// </summary>
+        XXPL
     }
 
     public enum PeriodType {
+        Hour,
         Day,
         Month
     }
@@ -218,25 +231,57 @@ namespace iPem.Core {
         /// </summary>
         BG,
         /// <summary>
-        /// IT设备
-        /// </summary>
-        SB,
-        /// <summary>
         /// 开关电源
         /// </summary>
-        KGDY,
+        DY,
         /// <summary>
         /// UPS
         /// </summary>
         UPS,
         /// <summary>
+        /// IT设备
+        /// </summary>
+        IT,
+        /// <summary>
         /// 其他
         /// </summary>
         QT,
         /// <summary>
-        /// 总量
+        /// 总计
         /// </summary>
-        ZL
+        TT,
+        /// <summary>
+        /// PUE
+        /// </summary>
+        PUE,
+        /// <summary>
+        /// 停电标识
+        /// </summary>
+        TD,
+        /// <summary>
+        /// 温度标识
+        /// </summary>
+        WD,
+        /// <summary>
+        /// 湿度标识
+        /// </summary>
+        SD,
+        /// <summary>
+        /// 发电标识
+        /// </summary>
+        FD,
+        /// <summary>
+        /// 发电量
+        /// </summary>
+        FDL,
+        /// <summary>
+        /// 变压器
+        /// </summary>
+        BY,
+        /// <summary>
+        /// 线损
+        /// </summary>
+        XS
     }
 
     /// <summary>
@@ -244,13 +289,13 @@ namespace iPem.Core {
     /// </summary>
     public enum EnmCompute {
         /// <summary>
-        /// 电表电度
+        /// 电度
         /// </summary>
-        Diff,
+        Kwh,
         /// <summary>
-        /// 电压电流
+        /// 功率
         /// </summary>
-        Avg
+        Power
     }
 
     public enum EnmMethodType {
@@ -278,21 +323,6 @@ namespace iPem.Core {
         /// 信号
         /// </summary>
         Point = 14
-    }
-
-    public enum EnmCutType {
-        /// <summary>
-        /// 断站
-        /// </summary>
-        Off,
-        /// <summary>
-        /// 停电
-        /// </summary>
-        Cut,
-        /// <summary>
-        /// 发电
-        /// </summary>
-        Power
     }
 
     public enum EnmMaskType {
@@ -323,9 +353,9 @@ namespace iPem.Core {
     }
 
     /// <summary>
-    /// 电池状态
+    /// 电池充放电状态
     /// </summary>
-    public enum EnmBatStatus {
+    public enum EnmBatType {
         /// <summary>
         /// 放电
         /// </summary>
@@ -333,15 +363,26 @@ namespace iPem.Core {
         /// <summary>
         /// 充电
         /// </summary>
-        Charge,
+        Charge
+    }
+
+    public enum EnmBatPoint {
         /// <summary>
-        /// 均充
+        /// 电池总电压信号
         /// </summary>
-        Equalizing,
+        DCZDY,
         /// <summary>
-        /// 浮充
+        /// 电池总电流信号
         /// </summary>
-        Floating
+        DCZDL,
+        /// <summary>
+        /// 电池电压信号
+        /// </summary>
+        DCDY,
+        /// <summary>
+        /// 电池温度信号
+        /// </summary>
+        DCWD
     }
 
     /// <summary>
@@ -360,5 +401,31 @@ namespace iPem.Core {
         /// 成功
         /// </summary>
         Success
+    }
+
+    /// <summary>
+    /// 虚拟信号分类
+    /// </summary>
+    public enum EnmVSignalCategory {
+        /// <summary>
+        /// 普通虚拟信号
+        /// </summary>
+        Category01 = 1001,
+        /// <summary>
+        /// 能耗虚拟信号
+        /// </summary>
+        Category02 = 1002,
+        /// <summary>
+        /// 列头柜分路功率
+        /// </summary>
+        Category03 = 1003,
+        /// <summary>
+        /// 列头柜分路电流
+        /// </summary>
+        Category04 = 1004,
+        /// <summary>
+        /// 列头柜分路电量
+        /// </summary>
+        Category05 = 1005
     }
 }

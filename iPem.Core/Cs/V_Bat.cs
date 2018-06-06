@@ -39,7 +39,7 @@ namespace iPem.Core {
         /// <summary>
         /// 电池状态
         /// </summary>
-        public EnmBatStatus Type { get; set; }
+        public EnmBatType Type { get; set; }
 
         /// <summary>
         /// 放电开始时间

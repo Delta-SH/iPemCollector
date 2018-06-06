@@ -27,11 +27,6 @@ namespace iPem.Core {
         public string DeviceId { get; set; }
 
         /// <summary>
-        /// 信号编码
-        /// </summary>
-        public string PointId { get; set; }
-
-        /// <summary>
         /// 电池组号
         /// </summary>
         public int PackId { get; set; }
@@ -39,7 +34,7 @@ namespace iPem.Core {
         /// <summary>
         /// 电池状态
         /// </summary>
-        public EnmBatStatus Type { get; set; }
+        public EnmBatType Type { get; set; }
 
         /// <summary>
         /// 开始时间
@@ -52,17 +47,7 @@ namespace iPem.Core {
         public DateTime EndTime { get; set; }
 
         /// <summary>
-        /// 开始测值
-        /// </summary>
-        public double StartValue { get; set; }
-
-        /// <summary>
-        /// 结束测值
-        /// </summary>
-        public double EndValue { get; set; }
-
-        /// <summary>
-        /// 充放电过程的开始时间
+        /// 放电到充电整个过程时间标识
         /// </summary>
         public DateTime ProcTime { get; set; }
     }

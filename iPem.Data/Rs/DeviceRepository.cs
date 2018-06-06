@@ -36,11 +36,9 @@ namespace iPem.Data {
                 if(rdr.Read()) {
                     entity = new Device();
                     entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
-                    entity.Code = SqlTypeConverter.DBNullStringHandler(rdr["Code"]);
                     entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
                     entity.Type = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
                     entity.SubType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
-                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };
                     entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
                     entity.AreaName = SqlTypeConverter.DBNullStringHandler(rdr["AreaName"]);
                     entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
@@ -49,9 +47,7 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.FsuCode = SqlTypeConverter.DBNullStringHandler(rdr["FsuCode"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
-                    entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
                 }
             }
             return entity;
@@ -66,11 +62,9 @@ namespace iPem.Data {
                 while(rdr.Read()) {
                     var entity = new Device();
                     entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
-                    entity.Code = SqlTypeConverter.DBNullStringHandler(rdr["Code"]);
                     entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
                     entity.Type = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
                     entity.SubType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
-                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };
                     entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
                     entity.AreaName = SqlTypeConverter.DBNullStringHandler(rdr["AreaName"]);
                     entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
@@ -79,9 +73,7 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.FsuCode = SqlTypeConverter.DBNullStringHandler(rdr["FsuCode"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
-                    entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
                     entities.Add(entity);
                 }
             }
@@ -94,11 +86,9 @@ namespace iPem.Data {
                 while(rdr.Read()) {
                     var entity = new Device();
                     entity.Id = SqlTypeConverter.DBNullStringHandler(rdr["Id"]);
-                    entity.Code = SqlTypeConverter.DBNullStringHandler(rdr["Code"]);
                     entity.Name = SqlTypeConverter.DBNullStringHandler(rdr["Name"]);
                     entity.Type = new DeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["DeviceTypeName"]) };
                     entity.SubType = new SubDeviceType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubDeviceTypeName"]) };
-                    entity.SubLogicType = new SubLogicType { Id = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeId"]), Name = SqlTypeConverter.DBNullStringHandler(rdr["SubLogicTypeName"]) };
                     entity.AreaId = SqlTypeConverter.DBNullStringHandler(rdr["AreaId"]);
                     entity.AreaName = SqlTypeConverter.DBNullStringHandler(rdr["AreaName"]);
                     entity.StationId = SqlTypeConverter.DBNullStringHandler(rdr["StationId"]);
@@ -107,9 +97,7 @@ namespace iPem.Data {
                     entity.RoomId = SqlTypeConverter.DBNullStringHandler(rdr["RoomId"]);
                     entity.RoomName = SqlTypeConverter.DBNullStringHandler(rdr["RoomName"]);
                     entity.FsuId = SqlTypeConverter.DBNullStringHandler(rdr["FsuId"]);
-                    entity.FsuCode = SqlTypeConverter.DBNullStringHandler(rdr["FsuCode"]);
                     entity.Comment = SqlTypeConverter.DBNullStringHandler(rdr["Comment"]);
-                    entity.Enabled = SqlTypeConverter.DBNullBooleanHandler(rdr["Enabled"]);
                     entities.Add(entity);
                 }
             }

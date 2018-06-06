@@ -113,11 +113,11 @@ namespace iPem.Core {
             var variables = SplitKeys(formula);
             foreach (var variable in variables) {
                 if (Regex.IsMatch(variable, @"^\d+(\.\d+)?$")) continue;
-                if (!Regex.IsMatch(variable, @"^@.+>>.+>>.+$")) return false;
+                if (!Regex.IsMatch(variable, @"^@.+>>.+$")) return false;
                 var starts = Regex.Matches(variable, @"@");
                 if (starts.Count != 1) return false;
                 var separators = Regex.Matches(variable, @">>");
-                if (separators.Count != 2) return false;
+                if (separators.Count != 1) return false;
             }
 
             return true;
@@ -294,6 +294,21 @@ namespace iPem.Core {
             }
 
             return "unknow";
+        }
+
+        public static String DoubleToString(double value) {
+            if (value == double.MinValue) return "NULL";
+            return value.ToString();
+        }
+
+        public static String Int32ToString(int value) {
+            if (value == int.MinValue) return "NULL";
+            return value.ToString();
+        }
+
+        public static String StringToString(string value) {
+            if (string.IsNullOrWhiteSpace(value)) return "NULL";
+            return value;
         }
     }
 }

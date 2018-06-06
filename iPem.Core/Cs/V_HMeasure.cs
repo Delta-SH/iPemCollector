@@ -37,17 +37,7 @@ namespace iPem.Core {
         public string PointId { get; set; }
 
         /// <summary>
-        /// 信号标准化编码
-        /// </summary>
-        public string SignalId { get; set; }
-
-        /// <summary>
-        /// 信号顺序号
-        /// </summary>
-        public string SignalNumber { get; set; }
-
-        /// <summary>
-        /// 信号描述(单位)
+        /// 信号描述
         /// </summary>
         public string SignalDesc { get; set; }
 

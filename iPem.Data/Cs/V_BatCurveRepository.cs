@@ -35,6 +35,7 @@ namespace iPem.Data {
                                      new SqlParameter("@PointId", SqlDbType.VarChar,100),
                                      new SqlParameter("@PackId", SqlDbType.Int),
                                      new SqlParameter("@Type", SqlDbType.Int),
+                                     new SqlParameter("@PType", SqlDbType.Int),
                                      new SqlParameter("@StartTime", SqlDbType.DateTime),
                                      new SqlParameter("@Value", SqlDbType.Float),
                                      new SqlParameter("@ValueTime", SqlDbType.DateTime),
@@ -52,10 +53,11 @@ namespace iPem.Data {
                         parms[4].Value = SqlTypeConverter.DBNullStringChecker(entity.PointId);
                         parms[5].Value = SqlTypeConverter.DBNullInt32Checker(entity.PackId);
                         parms[6].Value = (int)entity.Type;
-                        parms[7].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
-                        parms[8].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
-                        parms[9].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.ValueTime);
-                        parms[10].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.ProcTime);
+                        parms[7].Value = (int)entity.PType;
+                        parms[8].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.StartTime);
+                        parms[9].Value = SqlTypeConverter.DBNullDoubleChecker(entity.Value);
+                        parms[10].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.ValueTime);
+                        parms[11].Value = SqlTypeConverter.DBNullDateTimeChecker(entity.ProcTime);
                         SqlHelper.ExecuteNonQuery(trans, CommandType.Text, string.Format(SqlCommands_Cs.Sql_V_BatCurve_Repository_SaveEntities, entity.StartTime.ToString("yyyyMM")), parms);
                     }
                     trans.Commit();
@@ -66,16 +68,12 @@ namespace iPem.Data {
             }
         }
 
-        public void DeleteEntities(string device, string point, DateTime start, DateTime end) {
-            SqlParameter[] parms = { new SqlParameter("@DeviceId", SqlDbType.VarChar, 100),
-                                     new SqlParameter("@PointId", SqlDbType.VarChar, 100),
-                                     new SqlParameter("@Start", SqlDbType.DateTime),
+        public void DeleteEntities(DateTime start, DateTime end) {
+            SqlParameter[] parms = { new SqlParameter("@Start", SqlDbType.DateTime),
                                      new SqlParameter("@End", SqlDbType.DateTime) };
 
-            parms[0].Value = SqlTypeConverter.DBNullStringChecker(device);
-            parms[1].Value = SqlTypeConverter.DBNullStringChecker(point);
-            parms[2].Value = SqlTypeConverter.DBNullDateTimeChecker(start);
-            parms[3].Value = SqlTypeConverter.DBNullDateTimeChecker(end);
+            parms[0].Value = SqlTypeConverter.DBNullDateTimeChecker(start);
+            parms[1].Value = SqlTypeConverter.DBNullDateTimeChecker(end);
 
             using (var conn = new SqlConnection(this._databaseConnectionString)) {
                 conn.Open();
