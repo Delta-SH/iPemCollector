@@ -1,2 +1,2 @@
-# iPemCollector
-The project for  iPemCollector.
+# P2S_V1
+The project for PECS-II system.
